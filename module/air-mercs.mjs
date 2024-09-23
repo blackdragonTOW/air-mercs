@@ -47,7 +47,7 @@ Hooks.once('init', function () {
    */
   CONFIG.Combat.initiative = {
     formula: '1d10 + @abilities.reactions.value',
-    decimals: 7,
+    decimals: 0,
   };
 
   // Define custom Document classes

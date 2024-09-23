@@ -24,16 +24,6 @@ export class Initiative extends Combat {
     0.00000xx random d100   (0.0000001 * (Math.floor(Math.random() * 100)) )
     */ 
 
-    async setInitiative(id, value) {
-        const combatant = this.combatants.get(id, {strict: true});
-        const tieBreakPR =    (0.1000000 * (combatant.actor.abilities.reactions + 3));
-        const tieBreakSpeed = (0.0010000 * (combatant.actor.curSpeed));
-        const tieBreakTurn =  (0.0000100 * (1 /*combatant.actor.manv*/));
-        const tieBreakRand =  (0.0000001 * (Math.floor(Math.random() * 100)));
-        value += (tieBreakPR + tieBreakSpeed + tieBreakTurn + tieBreakRand);
-        await combatant.update({initiative: value});
-    }
-
     async rollInitiative(ids, {formula=null, updateTurn=true, messageOptions={}}={}) {
         // Structure input data
         ids = typeof ids === "string" ? [ids] : ids;
@@ -53,15 +43,20 @@ export class Initiative extends Combat {
         const roll = combatant.getInitiativeRoll(formula);
         
         await roll.evaluate();
-        const tieBreakPR =    (0.1000000 * (combatant.actor.system.abilities.reactions + 3));
-        const tieBreakSpeed = (0.0010000 * (combatant.actor.system.curSpeed));
-        const tieBreakTurn =  (0.0000100 * (combatant.actor.system.manv == 'H' ? 45 : 0)); //Temp fix until Maneuver values get converted to ints
+
+        const combatantReact = combatant.actor.system.abilities.reactions.value + 3;
+        const combatantSpeed = combatant.actor.system.curSpeed.value;
+        const combatantManv =  combatant.actor.system.manv.value;
+
+        const tieBreakPR =    (0.1000000 * combatantReact);
+        const tieBreakSpeed = (0.0010000 * combatantSpeed);
+        const tieBreakTurn =  (0.0000100 * (combatantManv == 'H' ? 45 : 0)); //Temp fix until Maneuver values get converted to ints
         const tieBreakRand =  (0.0000001 * (Math.floor(Math.random() * 100)));
 
-        const speedPenalty = combatant.actor.system.curSpeed < 6 || combatant.actor.system.curSpeed > 16 ? -1 : 0;
+        const speedPenalty = combatantSpeed < 6 || combatantSpeed > 16 ? -1 : 0;
 
         const truevalue = (roll.total + tieBreakPR + tieBreakSpeed + tieBreakTurn + tieBreakRand + speedPenalty);
-        console.log(speedPenalty)
+
         updates.push({_id: id, initiative: truevalue});
     
         // Construct chat message data

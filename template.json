@@ -9,33 +9,33 @@
           "nationality": "nation of origin"
         },
         "abilities": {
-          "reactions": 0,
-          "finesse": 0,
-          "maneuvers": 0,
-          "perception": 0,
+          "reactions": {"value": 0},
+          "finesse": {"value": 0},
+          "maneuvers": {"value": 0},
+          "perception": {"value": 0},
 
-          "gunnery": 0,
-          "ground_guided": 0,
-          "ground_unguided": 0,
-          "radar_missiles": 0,
-          "ir_missiles": 0
+          "gunnery": {"value": 0},
+          "ground_guided": {"value": 0},
+          "ground_unguided": {"value": 0},
+          "radar_missiles": {"value": 0},
+          "ir_missiles": {"value": 0}
         }
       },
       "airframe": {
         "curPilot": ["actorUUID"],
         "nameFull": "nameFull",
-        "minSpeed": 0,
-        "maxSpeed": 0,
-        "curSpeed": 0,
-        "accel": 0,
-        "manv": 0,
-        "gun": "",
+        "minSpeed": {"value": 0},
+        "maxSpeed": {"value": 0},
+        "curSpeed": {"value": 0},
+        "accel": {"value": 0},
+        "manv": {"value": 0},
+        "gun":  {"value": ""},
         "ammo":  {
           "value": 0,
           "min": 0,
           "max": 0
         },
-        "groundComp": 0,
+        "groundComp": {"value": 0},
         "hitPoints":  {
           "value": 0,
           "min": 0,
@@ -51,32 +51,32 @@
           "min": 0,
           "max": 0
         },
-        "ecm": 0,
-        "radar": 0,
+        "ecm": {"value": 0},
+        "radar": {"value": 0},
         "radarL": false,
-        "size": 0,
+        "size": {"value": 0},
         "capacity":  {
           "value": 0,
           "min": 0,
           "max": 0
         },
-        "hpInternal": 0,
-        "hpExternal": 0,
+        "hpInternal": {"value": 0},
+        "hpExternal": {"value": 0},
         "fuel":  {
           "value": 0,
           "min": 0,
           "max": 0
         },
-        "year": 0,
+        "year": {"value": 0},
         "nationality": "nation of origin",
         "faction": "redfor/blufor/indy",
 
-        "power": "",
-        "acc1": 0,
-        "acc2": 0,
-        "decel": 0,
-        "spot": 0,
-        "notes": ""
+        "power": {"value": ""},
+        "acc1": {"value": 0},
+        "acc2": {"value": 0},
+        "decel": {"value": 0},
+        "spot": {"value": 0},
+        "notes":  {"value": ""}
       }
     },
     "character": {
