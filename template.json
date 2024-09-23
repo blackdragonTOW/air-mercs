@@ -1,0 +1,153 @@
+{
+  "Actor": {
+    "types": ["character", "npc", "aircraft","gun", "missile", "bomb", "rocket"],
+    "htmlFields": ["biography"],
+    "templates": {
+      "pilot": {
+        "attributes": {
+          "biography": "bio",
+          "nationality": "nation of origin"
+        },
+        "abilities": {
+          "reactions": 0,
+          "finesse": 0,
+          "maneuvers": 0,
+          "perception": 0,
+
+          "gunnery": 0,
+          "ground_guided": 0,
+          "ground_unguided": 0,
+          "radar_missiles": 0,
+          "ir_missiles": 0
+        }
+      },
+      "airframe": {
+        "curPilot": ["actorUUID"],
+        "nameFull": "nameFull",
+        "minSpeed": 0,
+        "maxSpeed": 0,
+        "curSpeed": 0,
+        "accel": 0,
+        "manv": 0,
+        "gun": "",
+        "ammo":  {
+          "value": 0,
+          "min": 0,
+          "max": 0
+        },
+        "groundComp": 0,
+        "hitPoints":  {
+          "value": 0,
+          "min": 0,
+          "max": 0
+        },
+        "chaff": {
+          "value": 0,
+          "min": 0,
+          "max": 0
+        },
+        "flare": {
+          "value": 0,
+          "min": 0,
+          "max": 0
+        },
+        "ecm": 0,
+        "radar": 0,
+        "radarL": false,
+        "size": 0,
+        "capacity":  {
+          "value": 0,
+          "min": 0,
+          "max": 0
+        },
+        "hpInternal": 0,
+        "hpExternal": 0,
+        "fuel":  {
+          "value": 0,
+          "min": 0,
+          "max": 0
+        },
+        "year": 0,
+        "nationality": "nation of origin",
+        "faction": "redfor/blufor/indy",
+
+        "power": "",
+        "acc1": 0,
+        "acc2": 0,
+        "decel": 0,
+        "spot": 0,
+        "notes": ""
+      }
+    },
+    "character": {
+      "templates": ["pilot"],
+      "photo": ["reference"]
+    },
+    "npc": {
+      "templates": ["pilot"],
+      "photo": ["reference"]
+    },
+    "aircraft": {
+      "templates": ["airframe", "pilot"],
+      "photo": ["reference"]
+    },
+    "missile": {
+      "name": "",
+      "nameFull": "",
+      "description": "",
+      "photo": ["reference"],
+      "nationality": "",
+      "faction": "",
+      "type": "a2a",
+      "weight": 0,
+      "guidance": "",
+      "aspect": "",
+      "lock": "",
+      "minRange": 0,
+      "maxRange": 0,
+      "hit": 0,
+      "damage": "",
+      "year": "",
+      "load": 0,
+      "notes": ""
+    },
+    "bomb": {
+      "templates": [""]
+    },
+    "gun": {
+      "templates": [""]
+    },
+    "rocket": {
+      "templates": [""]
+    }
+  },
+
+  "Item": {
+    "types": ["effect", "manuever", "trait", "upgrade", "quirk"],
+    "htmlFields": ["description"],
+    "templates": {
+      "base": {
+        "name": "",
+        "description": "",
+        "photo": ["reference"],
+        "nationality": "",
+        "faction": ""
+      }
+    },
+    "effect": {
+      "templates": ["base"]
+    },
+    "maneuver": {
+      "templates": ["base"]
+    },
+    "trait": {
+      "templates": ["base"]
+    },
+    "upgrade": {
+      "templates": ["base"]
+    },
+    "quirk": {
+      "templates": ["base"]
+    }
+  }
+}

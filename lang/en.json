@@ -1,0 +1,96 @@
+{
+  "AIR_MERCS": {
+    "Abilities": {
+      "Rct": { "long": "Reactions", "abbr": "rct" },
+      "Fin": { "long": "Finesse", "abbr": "fin" },
+      "Man": { "long": "Maneuvers", "abbr": "man" },
+      "Per": { "long": "Perception", "abbr": "per" },
+      "Gun": { "long": "Gunnery", "abbr": "gun" },
+      "IR": { "long": "Air Weapons(IR)", "abbr": "ir" },
+      "RDR": { "long": "Air Weapons(Radar)", "abbr": "rdr" },
+      "UGW": { "long": "Ground Weapons(Unguided)", "abbr": "ugw" },
+      "GW": { "long": "Ground Weapons(Guided)", "abbr": "gw" }
+    },
+    "SheetLabels": {
+      "Actor": "AirMercs Actor Sheet",
+      "Item": "AirMercs Item Sheet"
+    },
+    "Actor": {
+      "Tabs": {
+        "Biography": "Biography",
+        "Features": "Features",
+        "Gear": "Gear",
+        "Spells": "Spells",
+        "Effects": "Effects"
+      },
+      "base": {
+        "FIELDS": {
+          "biography": {"label": "Biography"},
+          "health": {
+            "value": {"label": "Health"},
+            "max": {"label": "Maximum Health"}
+          },
+          "power": {
+            "value": {"label": "Power"},
+            "max": {"label": "Maximum Power"}
+          }
+        }
+      },
+      "Character": {
+        "FIELDS": {
+          "attributes.level.value": {"label": "Level"}
+        }
+      },
+      "NPC": {
+        "FIELDS": {
+          "cr": {"label": "CR"}
+        },
+        "xp": {"label": "XP"}
+      }
+    },
+    "Item": {
+      "Tabs": {
+        "Attributes": "Attributes",
+        "Description": "Description",
+        "Effects": "Effects"
+      },
+      "Gear": {
+        "FIELDS": {
+          "rollFormula": {"label": "Roll Formula"},
+          "numDice": {"label": "Number of Dice"},
+          "dieSize": {"label": "Die Size"},
+          "rollMod": {"label": "Roll Modifier"},
+          "quantity": {"label": "Quantity"},
+          "weight": {"label": "Weight"}
+        }
+      },
+      "Spell": {
+        "FIELDS": {
+          "level": {"label": "Spell Level"}
+        },
+        "SpellLVL": "Level {level} Spells",
+        "AddLVL": "Add LVL {level}"
+      }
+    },
+    "Effect": {
+      "Source": "Source",
+      "Toggle": "Toggle Effect",
+      "Temporary": "Temporary Effects",
+      "Passive": "Passive Effects",
+      "Inactive": "Inactive Effects"
+    }
+  },
+  "TYPES": {
+    "Actor": {
+      "character": "Character",
+      "npc": "NPC"
+    },
+    "Item": {
+      "gear": "Gear",
+      "feature": "Feature",
+      "spell": "Spell"
+    }
+  },
+  "SETTINGS.air-mercs.MovementTemplateName": "Toggle Movement Template",
+  "SETTINGS.air-mercs.MovementTemplateHint": "Toggle the Movement Template for the selected token."
+}

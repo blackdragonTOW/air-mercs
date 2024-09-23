@@ -1,0 +1,88 @@
+{
+  "id": "air-mercs",
+  "title": "Air Mercs",
+  "description": "The Air Mercs system for FoundryVTT!",
+  "authors": [
+    {
+      "name": "BlackDragon",
+      "discord": "blackdragon"
+    }
+  ],
+  "flags": {
+    "hotReload": {
+      "extensions": ["css", "html", "hbs", "json"],
+      "paths": ["css", "lang", "templates"]
+    }
+  },
+  "url": "https://github.com/blackdragonTOW/air-mercs",
+  "license": "LICENSE.txt",
+  "readme": "README.md",
+  "bugs": "https://github.com/blackdragonTOW/air-mercs/issues",
+  "changelog": "CHANGELOG.md",
+  "media": [
+    {
+      "type": "setup",
+      "url": "systems/air-mercs/assets/anvil-impact.png",
+      "thumbnail": "systems/air-mercs/assets/splash.png"
+    }
+  ],
+  "version": "0.0.1",
+  "compatibility": {
+    "minimum": "12.328",
+    "verified": "12.331"
+  },
+  "esmodules": ["module/air-mercs.mjs"],
+  "styles": ["css/air-mercs.css"],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "packs": [
+  {
+    "name": "lite-aircraft",
+    "label": "LITE Aircraft",
+    "system": "air-mercs",
+    "path": "packs/lite-aircraft",
+    "type": "Actor",
+    "private": false,
+    "flags": {
+        "airmercs": {
+            "types": [
+                "airframe"
+            ]
+        }
+    }
+  },
+  {
+    "name": "lite-missiles",
+    "label": "LITE Missiles",
+    "system": "air-mercs",
+    "path": "packs/lite-missiles",
+    "type": "Actor",
+    "private": false,
+    "flags": {
+        "airmercs": {
+            "types": [
+                "missile"
+            ]
+        }
+    }
+  }
+  ],
+"packFolders": [],
+  "socket": false,
+  "manifest": "https://raw.githubusercontent.com/blackdragonTOW/air-mercs/main/system.json",
+  "download": "https://github.com/blackdragonTOW/air-mercs/archive/refs/heads/main.zip",
+  "background": "systems/air-mercs/assets/anvil-impact.png",
+  "grid": {
+    "type": 1,
+    "distance": 1,
+    "units": "units",
+    "diagonals": 0
+  },
+  "primaryTokenAttribute": "hitPoints.value",
+  "secondaryTokenAttribute": "curSpeed"
+}

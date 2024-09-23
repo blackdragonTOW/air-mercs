@@ -1,0 +1,29 @@
+:root {
+  --air-mercs-c-dark: #191813;
+  --air-mercs-c-faint: #c9c7b8;
+  --air-mercs-c-beige: #b5b3a4;
+  --air-mercs-c-tan: #444444;
+  --air-mercs-c-white: #ffffff;
+  --air-mercs-c-black: #000000;
+  --air-mercs-c-groove: #eeede0;
+}
+
+.theme-dark {
+  --air-mercs-c-dark: #c9c7b8;
+  --air-mercs-c-faint: #191813;
+  --air-mercs-c-beige: #444444;
+  --air-mercs-c-tan: #b5b3a4;
+  --air-mercs-c-white: #000000;
+  --air-mercs-c-black: #ffffff;
+  --air-mercs-c-groove: #11121f;
+}
+
+$c-white: var(--air-mercs-c-white);
+$c-black: var(--air-mercs-c-black);
+
+$c-dark: var(--air-mercs-c-dark);
+$c-faint: var(--air-mercs-c-faint);
+$c-beige: var(--air-mercs-c-beige);
+$c-tan: var(--air-mercs-c-tan);
+
+$c-groove: var(--air-mercs-c-groove);
