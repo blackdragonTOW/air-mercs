@@ -5,15 +5,15 @@ export const AIR_MERCS = {};
  * @type {Object}
  */
 AIR_MERCS.abilities = {
-  reactions: 'AIR_MERCS.Ability.Rct.long',
-  finesse: 'AIR_MERCS.Ability.Fin.long',
-  maneuvers: 'AIR_MERCS.Ability.Man.long',
-  perception: 'AIR_MERCS.Ability.Per.long',
-  gunnery: 'AIR_MERCS.Ability.Gun.long',
-  ir: 'AIR_MERCS.Ability.IR.long',
-  rdr: 'AIR_MERCS.Ability.RDR.long',
-  ugw: 'AIR_MERCS.Ability.UGW.long',
-  gw: 'AIR_MERCS.Ability.GW.long',
+  reactions: 'Reactions',
+  finesse: 'Finesse',
+  maneuvers: 'Maneuvers',
+  perception: 'Perception',
+  gunnery: 'Gunnery',
+  ir_missiles: 'Missiles (IR)',
+  radar_missiles: 'Missiles (Radar)',
+  ground_unguided: 'Ground Attack (Unguided)',
+  ground_guided: 'Ground Attack (Guided)',
 };
 
 AIR_MERCS.abilityAbbreviations = {
