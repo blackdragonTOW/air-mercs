@@ -208,23 +208,45 @@ async function toggleMovementTemplate() {
   await token.document.setFlag("air-mercs", "moveTemplate", placedTemplate.uuid);
 }
 
-function registerKeys() {
-    registerMovementKey();
+async function toggleSpeedMenu() {
+  let CurrentActor = 0
+};
 
-    //Movement Template Toggle Key
-    function registerMovementKey() {
-        game.keybindings.register("air-mercs", "MovementTemplate", {
-        name: "SETTINGS.air-mercs.MovementTemplateName",
-        hint: "SETTINGS.air-mercs.MovementTemplateHint",
-        editable: [
-            {
-            key: "KeyM",
-            },
-        ],
-        onDown: () => {
-            toggleMovementTemplate();
-            return true;
-        },
-        });
-    }
+function registerKeys() {
+  registerMovementKey();
+  registerPrepKey();
+
+  //Movement Template Toggle Key
+  function registerMovementKey() {
+      game.keybindings.register("air-mercs", "MovementTemplate", {
+      name: "SETTINGS.air-mercs.MovementTemplateName",
+      hint: "SETTINGS.air-mercs.MovementTemplateHint",
+      editable: [
+          {
+          key: "KeyM",
+          },
+      ],
+      onDown: () => {
+          toggleMovementTemplate();
+          return true;
+      },
+    });
+  }
+
+  //Speed and Maneuver Selection menu
+  function registerMovementKey() {
+    game.keybindings.register("air-mercs", "SpeedPrep", {
+      name: "SETTINGS.air-mercs.SpeedPrep",
+      hint: "SETTINGS.air-mercs.SpeedPrepHint",
+      editable: [
+          {
+          key: "KeyF1",
+          },
+      ],
+      onDown: () => {
+          toggleSpeedMenu();
+          return true;
+      },
+    });
+  }
 }
