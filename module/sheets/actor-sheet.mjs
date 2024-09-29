@@ -18,7 +18,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(
   static DEFAULT_OPTIONS = {
     classes: ['air-mercs', 'actor'],
     position: {
-      width: 600,
+      width: 750,
       height: 600,
     },
     actions: {
@@ -60,25 +60,30 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(
     effects: {
       template: 'systems/air-mercs/templates/actor/effects.hbs',
     },
+    missile_header: {
+      template: 'systems/air-mercs/templates/actor/missile_header.hbs',
+    },
   };
 
   /** @override */
   _configureRenderOptions(options) {
     super._configureRenderOptions(options);
-    // Not all parts always render
-    options.parts = ['header', 'tabs', 'biography'];
+    // Not all parts always render, ['header', 'tabs', 'biography']
+    options.parts = [];
     // Don't show the other tabs if only limited view
     if (this.document.limited) return;
     // Control which parts show based on document subtype
     switch (this.document.type) {
       case 'aircraft':
-      options.parts.push('features', 'gear', 'spells', 'effects');
-      break;
+        options.parts.push('header', 'tabs', 'features', 'gear', 'spells', 'effects', 'biography');
+        break;
       case 'character':
-        options.parts.push('features', 'gear', 'spells', 'effects');
+        options.parts.push('header', 'tabs','features', 'gear', 'spells', 'effects', 'biography');
         break;
       case 'npc':
-        options.parts.push('gear', 'effects');
+        options.parts.push('header', 'tabs','gear', 'effects', 'biography');
+      case 'missile':
+        options.parts.push('missile_header', 'tabs', 'biography');
         break;
     }
   }
@@ -114,6 +119,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(
     switch (partId) {
       case 'features':
       case 'spells':
+      case 'missile_header':
       case 'gear':
         context.tab = context.tabs[partId];
         break;
@@ -170,6 +176,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(
       };
       switch (partId) {
         case 'header':
+        case 'missile_header':
         case 'tabs':
           return tabs;
         case 'biography':

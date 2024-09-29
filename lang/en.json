@@ -17,11 +17,12 @@
     },
     "Actor": {
       "Tabs": {
-        "Biography": "Biography",
+        "Biography": "Background",
         "Features": "Features",
         "Gear": "Gear",
         "Spells": "Spells",
-        "Effects": "Effects"
+        "Effects": "Effects",
+        "missile_stats": "Statistics"
       },
       "base": {
         "FIELDS": {
@@ -33,7 +34,15 @@
           "power": {
             "value": {"label": "Power"},
             "max": {"label": "Maximum Power"}
-          }
+          },
+          "aspect": "Aspect",
+          "guidance":  "Guidance",
+          "lock": "Lock",
+          "minRange": "Min Range",
+          "maxRange": "Max Range",
+          "hit": "Hit",
+          "damage": "Damage",
+          "load": "Weight"
         }
       },
       "Character": {
@@ -83,7 +92,8 @@
   "TYPES": {
     "Actor": {
       "character": "Character",
-      "npc": "NPC"
+      "npc": "NPC",
+      "missile": "Missile"
     },
     "Item": {
       "gear": "Gear",
