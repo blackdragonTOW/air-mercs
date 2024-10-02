@@ -63,6 +63,12 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(
     missile_header: {
       template: 'systems/air-mercs/templates/actor/missile_header.hbs',
     },
+    aircraft_header: {
+      template: 'systems/air-mercs/templates/actor/aircraft_header.hbs',
+    },
+    aircraft_features: {
+      template: 'systems/air-mercs/templates/actor/aircraft_features.hbs',
+    },
   };
 
   /** @override */
@@ -75,7 +81,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(
     // Control which parts show based on document subtype
     switch (this.document.type) {
       case 'aircraft':
-        options.parts.push('header', 'tabs', 'features', 'gear', 'spells', 'effects', 'biography');
+        options.parts.push('aircraft_header', 'tabs', 'aircraft_features', 'gear', 'spells', 'effects', 'biography');
         break;
       case 'character':
         options.parts.push('header', 'tabs','features', 'gear', 'spells', 'effects', 'biography');
@@ -118,6 +124,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(
   async _preparePartContext(partId, context) {
     switch (partId) {
       case 'features':
+      case 'aircraft_features':
       case 'spells':
       case 'missile_header':
       case 'gear':
@@ -162,7 +169,17 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(
     // If you have sub-tabs this is necessary to change
     const tabGroup = 'primary';
     // Default tab for first time it's rendered this session
-    if (!this.tabGroups[tabGroup]) this.tabGroups[tabGroup] = 'biography';
+    let defaultTab = null;
+    switch (this.actor.type) {
+      case "missile":
+        defaultTab = 'biography'
+        break;
+      case "aircraft":
+        defaultTab = 'aircraft_features'
+        break;
+    }
+
+    if (!this.tabGroups[tabGroup]) this.tabGroups[tabGroup] = defaultTab;
     return parts.reduce((tabs, partId) => {
       const tab = {
         cssClass: '',
@@ -177,6 +194,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(
       switch (partId) {
         case 'header':
         case 'missile_header':
+        case 'aircraft_header':
         case 'tabs':
           return tabs;
         case 'biography':
@@ -186,6 +204,10 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(
         case 'features':
           tab.id = 'features';
           tab.label += 'Features';
+          break;
+        case 'aircraft_features':
+          tab.id = 'aircraft_features';
+          tab.label += 'aircraft_features';
           break;
         case 'gear':
           tab.id = 'gear';

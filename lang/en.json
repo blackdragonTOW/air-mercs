@@ -20,20 +20,33 @@
         "Biography": "Background",
         "Features": "Features",
         "Gear": "Gear",
-        "Spells": "Spells",
+        "Spells": "Weapons",
         "Effects": "Effects",
-        "missile_stats": "Statistics"
+        "missile_stats": "Statistics",
+        "aircraft_header": "Aircraft",
+        "aircraft_features": "Statistics"
       },
       "base": {
         "FIELDS": {
           "biography": {"label": "Biography"},
-          "health": {
-            "value": {"label": "Health"},
-            "max": {"label": "Maximum Health"}
+          "hitPoints": {
+            "value": {"label": "Damage"},
+            "max": {"label": "Max Damage"}
           },
-          "power": {
-            "value": {"label": "Power"},
-            "max": {"label": "Maximum Power"}
+          "chaff": {
+            "value": {"label": "Chaff"}
+          },
+          "flare": {
+            "value": {"label": "Flares"}
+          },
+          "ammo": {
+            "value": {"label": "Gun Ammo"}
+          },
+          "fuel": {
+            "value": {"label": "Fuel"}
+          },
+          "curSpeed": {
+            "value": {"label": "Speed"}
           },
           "aspect": "Aspect",
           "guidance":  "Guidance",
@@ -42,7 +55,16 @@
           "maxRange": "Max Range",
           "hit": "Hit",
           "damage": "Damage",
-          "load": "Weight"
+          "load": "Weight",
+          "acc1": "Acceleration Turn 1",
+          "acc2": "Acceleration Turn 2",
+          "decel": "Deceleration",
+          "ecm": "ECM Rating",
+          "groundComp": "Ground Computer",
+          "gun": "Gun",
+          "manv": "Manuever Rating",
+          "radar": "Radar Rating",
+          "power": "Power Rating"
         }
       },
       "Character": {
@@ -93,7 +115,8 @@
     "Actor": {
       "character": "Character",
       "npc": "NPC",
-      "missile": "Missile"
+      "missile": "Missile",
+      "aircraft": "Aircraft"
     },
     "Item": {
       "gear": "Gear",

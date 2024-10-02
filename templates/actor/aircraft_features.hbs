@@ -1,0 +1,186 @@
+{{! aircraft_Features Tab }}
+<section
+  class='tab aircraft_features {{tab.cssClass}}'
+  data-group='primary'
+  data-tab='aircraft_features'
+>
+  <section class='grid grid-3col'>
+    <aside class='sidebar'>
+      {{! The grid classes are defined in scss/global/_grid.scss. To use,
+          use both the "grid" and "grid-Ncol" class where "N" can be any number
+          from 1 to 12 and will create that number of columns.  }}
+      <div class='abilities flexcol'>
+        {{#each system.abilities as |ability key|}}
+          <div class='ability flexrow flex-group-center'>
+            <label
+              class='resource-label rollable flexlarge align-right'
+              data-action='roll'
+              data-roll='d10+@abilities.{{key}}.value'
+              data-label='{{localize (lookup @root.config.abilities key)}}'
+            >{{localize (lookup @root.config.abilities key)}}</label>
+            <input
+              type='text'
+              name='system.abilities.{{key}}.value'
+              value='{{ability.value}}'
+              class="ability-score"
+              data-dtype='Number'
+            />
+          </div>
+        {{/each}}
+      </div>
+    </aside>
+
+    <aside class='sidebar'>
+      {{! The grid classes are defined in scss/global/_grid.scss. To use,
+          use both the "grid" and "grid-Ncol" class where "N" can be any number
+          from 1 to 12 and will create that number of columns.  }}
+      <div class='abilities flexcol'>
+          <div class='ability flexrow flex-group-center'>
+            <label
+              class='resource-label rollable flexlarge align-right'
+              data-action='roll'
+              data-roll='d10+@acc1.value'
+              data-label={{localize 'AIR_MERCS.Actor.base.FIELDS.acc1'}}
+            >{{localize 'AIR_MERCS.Actor.base.FIELDS.acc1'}}</label>
+            <input
+              type='text'
+              name='system.acc1.value'
+              value='{{system.acc1.value}}'
+              class="ability-score"
+              data-dtype='Number'
+            />
+          </div>
+
+          <div class='ability flexrow flex-group-center'>
+            <label
+              class='resource-label rollable flexlarge align-right'
+              data-action='roll'
+              data-roll='d10+@acc2.value'
+              data-label={{localize 'AIR_MERCS.Actor.base.FIELDS.acc2'}}
+            >{{localize 'AIR_MERCS.Actor.base.FIELDS.acc2'}}</label>
+            <input
+              type='text'
+              name='system.acc2.value'
+              value='{{system.acc2.value}}'
+              class="ability-score"
+              data-dtype='Number'
+            />
+          </div>
+
+          <div class='ability flexrow flex-group-center'>
+            <label
+              class='resource-label rollable flexlarge align-right'
+              data-action='roll'
+              data-roll='d10+@decel.value'
+              data-label={{localize 'AIR_MERCS.Actor.base.FIELDS.decel'}}
+            >{{localize 'AIR_MERCS.Actor.base.FIELDS.decel'}}</label>
+            <input
+              type='text'
+              name='system.decel.value'
+              value='{{system.decel.value}}'
+              class="ability-score"
+              data-dtype='Number'
+            />
+          </div>
+
+          <div class='ability flexrow flex-group-center'>
+            <label
+              class='resource-label rollable flexlarge align-right'
+              data-action='roll'
+              data-roll='d10+@ecm.value'
+              data-label={{localize 'AIR_MERCS.Actor.base.FIELDS.ecm'}}
+            >{{localize 'AIR_MERCS.Actor.base.FIELDS.ecm'}}</label>
+            <input
+              type='text'
+              name='system.ecm.value'
+              value='{{system.ecm.value}}'
+              class="ability-score"
+              data-dtype='Number'
+            />
+          </div>
+
+          <div class='ability flexrow flex-group-center'>
+            <label
+              class='resource-label rollable flexlarge align-right'
+              data-action='roll'
+              data-roll='d10+@groundComp.value'
+              data-label={{localize 'AIR_MERCS.Actor.base.FIELDS.groundComp'}}
+            >{{localize 'AIR_MERCS.Actor.base.FIELDS.groundComp'}}</label>
+            <input
+              type='text'
+              name='system.groundComp.value'
+              value='{{system.groundComp.value}}'
+              class="ability-score"
+              data-dtype='Number'
+            />
+          </div>
+
+          <div class='ability flexrow flex-group-center'>
+            <label
+              class='resource-label rollable flexlarge align-right'
+              data-action='roll'
+              data-roll='{{system.gun.value}}d6'
+              data-label={{localize 'AIR_MERCS.Actor.base.FIELDS.gun'}}
+            >{{localize 'AIR_MERCS.Actor.base.FIELDS.gun'}}</label>
+            <input
+              type='text'
+              name='system.gun.value'
+              value='{{system.gun.value}}'
+              class="ability-score"
+              data-dtype='Number'
+            />
+          </div>
+
+          <div class='ability flexrow flex-group-center'>
+            <label
+              class='resource-label rollable flexlarge align-right'
+              data-action='roll'
+              data-roll='d10+@manv.value'
+              data-label={{localize 'AIR_MERCS.Actor.base.FIELDS.manv'}}
+            >{{localize 'AIR_MERCS.Actor.base.FIELDS.manv'}}</label>
+            <input
+              type='text'
+              name='system.manv.value'
+              value='{{system.manv.value}}'
+              class="ability-score"
+              data-dtype='Number'
+            />
+          </div>
+
+          <div class='ability flexrow flex-group-center'>
+            <label
+              class='resource-label rollable flexlarge align-right'
+              data-action='roll'
+              data-roll='d10+@power.value'
+              data-label={{localize 'AIR_MERCS.Actor.base.FIELDS.power'}}
+            >{{localize 'AIR_MERCS.Actor.base.FIELDS.power'}}</label>
+            <input
+              type='text'
+              name='system.power.value'
+              value='{{system.power.value}}'
+              class="ability-score"
+              data-dtype='Number'
+            />
+          </div>
+
+          <div class='ability flexrow flex-group-center'>
+            <label
+              class='resource-label rollable flexlarge align-right'
+              data-action='roll'
+              data-roll='d10+@radar.value'
+              data-label={{localize 'AIR_MERCS.Actor.base.FIELDS.radar'}}
+            >{{localize 'AIR_MERCS.Actor.base.FIELDS.radar'}}</label>
+            <input
+              type='text'
+              name='system.radar.value'
+              value='{{system.radar.value}}'
+              class="ability-score"
+              data-dtype='Number'
+            />
+          </div>
+
+      </div>
+    </aside>
+
+  </section>
+</section>

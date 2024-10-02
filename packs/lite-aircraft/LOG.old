@@ -1,5 +1,3 @@
-2024/09/28-13:21:28.927 3b0c Recovering log #3
-2024/09/28-13:21:28.927 3b0c Level-0 table #5: started
-2024/09/28-13:21:28.943 3b0c Level-0 table #5: 2152 bytes OK
-2024/09/28-13:21:28.958 3b0c Delete type=0 #3
-2024/09/28-13:21:28.958 3b0c Delete type=3 #2
+2024/09/29-14:26:28.043 3d44 Recovering log #6
+2024/09/29-14:26:28.059 3d44 Delete type=0 #6
+2024/09/29-14:26:28.059 3d44 Delete type=3 #4
