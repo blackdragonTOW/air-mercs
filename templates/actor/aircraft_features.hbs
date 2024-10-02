@@ -119,7 +119,7 @@
             <label
               class='resource-label rollable flexlarge align-right'
               data-action='roll'
-              data-roll='{{system.gun.value}}d6'
+              data-roll='{{system.gun.value}}d6+{{system.abilities.gunnery.value}}d6'
               data-label={{localize 'AIR_MERCS.Actor.base.FIELDS.gun'}}
             >{{localize 'AIR_MERCS.Actor.base.FIELDS.gun'}}</label>
             <input
@@ -167,7 +167,7 @@
             <label
               class='resource-label rollable flexlarge align-right'
               data-action='roll'
-              data-roll='d10+@radar.value'
+              data-roll='d10+@radar.value+{{system.abilities.radar_missiles.value}}'
               data-label={{localize 'AIR_MERCS.Actor.base.FIELDS.radar'}}
             >{{localize 'AIR_MERCS.Actor.base.FIELDS.radar'}}</label>
             <input

@@ -57,9 +57,12 @@
       </div>
 
       <div class='resource flex-group-center'>
-        <label for='system.lock' class='resource-label'>
-          {{localize 'AIR_MERCS.Actor.base.FIELDS.lock'}}
-        </label>
+        <label for='system.lock' 
+          class='resource-label rollable'
+          data-action='roll'
+          data-roll='d10'
+          data-label={{localize 'AIR_MERCS.Actor.base.FIELDS.lock'}}
+          >{{localize 'AIR_MERCS.Actor.base.FIELDS.lock'}}</label>
         <div class='resource-content flexrow flex-center flex-between'>
           <input
             disabled='true'
@@ -102,9 +105,12 @@
       </div>
 
       <div class='resource flex-group-center'>
-        <label for='system.hit' class='resource-label'>
-          {{localize 'AIR_MERCS.Actor.base.FIELDS.hit'}}
-        </label>
+        <label for='system.hit' 
+          class='resource-label rollable'
+          data-action='roll'
+          data-roll='d10'
+          data-label={{localize 'AIR_MERCS.Actor.base.FIELDS.hit'}}
+          >{{localize 'AIR_MERCS.Actor.base.FIELDS.hit'}}</label>
         <div class='resource-content flexrow flex-center flex-between'>
           <input
             disabled='true'
@@ -117,9 +123,12 @@
       </div>
 
       <div class='resource flex-group-center'>
-        <label for='system.damage' class='resource-label'>
-          {{localize 'AIR_MERCS.Actor.base.FIELDS.damage'}}
-        </label>
+        <label for='system.damage' 
+          class='resource-label rollable'
+          data-action='roll'
+          data-roll='{{system.damage}}'
+          data-label={{localize 'AIR_MERCS.Actor.base.FIELDS.damage'}}
+          >{{localize 'AIR_MERCS.Actor.base.FIELDS.damage'}}</label>
         <div class='resource-content flexrow flex-center flex-between'>
           <input
             disabled='true'
