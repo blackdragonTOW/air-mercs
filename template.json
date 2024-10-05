@@ -138,7 +138,9 @@
       "templates": ["base"]
     },
     "maneuver": {
-      "templates": ["base"]
+      "difficulty": {"value": 0},
+      "passEffect": "",
+      "failEffect": ""
     },
     "trait": {
       "templates": ["base"]
