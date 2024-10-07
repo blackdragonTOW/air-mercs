@@ -24,7 +24,8 @@
         "Effects": "Effects",
         "missile_stats": "Statistics",
         "aircraft_header": "Aircraft",
-        "aircraft_features": "Statistics"
+        "aircraft_features": "Statistics",
+        "aircraft_speed": "Prep Phase"
       },
       "base": {
         "FIELDS": {

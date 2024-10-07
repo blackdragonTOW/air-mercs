@@ -163,6 +163,14 @@ function rollItemMacro(itemUuid) {
 }
 
 async function toggleMovementTemplate() {
+  if (!canvas.tokens.controlled[0]) {
+    ui.notifications.warn("No token selected")
+    return
+  }
+  if (canvas.tokens.controlled[0].actor.type != 'aircraft') {
+    ui.notifications.warn("This token is not an Aircraft");
+    return
+  }
   const token = TokenLayer.instance.controlled[0];
   if (!token) return;
   if (document.body !== document.activeElement) return;
@@ -209,7 +217,15 @@ async function toggleMovementTemplate() {
 }
 
 async function toggleSpeedMenu() {
-  let CurrentActor = 0
+  if (!canvas.tokens.controlled[0]) {
+    ui.notifications.warn("No token selected")
+    return
+  }
+  if (canvas.tokens.controlled[0].actor.type != 'aircraft') {
+    ui.notifications.warn("This token is not an Aircraft");
+    return
+  }
+  console.log("F1 works.")
 };
 
 function registerKeys() {
@@ -234,13 +250,13 @@ function registerKeys() {
   }
 
   //Speed and Maneuver Selection menu
-  function registerMovementKey() {
+  function registerPrepKey() {
     game.keybindings.register("air-mercs", "SpeedPrep", {
       name: "SETTINGS.air-mercs.SpeedPrep",
       hint: "SETTINGS.air-mercs.SpeedPrepHint",
       editable: [
           {
-          key: "KeyF1",
+          key: "F1",
           },
       ],
       onDown: () => {

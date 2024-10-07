@@ -487,3 +487,16 @@
 .air-mercs .effects .item .effect-controls {
   border: none;
 }
+
+/* Style the slider */
+.vertical-slider {
+  width: 210px; /* Set the thickness of the slider */
+  height: 400px; /* Set the height of the slider */
+  -webkit-appearance: none;
+  appearance: none;
+  background: 'throttle.png'; /* Background color of the slider track */
+  border-radius: 5px;
+  outline: none;
+  transform: rotate(270); /* Rotate to make it vertical */
+}
+

@@ -69,6 +69,9 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(
     aircraft_features: {
       template: 'systems/air-mercs/templates/actor/aircraft_features.hbs',
     },
+    aircraft_speed: {
+      template: 'systems/air-mercs/templates/actor/aircraft_speed.hbs',
+    },
   };
 
   /** @override */
@@ -81,7 +84,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(
     // Control which parts show based on document subtype
     switch (this.document.type) {
       case 'aircraft':
-        options.parts.push('aircraft_header', 'tabs', 'aircraft_features', 'gear', 'spells', 'effects', 'biography');
+        options.parts.push('aircraft_header', 'tabs', 'aircraft_features', 'aircraft_speed', 'spells', 'effects', 'biography');
         break;
       case 'character':
         options.parts.push('header', 'tabs','features', 'gear', 'spells', 'effects', 'biography');
@@ -125,6 +128,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(
     switch (partId) {
       case 'features':
       case 'aircraft_features':
+      case 'aircraft_speed':
       case 'spells':
       case 'missile_header':
       case 'gear':
@@ -208,6 +212,10 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(
         case 'aircraft_features':
           tab.id = 'aircraft_features';
           tab.label += 'aircraft_features';
+          break;
+        case 'aircraft_speed':
+          tab.id = 'aircraft_speed';
+          tab.label += 'aircraft_speed';
           break;
         case 'gear':
           tab.id = 'gear';
