@@ -6,9 +6,7 @@ const { api, sheets } = foundry.applications;
  * Extend the basic ActorSheet with some very simple modifications
  * @extends {ActorSheetV2}
  */
-export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(
-  sheets.ActorSheetV2
-) {
+export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.ActorSheetV2) {
   constructor(options = {}) {
     super(options);
     this.#dragDrop = this.#createDragDropHandlers();
@@ -303,6 +301,23 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(
     // You may want to add other special handling here
     // Foundry comes with a large number of utility classes, e.g. SearchFilter
     // That you may want to implement yourself.
+    const speedSlider = this.element.querySelectorAll('.aircraft-speed-slider');
+
+    for (const slider of speedSlider) {
+      slider.addEventListener("change", (e) => {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        const sliderValue = e.currentTarget.value;
+        
+        const valueDisplay = this.element.querySelector('.slider-value-display');
+        if (valueDisplay) {
+          valueDisplay.textContent = sliderValue;
+        }
+        
+        const actorId = e.currentTarget.dataset.actorId;
+        this.actor.update({ system: { speed: sliderValue } })
+      });
+    }
   }
 
   /**************

@@ -1,8 +1,11 @@
 {{! aircraft_speed Tab }}
 
-<section class='tab aircraft_speed {{tab.cssClass}} vertical-slider' data-group='primary' data-tab='aircraft_speed'>
+<section class='tab aircraft_speed {{tab.cssClass}}' data-group='primary' data-tab='aircraft_speed'>
   <div class="slidecontainer">
-  <input type="range" class="vertical-slider" min="{{system.decel.value}}" max="{{system.acc1.value}}" value="0" id="myRange">
+    <input type="range" class="aircraft-speed-slider" orient="vertical" min="-4" max="4" value="{{system.speed}}" id="myRange">
+    <div>
+      <p>Selected Change: <span class="slider-value-display">{{system.speed}}</span></p>
+      <p>Current Speed: <span>{{system.curSpeed.value}}</span></p>
+    </div>
   </div>
-
 </section>

@@ -488,15 +488,39 @@
   border: none;
 }
 
-/* Style the slider */
-.vertical-slider {
-  width: 210px; /* Set the thickness of the slider */
-  height: 400px; /* Set the height of the slider */
-  -webkit-appearance: none;
-  appearance: none;
-  background: 'throttle.png'; /* Background color of the slider track */
-  border-radius: 5px;
-  outline: none;
-  transform: rotate(270); /* Rotate to make it vertical */
-}
+.slider-vertical {
 
+}
+/* input[type="range"][orient="vertical"] {
+  -webkit-appearance: slider-vertical;
+  width: 10px;
+  height: 350px !important;
+  padding: 0 0 !important;
+  background-color: black !important;
+  box-sizing: border-box;
+  &::-webkit-slider-runnable-track {
+    -webkit-appearance: slider-vertical !important;
+    height: 60px !important;
+    width: 10px !important;
+    line-height: 60px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-top: 0 0 !important;
+    border-radius: 3px !important;
+    background-color: black;
+  }
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none !important;
+    background: url("throttle.png");
+    background-size: cover;
+    margin-right: -4px !important;
+    margin-top: 10px !important;
+    height: 100px;
+    width: 100px;
+    cursor: grab !important;
+    border-radius: 0 0 0 0 !important;
+    width: 10px !important;
+    height: 5px !important;
+    font-size: 10px;
+  }
+*/
