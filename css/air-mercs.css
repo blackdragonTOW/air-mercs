@@ -488,6 +488,18 @@
   border: none;
 }
 
+.maneuver-selection {
+  height: 250px;
+  width: 100%;
+  outline-style: solid;
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
+.maneuver-selection img {
+  object-fit: scale-down;
+}
+
 .slider-vertical {
 
 }

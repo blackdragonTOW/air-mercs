@@ -70,6 +70,21 @@
             ]
         }
     }
+  },
+  {
+    "name": "manuevers",
+    "label": "Manuevers",
+    "system": "air-mercs",
+    "path": "packs/manuevers",
+    "type": "Item",
+    "private": false,
+    "flags": {
+        "airmercs": {
+            "types": [
+                "manuever"
+            ]
+        }
+    }
   }
   ],
 "packFolders": [],

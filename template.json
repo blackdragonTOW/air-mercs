@@ -123,7 +123,7 @@
   },
 
   "Item": {
-    "types": ["effect", "manuever", "trait", "upgrade", "quirk"],
+    "types": ["effect", "maneuver", "trait", "upgrade", "quirk"],
     "htmlFields": ["description"],
     "templates": {
       "base": {
@@ -140,7 +140,8 @@
     "maneuver": {
       "difficulty": {"value": 0},
       "passEffect": "",
-      "failEffect": ""
+      "failEffect": "",
+      "img": ""
     },
     "trait": {
       "templates": ["base"]
