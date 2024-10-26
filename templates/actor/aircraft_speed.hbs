@@ -9,11 +9,30 @@
     </div>
   </div>
 
-  <div class="maneuver-selection">
-    <div class="row">
-      <div class="column">
-        <img src="systems/air-mercs/assets/maneuvers/barrelroll.png" alt="Barrel Roll" height="auto">
+  <div class="maneuver-wrapper">
+    <div class="maneuver-selection column">
+      <div>
+        <label for="maneuver">Choose Maneuver:</label>
+        <select name="maneuver" id="maneuver" class="dropdown">
+          {{#each (lookup config "maneuver") as |maneuver key|}}
+          <option value="{{key}}">{{maneuver.name}}</option>
+          {{/each}}
+        </select> 
+      </div>
+      <div id="maneuverDetails">
+        <p><strong>Name:</strong> <span id="maneuverName">No Maneuver</span></p>
+        <p><strong>Difficulty:</strong> <span id="maneuverDiff">0</span></p>
+        <p><strong>Pass Effect:</strong> <span id="maneuverPassEffect">Move 1/2 speed, turn up to turn rating, then repeat.</span></p>
+        <p><strong>Fail Effect:</strong> <span id="maneuverFailEffect">Cannot Fail</span></p>
       </div>
     </div>
+
+    <div>
+      <img id="maneuverImage" class="maneuver-image" src="systems/air-mercs/assets/maneuvers/none.png">
+    </div>
+    <div>
+      <button type="button" class="maneuver-button" onclick="prepPhaseReadyButton();">Prep Phase Ready!</button> 
+    </div>
   </div>
+
 </section>

@@ -7,6 +7,7 @@ const { api, sheets } = foundry.applications;
  * @extends {ActorSheetV2}
  */
 export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.ActorSheetV2) {
+
   constructor(options = {}) {
     super(options);
     this.#dragDrop = this.#createDragDropHandlers();
@@ -93,6 +94,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
         options.parts.push('missile_header', 'tabs', 'biography');
         break;
     }
+  
   }
 
   /* -------------------------------------------- */
@@ -114,7 +116,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       config: CONFIG.AIR_MERCS,
       tabs: this._getTabs(options.parts),
     };
-
+    console.log(context.config)
     // Offloading context prep to a helper function
     this._prepareItems(context);
 
@@ -296,6 +298,50 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
    * @override
    */
   _onRender(context, options) {
+
+    super._onRender(context, options); // Ensure to call the parent render method
+
+    let maneuverSelect = document.getElementById("maneuver");
+    const maneuverDetails = CONFIG.AIR_MERCS.maneuver; // Make sure to use "maneuver" for accessing the object
+    const actor = this.actor;
+
+    // Load saved maneuver from actor's data
+    let savedManeuver = actor.currentManeuver; // Use flags to persist data
+    if (savedManeuver) {
+        maneuverSelect.value = savedManeuver; // Set the dropdown to the saved value
+    }
+
+    // Event listener for when the maneuver changes
+    maneuverSelect.addEventListener("change", async (event) => {
+        const selectedKey = event.target.value;
+
+        const selectedManeuver = maneuverDetails[selectedKey];
+
+        // Save the selection to the actor's flags for future tracking
+        actor.currentManeuver = selectedKey // Use flags for persistence
+        console.log(selectedManeuver.img)
+        // Update the maneuver details display
+        document.getElementById("maneuverName").textContent = selectedManeuver.name;
+        document.getElementById("maneuverDiff").textContent = selectedManeuver.diff;
+        document.getElementById("maneuverPassEffect").textContent = selectedManeuver.passEffect;
+        document.getElementById("maneuverFailEffect").textContent = selectedManeuver.failEffect;
+
+        const maneuverImageElement = document.getElementById("maneuverImage");
+        maneuverImageElement.src = `systems/air-mercs/assets/maneuvers/${selectedManeuver.img}.png`;
+    });
+
+    // Update the details display immediately if a maneuver is already selected
+    if (savedManeuver && maneuverDetails[savedManeuver]) {
+        const selectedManeuver = maneuverDetails[savedManeuver];
+        document.getElementById("maneuverName").textContent = selectedManeuver.name;
+        document.getElementById("maneuverDiff").textContent = selectedManeuver.diff;
+        document.getElementById("maneuverPassEffect").textContent = selectedManeuver.passEffect;
+        document.getElementById("maneuverFailEffect").textContent = selectedManeuver.failEffect;
+
+        const maneuverImageElement = document.getElementById("maneuverImage");
+        maneuverImageElement.src = `systems/air-mercs/assets/maneuvers/${selectedManeuver.img}.png`;
+    }
+
     this.#dragDrop.forEach((d) => d.bind(this.element));
     this.#disableOverrides();
     // You may want to add other special handling here
@@ -335,6 +381,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
    * @returns {Promise}
    * @protected
    */
+  
   static async _onEditImage(event, target) {
     const attr = target.dataset.edit;
     const current = foundry.utils.getProperty(this.document, attr);
