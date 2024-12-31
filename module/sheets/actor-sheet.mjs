@@ -14,6 +14,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
   }
 
   /** @override */
+  //BUTTON FUNCTIONS AND METHODS GO HERE TOO
   static DEFAULT_OPTIONS = {
     classes: ['air-mercs', 'actor'],
     position: {
@@ -27,6 +28,8 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       deleteDoc: this._deleteDoc,
       toggleEffect: this._toggleEffect,
       roll: this._onRoll,
+      prepPhaseReadyButton: this.prepPhaseReadyStoreData,
+      prepPhaseExecuteButton: this.prepPhaseExecute,
     },
     // Custom property that's merged into `this.options`
     dragDrop: [{ dragSelector: '[data-drag]', dropSelector: null }],
@@ -524,6 +527,18 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
           : this.actor.items.get(docRow?.dataset.parentId);
       return parent.effects.get(docRow?.dataset.effectId);
     } else return console.warn('Could not find document class');
+  }
+
+  static prepPhaseReadyStoreData() {
+    event.preventDefault();
+    console.log("We pressed the READY button!");
+    console.log(this.currentManeuver);
+  }
+
+  static prepPhaseExecute() {
+    event.preventDefault();
+    console.log("We pressed the EXECUTE button!");
+    console.log(this);
   }
 
   /***************
