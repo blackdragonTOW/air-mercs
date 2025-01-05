@@ -322,7 +322,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
 
         // Save the selection to the actor's flags for future tracking
         actor.currentManeuver = selectedKey // Use flags for persistence
-        console.log(selectedManeuver.img)
         // Update the maneuver details display
         document.getElementById("maneuverName").textContent = selectedManeuver.name;
         document.getElementById("maneuverDiff").textContent = selectedManeuver.diff;
@@ -530,15 +529,54 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
   }
 
   static prepPhaseReadyStoreData() {
-    event.preventDefault();
-    console.log("We pressed the READY button!");
-    console.log(this.currentManeuver);
+    if (this.actor.prepPhaseReady == true) {
+      ui.notifications.warn("You are already locked and ready!");
+      return;
+      }
+    
+    new Dialog({
+      title: "Confirm Action",
+      content: "<p>Are you sure you want to proceed?</p>",
+      buttons: {
+        yes: {
+          label: "GO!",
+          callback: () => {
+            console.log("Player confirmed action.");
+            event.preventDefault();
+            let currentSpeed = Number(this.actor.system.curSpeed.value);  //baby's first JavaScript var type bug
+            let selectedSpeed = Number(this.actor.system.speed);
+            this.actor.system.curSpeed.value = currentSpeed + selectedSpeed; //Add player selected value to current value
+            this.actor.system.speed = 0; //Reset player selected value to 0 for next round
+            let lockedManeuver = this.actor.currentManeuver;
+            this.actor.prepPhaseReady = true;
+            this.actor.update({ system: { speed: 0 } });
+            this.actor.update({ system: { curSpeed: {value: this.actor.system.curSpeed.value } } });
+            let targetName = this.actor.name;
+            let start_message = `<body><h2><strong>${targetName} is ready!</strong></h2></body>`
+              ChatMessage.create({content: start_message})
+          }
+        },
+        no: {
+          label: "No-Go",
+          callback: () => {
+            console.log("Player canceled action.");
+            // Add your logic for canceled action here
+          }
+        }
+      },
+      default: "no" // Sets the default button to "no"
+    }).render(true);
+    
   }
 
   static prepPhaseExecute() {
+    if (this.actor.prepPhaseReady != true) {
+      ui.notifications.warn("You must Ready Up with a new speed and maneuver first!");
+      return;
+      }
     event.preventDefault();
     console.log("We pressed the EXECUTE button!");
-    console.log(this);
+    this.actor.prepPhaseReady = false;
   }
 
   /***************
