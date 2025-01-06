@@ -543,16 +543,17 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
           callback: () => {
             console.log("Player confirmed action.");
             event.preventDefault();
-            let currentSpeed = Number(this.actor.system.curSpeed.value);  //baby's first JavaScript var type bug
-            let selectedSpeed = Number(this.actor.system.speed);
-            this.actor.system.curSpeed.value = currentSpeed + selectedSpeed; //Add player selected value to current value
-            this.actor.system.speed = 0; //Reset player selected value to 0 for next round
             let lockedManeuver = this.actor.currentManeuver;
             this.actor.prepPhaseReady = true;
-            this.actor.update({ system: { speed: 0 } });
-            this.actor.update({ system: { curSpeed: {value: this.actor.system.curSpeed.value } } });
+            this.actor.update({ 
+              system: { 
+                speed: 0, 
+                curSpeed: {value: Number(this.actor.system.curSpeed.value) + Number(this.actor.system.speed) }, 
+                lockedManeuver: lockedManeuver 
+              }
+            });
             let targetName = this.actor.name;
-            let start_message = `<body><h2><strong>${targetName} is ready!</strong></h2></body>`
+            let start_message = `<h2><strong>${targetName} is ready!</strong></h2>`
               ChatMessage.create({content: start_message})
           }
         },
@@ -570,13 +571,52 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
   }
 
   static prepPhaseExecute() {
-    if (this.actor.prepPhaseReady != true) {
+    if (this.actor.prepPhaseReady !== true) {
       ui.notifications.warn("You must Ready Up with a new speed and maneuver first!");
       return;
       }
     event.preventDefault();
     console.log("We pressed the EXECUTE button!");
     this.actor.prepPhaseReady = false;
+
+    let targetName = this.actor.name;
+    let targetManeuver = CONFIG.AIR_MERCS.maneuver[this.actor.system.lockedManeuver];
+    let targetManeuverString = game.i18n.localize(targetManeuver.name);
+
+    let start_message = `
+                        <h2>${targetName} attempts:<br><b>${targetManeuverString}!</b></h2>
+                        <p><b>Difficulty: </b>${targetManeuver.diff}</body>
+                        <p><b>Maneuver Rating: </b>1d10+${this.actor.system.abilities.maneuvers.value}
+                        <button class="roll-maneuver" type="button" data-passeffect = "${targetManeuver.passEffect}" data-faileffect = "${targetManeuver.failEffect}" data-diff="${targetManeuver.diff}" data-maneuvers="${this.actor.system.abilities.maneuvers.value}">Execute Maneuver</button>
+                        `
+      ChatMessage.create({content: start_message})
+
+      console.log(targetManeuver.passEffect)
+
+      Hooks.once("renderChatMessage", (chatMessage, html) => {
+        html.find(".roll-maneuver").click(async event => {
+
+          let diff = Number(event.currentTarget.dataset.diff);
+          let maneuversValue = Number(event.currentTarget.dataset.maneuvers);
+          let maneuverPass = event.currentTarget.dataset.passeffect;
+          let maneuverFail = event.currentTarget.dataset.faileffect;
+
+          let roll = await new Roll('1d10').evaluate({ async: true });
+          let rollResult = roll.total;
+          let total = rollResult + maneuversValue;
+          let success = total >= diff ? "success" : "failure";
+          
+          let outcomeInstruction = (success == "success" ? maneuverPass : maneuverFail)
+
+          let resultMessage = `
+                              <h2>Maneuver Result: <span style="text-transform:uppercase;"><b>${success}</b><span></h2>
+                              <p><b>Roll: </b>${rollResult}</p>
+                              <p><b>Total: </b>${total}</p>
+                              <p>${outcomeInstruction}</p>
+                              `
+          ChatMessage.create({content: resultMessage});
+        });
+      });
   }
 
   /***************
