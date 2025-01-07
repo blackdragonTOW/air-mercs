@@ -325,8 +325,8 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
         // Update the maneuver details display
         document.getElementById("maneuverName").textContent = selectedManeuver.name;
         document.getElementById("maneuverDiff").textContent = selectedManeuver.diff;
-        document.getElementById("maneuverPassEffect").textContent = selectedManeuver.passEffect;
-        document.getElementById("maneuverFailEffect").textContent = selectedManeuver.failEffect;
+        document.getElementById("maneuverPassEffect").textContent = selectedManeuver.passEffect.movement;
+        document.getElementById("maneuverFailEffect").textContent = selectedManeuver.failEffect.movement;
 
         const maneuverImageElement = document.getElementById("maneuverImage");
         maneuverImageElement.src = `systems/air-mercs/assets/maneuvers/${selectedManeuver.img}.png`;
@@ -337,8 +337,8 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
         const selectedManeuver = maneuverDetails[savedManeuver];
         document.getElementById("maneuverName").textContent = selectedManeuver.name;
         document.getElementById("maneuverDiff").textContent = selectedManeuver.diff;
-        document.getElementById("maneuverPassEffect").textContent = selectedManeuver.passEffect;
-        document.getElementById("maneuverFailEffect").textContent = selectedManeuver.failEffect;
+        document.getElementById("maneuverPassEffect").textContent = selectedManeuver.passEffect.movement;
+        document.getElementById("maneuverFailEffect").textContent = selectedManeuver.failEffect.movement;
 
         const maneuverImageElement = document.getElementById("maneuverImage");
         maneuverImageElement.src = `systems/air-mercs/assets/maneuvers/${selectedManeuver.img}.png`;
@@ -587,7 +587,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
                         <h2>${targetName} attempts:<br><b>${targetManeuverString}!</b></h2>
                         <p><b>Difficulty: </b>${targetManeuver.diff}</body>
                         <p><b>Maneuver Rating: </b>1d10+${this.actor.system.abilities.maneuvers.value}
-                        <button class="roll-maneuver" type="button" data-passeffect = "${targetManeuver.passEffect}" data-faileffect = "${targetManeuver.failEffect}" data-diff="${targetManeuver.diff}" data-maneuvers="${this.actor.system.abilities.maneuvers.value}">Execute Maneuver</button>
+                        <button class="roll-maneuver" type="button" data-passeffect = "${targetManeuver.passEffect.movement}" data-faileffect = "${targetManeuver.failEffect.movement}" data-diff="${targetManeuver.diff}" data-maneuvers="${this.actor.system.abilities.maneuvers.value}">Execute Maneuver</button>
                         `
       ChatMessage.create({content: start_message})
 

@@ -139,8 +139,16 @@
     },
     "maneuver": {
       "difficulty": {"value": 0},
-      "passEffect": "",
-      "failEffect": "",
+      "passEffect": {"movement": "",
+                    "speedChange": 0,
+                    "speedChangeIsVariable": "",
+                    "defBonus": 0
+                    },
+      "failEffect": {"movement": "",
+                    "speedChange": 0,
+                    "speedChangeIsVariable": "",
+                    "defBonus": 0
+                    },
       "img": ""
     },
     "trait": {
