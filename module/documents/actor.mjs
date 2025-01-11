@@ -107,4 +107,38 @@ export class AirMercsActor extends Actor {
 
     // Process additional NPC data here.
   }
+
+  updateTokenReadyState(actorData) {
+    const readyState = actorData.getFlag('air-mercs', 'prepPhaseReady')
+    if (readyState == null) {
+      return;
+    }
+    const tokens = canvas.tokens.placeables.filter(t => t.actor?.id === this.id);
+    tokens.forEach(token => {
+      let existingText = token.children.find(child => child.name === 'readyText');
+
+    if (!readyState) {
+      let readyText = new PIXI.Text('READY!', {
+        fontFamily: 'Arial',
+        fontSize: 30,
+        fill: '#ff0000',
+        stroke: '#000000',
+        strokeThickness: 4,
+      });
+
+      readyText.name = 'readyText';
+      readyText.anchor.set(0,1);
+      readyText.x = ((token.width / 2) - (readyText.width / 2));
+      readyText.y = 0;
+
+      token.addChild(readyText)
+    } 
+
+    if (readyState) {
+      token.removeChild(existingText);
+    }
+
+    });
+  } 
+
 }

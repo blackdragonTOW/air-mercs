@@ -8,6 +8,7 @@ const { api, sheets } = foundry.applications;
  */
 export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.ActorSheetV2) {
 
+
   constructor(options = {}) {
     super(options);
     this.#dragDrop = this.#createDragDropHandlers();
@@ -529,7 +530,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
   }
 
   static prepPhaseReadyStoreData() {
-    if (this.actor.prepPhaseReady == true) {
+    if (this.actor.getFlag('air-mercs', 'prepPhaseReady') == true) {
       ui.notifications.warn("You are already locked and ready!");
       return;
       }
@@ -541,10 +542,12 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
         yes: {
           label: "GO!",
           callback: () => {
+            this.actor.setFlag('air-mercs', 'prepPhaseReady', true)
             console.log("Player confirmed action.");
             event.preventDefault();
+            const actorData = this.actor;
+            this.actor.updateTokenReadyState(actorData);
             let lockedManeuver = this.actor.currentManeuver;
-            this.actor.prepPhaseReady = true;
             this.actor.update({ 
               system: { 
                 speed: 0, 
@@ -561,7 +564,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
           label: "No-Go",
           callback: () => {
             console.log("Player canceled action.");
-            // Add your logic for canceled action here
           }
         }
       },
@@ -571,52 +573,73 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
   }
 
   static prepPhaseExecute() {
-    if (this.actor.prepPhaseReady !== true) {
+    const actorData = this.actor;
+    if (this.actor.getFlag('air-mercs', 'prepPhaseReady') !== true) {
       ui.notifications.warn("You must Ready Up with a new speed and maneuver first!");
       return;
       }
-    event.preventDefault();
-    console.log("We pressed the EXECUTE button!");
-    this.actor.prepPhaseReady = false;
 
-    let targetName = this.actor.name;
-    let targetManeuver = CONFIG.AIR_MERCS.maneuver[this.actor.system.lockedManeuver];
-    let targetManeuverString = game.i18n.localize(targetManeuver.name);
+    new Dialog({
+      title: "Confirm Action",
+      content: "<p>Are you sure you want to proceed?</p>",
+      buttons: {
+        yes: {
+          label: "GO!",
+          callback: () => {
+            event.preventDefault();
+            console.log("We pressed the EXECUTE button!");
+            this.actor.setFlag('air-mercs', 'prepPhaseReady', false);
+            this.actor.updateTokenReadyState(actorData);
 
-    let start_message = `
-                        <h2>${targetName} attempts:<br><b>${targetManeuverString}!</b></h2>
-                        <p><b>Difficulty: </b>${targetManeuver.diff}</body>
-                        <p><b>Maneuver Rating: </b>1d10+${this.actor.system.abilities.maneuvers.value}
-                        <button class="roll-maneuver" type="button" data-passeffect = "${targetManeuver.passEffect.movement}" data-faileffect = "${targetManeuver.failEffect.movement}" data-diff="${targetManeuver.diff}" data-maneuvers="${this.actor.system.abilities.maneuvers.value}">Execute Maneuver</button>
-                        `
-      ChatMessage.create({content: start_message})
+            let targetName = this.actor.name;
+            let targetManeuver = CONFIG.AIR_MERCS.maneuver[this.actor.system.lockedManeuver];
+            let targetManeuverString = game.i18n.localize(targetManeuver.name);
+            //FIX LATER: If player chooses No Maneuver as their first maneuver of the session we will read an incorrect value
 
-      console.log(targetManeuver.passEffect)
+            let start_message = `
+                                <h2>${targetName} attempts:<br><b>${targetManeuverString}!</b></h2>
+                                <p><b>Difficulty: </b>${targetManeuver.diff}</body>
+                                <p><b>Maneuver Rating: </b>1d10+${this.actor.system.abilities.maneuvers.value}
+                                <button class="roll-maneuver" type="button" data-passeffect = "${targetManeuver.passEffect.movementHTML}" data-faileffect = "${targetManeuver.failEffect.movementHTML}" data-diff="${targetManeuver.diff}" data-maneuvers="${this.actor.system.abilities.maneuvers.value}">Execute Maneuver</button>
+                                `
+              ChatMessage.create({content: start_message})
 
-      Hooks.once("renderChatMessage", (chatMessage, html) => {
-        html.find(".roll-maneuver").click(async event => {
+              Hooks.once("renderChatMessage", (chatMessage, html) => {
+                html.find(".roll-maneuver").click(async event => {
 
-          let diff = Number(event.currentTarget.dataset.diff);
-          let maneuversValue = Number(event.currentTarget.dataset.maneuvers);
-          let maneuverPass = event.currentTarget.dataset.passeffect;
-          let maneuverFail = event.currentTarget.dataset.faileffect;
+                  let diff = Number(event.currentTarget.dataset.diff);
+                  let maneuversValue = Number(event.currentTarget.dataset.maneuvers);
+                  let maneuverPass = event.currentTarget.dataset.passeffect;
+                  let maneuverFail = event.currentTarget.dataset.faileffect;
 
-          let roll = await new Roll('1d10').evaluate({ async: true });
-          let rollResult = roll.total;
-          let total = rollResult + maneuversValue;
-          let success = total >= diff ? "success" : "failure";
-          
-          let outcomeInstruction = (success == "success" ? maneuverPass : maneuverFail)
+                  let roll = await new Roll('1d10').evaluate({ async: true });
+                  let rollResult = roll.total;
+                  let total = rollResult + maneuversValue;
+                  let success = total >= diff ? "success" : "failure";
+                  
+                  let outcomeInstruction = (success == "success" ? maneuverPass : maneuverFail)
 
-          let resultMessage = `
-                              <h2>Maneuver Result: <span style="text-transform:uppercase;"><b>${success}</b><span></h2>
-                              <p><b>Roll: </b>${rollResult}</p>
-                              <p><b>Total: </b>${total}</p>
-                              <p>${outcomeInstruction}</p>
-                              `
-          ChatMessage.create({content: resultMessage});
-        });
-      });
+                  let resultMessage = `
+                                      <h2>Maneuver Result: <span style="text-transform:uppercase;"><b>${success}</b></span></h2>
+                                      <b>Roll: </b> ${rollResult}
+                                      <br><b>Total: ${total}</b>
+                                      <p>${outcomeInstruction}</p>
+                                      `
+                  ChatMessage.create({content: resultMessage});
+                  this.actor.attemptedManeuver = targetManeuver
+                  this.actor.attemptedManeuverOutcome = success
+                });
+              });
+            }
+          },
+        no: {
+          label: "No-Go",
+          callback: () => {console.log("Player canceled action.");}
+        }
+      },
+      default: "no" // Sets the default button to "no"
+        }).render(true);
+    
   }
 
   /***************
