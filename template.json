@@ -1,6 +1,6 @@
 {
   "Actor": {
-    "types": ["character", "npc", "aircraft","gun", "missile", "bomb", "rocket"],
+    "types": ["character", "npc", "aircraft","gunpod", "missile", "bomb", "rocket"],
     "htmlFields": ["biography"],
     "templates": {
       "pilot": {
@@ -29,7 +29,7 @@
         "curSpeed": {"value": 0},
         "accel": {"value": 0},
         "manv": {"value": 0},
-        "gun":  {"value": ""},
+        "gun":  {"value": 0},
         "ammo":  {
           "value": 0,
           "min": 0,
@@ -53,7 +53,7 @@
         },
         "ecm": {"value": 0},
         "radar": {"value": 0},
-        "radarL": false,
+        "radarL": 0,
         "size": {"value": 0},
         "capacity":  {
           "value": 0,
@@ -70,13 +70,9 @@
         "year": {"value": 0},
         "nationality": "nation of origin",
         "faction": "redfor/blufor/indy",
-        
-        "power": {"value": ""},
-        "acc1": {"value": 0},
-        "acc2": {"value": 0},
-        "decel": {"value": 0},
         "spot": {"value": 0},
-        "notes":  {"value": ""}
+        "notes":  {"value": ""},
+        "engines": {"value": 0}
       }
     },
     "character": {
@@ -109,12 +105,13 @@
       "damage": "",
       "year": "",
       "load": 0,
-      "notes": ""
+      "notes": "",
+      "img": ""
     },
     "bomb": {
       "templates": [""]
     },
-    "gun": {
+    "gunpod": {
       "templates": [""]
     },
     "rocket": {
@@ -123,7 +120,7 @@
   },
 
   "Item": {
-    "types": ["effect", "maneuver", "trait", "upgrade", "quirk"],
+    "types": ["effect", "maneuver", "trait", "upgrade", "quirk","gunpod", "missile", "bomb", "rocket"],
     "htmlFields": ["description"],
     "templates": {
       "base": {
@@ -150,6 +147,36 @@
                     "defBonus": 0
                     },
       "img": ""
+    },
+    "missile": {
+      "name": "",
+      "nameFull": "",
+      "description": "",
+      "photo": ["reference"],
+      "nationality": "",
+      "faction": "",
+      "type": "a2a",
+      "weight": 0,
+      "guidance": "",
+      "aspect": "",
+      "lock": "",
+      "minRange": 0,
+      "maxRange": 0,
+      "hit": 0,
+      "damage": "",
+      "year": "",
+      "load": 0,
+      "notes": "",
+      "img": ""
+    },
+    "bomb": {
+      "templates": [""]
+    },
+    "gunpod": {
+      "templates": [""]
+    },
+    "rocket": {
+      "templates": [""]
     },
     "trait": {
       "templates": ["base"]

@@ -56,16 +56,16 @@
           "maxRange": "Max Range",
           "hit": "Hit",
           "damage": "Damage",
-          "load": "Weight",
-          "acc1": "Acceleration Turn 1",
-          "acc2": "Acceleration Turn 2",
+          "capacity": "Weight",
+          "accel": "Acceleration",
           "decel": "Deceleration",
           "ecm": "ECM Rating",
           "groundComp": "Ground Computer",
           "gun": "Gun",
           "manv": "Maneuver Rating",
           "radar": "Radar Rating",
-          "power": "Power Rating"
+          "power": "Power Rating",
+          "spot": "Spotting"
         }
       },
       "Character": {

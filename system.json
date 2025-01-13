@@ -57,6 +57,21 @@
     }
   },
   {
+    "name": "lite-aircraft-update",
+    "label": "LITE Aircraft Update",
+    "system": "air-mercs",
+    "path": "packs/lite-aircraft-update",
+    "type": "Actor",
+    "private": false,
+    "flags": {
+        "airmercs": {
+            "types": [
+                "airframe"
+            ]
+        }
+    }
+  },
+  {
     "name": "lite-missiles",
     "label": "LITE Missiles",
     "system": "air-mercs",

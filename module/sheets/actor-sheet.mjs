@@ -537,7 +537,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     
     new Dialog({
       title: "Confirm Action",
-      content: "<p>Are you sure you want to proceed?</p>",
+      content: "<p>Are you sure these are the settings you want?</p>",
       buttons: {
         yes: {
           label: "GO!",
@@ -581,7 +581,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
 
     new Dialog({
       title: "Confirm Action",
-      content: "<p>Are you sure you want to proceed?</p>",
+      content: "<p>Are you sure you're ready to execute?</p>",
       buttons: {
         yes: {
           label: "GO!",

@@ -141,4 +141,35 @@ export class AirMercsActor extends Actor {
     });
   } 
 
+  getRelBearing(shooter, target) {
+      // Get the position of both tokens
+    const x1 = shooter.x + (shooter.width * canvas.grid.size) / 2;
+    const y1 = shooter.y + (shooter.height * canvas.grid.size) / 2;
+    const x2 = target.x + (target.width * canvas.grid.size) / 2;
+    const y2 = target.y + (target.height * canvas.grid.size) / 2;
+
+    // Calculate the angle between the two tokens
+    const deltaX = x2 - x1;
+    const deltaY = y2 - y1;
+    let angleToTarget = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+
+    // Normalize angleToTarget to 0-360 degrees
+    if (angleToTarget < 0) {
+      angleToTarget += 360;
+    }
+
+    // Get the rotation of the first token
+    const shooterRotation = shooter.rotation;
+
+    // Calculate relative bearing
+    let relativeBearing = angleToTarget - shooterRotation;
+
+    // Normalize relative bearing to 0-360 degrees
+    if (relativeBearing < 0) {
+      relativeBearing += 360;
+    }
+
+    return relativeBearing;
+  }
+
 }
