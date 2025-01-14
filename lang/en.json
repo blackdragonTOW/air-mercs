@@ -20,7 +20,7 @@
         "Biography": "Background",
         "Features": "Features",
         "Gear": "Gear",
-        "Spells": "Weapons",
+        "aircraft_weapons": "Weapons",
         "Effects": "Effects",
         "missile_stats": "Statistics",
         "aircraft_header": "Aircraft",

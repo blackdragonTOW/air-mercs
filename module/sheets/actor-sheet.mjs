@@ -57,8 +57,8 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     gear: {
       template: 'systems/air-mercs/templates/actor/gear.hbs',
     },
-    spells: {
-      template: 'systems/air-mercs/templates/actor/spells.hbs',
+    aircraft_weapons: {
+      template: 'systems/air-mercs/templates/actor/aircraft_weapons.hbs',
     },
     effects: {
       template: 'systems/air-mercs/templates/actor/effects.hbs',
@@ -87,10 +87,10 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     // Control which parts show based on document subtype
     switch (this.document.type) {
       case 'aircraft':
-        options.parts.push('aircraft_header', 'tabs', 'aircraft_features', 'aircraft_speed', 'spells', 'effects', 'biography');
+        options.parts.push('aircraft_header', 'tabs', 'aircraft_features', 'aircraft_speed', 'aircraft_weapons', 'effects', 'biography');
         break;
       case 'character':
-        options.parts.push('header', 'tabs','features', 'gear', 'spells', 'effects', 'biography');
+        options.parts.push('header', 'tabs','features', 'gear', 'effects', 'biography');
         break;
       case 'npc':
         options.parts.push('header', 'tabs','gear', 'effects', 'biography');
@@ -133,7 +133,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       case 'features':
       case 'aircraft_features':
       case 'aircraft_speed':
-      case 'spells':
+      case 'aircraft_weapons':
       case 'missile_header':
       case 'gear':
         context.tab = context.tabs[partId];
@@ -225,9 +225,9 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
           tab.id = 'gear';
           tab.label += 'Gear';
           break;
-        case 'spells':
-          tab.id = 'spells';
-          tab.label += 'Spells';
+        case 'aircraft_weapons':
+          tab.id = 'aircraft_weapons';
+          tab.label += 'aircraft_weapons';
           break;
         case 'effects':
           tab.id = 'effects';
@@ -249,10 +249,10 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     // Initialize containers.
     // You can just use `this.document.itemTypes` instead
     // if you don't need to subdivide a given type like
-    // this sheet does with spells
+    // this sheet does with spells/aircraft_weapons
     const gear = [];
     const features = [];
-    const spells = {
+    const aircraft_weapons = {
       0: [],
       1: [],
       2: [],
@@ -275,22 +275,22 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       else if (i.type === 'feature') {
         features.push(i);
       }
-      // Append to spells.
+      // Append to spells/aircraft_weapons.
       else if (i.type === 'spell') {
         if (i.system.spellLevel != undefined) {
-          spells[i.system.spellLevel].push(i);
+          aircraft_weapons[i.system.spellLevel].push(i);
         }
       }
     }
 
-    for (const s of Object.values(spells)) {
+    for (const s of Object.values(aircraft_weapons)) {
       s.sort((a, b) => (a.sort || 0) - (b.sort || 0));
     }
 
     // Sort then assign
     context.gear = gear.sort((a, b) => (a.sort || 0) - (b.sort || 0));
     context.features = features.sort((a, b) => (a.sort || 0) - (b.sort || 0));
-    context.spells = spells;
+    context.aircraft_weapons = aircraft_weapons;
   }
 
   /**

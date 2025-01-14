@@ -488,6 +488,15 @@
   border: none;
 }
 
+.aircraft_weapons{
+  overflow-y:auto;
+}
+
+.aircraft_gun {
+  border: 2px solid #000;
+  height: 75px;
+}
+
 .maneuver-wrapper {
   display: flex;
   align-items: flex-start; /* Align items at the top */
@@ -526,8 +535,9 @@
   transform: translateY(4px);
 }
 
+/*
 .slider-vertical {
-/* input[type="range"][orient="vertical"] {
+  input[type="range"][orient="vertical"] {
   -webkit-appearance: slider-vertical;
   width: 10px;
   height: 350px !important;
@@ -559,5 +569,5 @@
     height: 5px !important;
     font-size: 10px;
   }
-*/
 }
+*/
