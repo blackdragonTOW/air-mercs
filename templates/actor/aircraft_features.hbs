@@ -67,22 +67,6 @@
             <label
               class='resource-label rollable flexlarge align-right'
               data-action='roll'
-              data-roll='d10+@decel.value'
-              data-label={{localize 'AIR_MERCS.Actor.base.FIELDS.decel'}}
-            >{{localize 'AIR_MERCS.Actor.base.FIELDS.decel'}}</label>
-            <input
-              type='text'
-              name='system.decel.value'
-              value='{{system.decel.value}}'
-              class="ability-score"
-              data-dtype='Number'
-            />
-          </div>
-
-          <div class='ability flexrow flex-group-center'>
-            <label
-              class='resource-label rollable flexlarge align-right'
-              data-action='roll'
               data-roll='d10+@ecm.value'
               data-label={{localize 'AIR_MERCS.Actor.base.FIELDS.ecm'}}
             >{{localize 'AIR_MERCS.Actor.base.FIELDS.ecm'}}</label>
@@ -147,13 +131,13 @@
             <label
               class='resource-label rollable flexlarge align-right'
               data-action='roll'
-              data-roll='d10+@power.value'
-              data-label={{localize 'AIR_MERCS.Actor.base.FIELDS.power'}}
-            >{{localize 'AIR_MERCS.Actor.base.FIELDS.power'}}</label>
+              data-roll='d10+@radar.value+{{system.abilities.radar_missiles.value}}'
+              data-label={{localize 'AIR_MERCS.Actor.base.FIELDS.radar'}}
+            >{{localize 'AIR_MERCS.Actor.base.FIELDS.radar'}}</label>
             <input
               type='text'
-              name='system.power.value'
-              value='{{system.power.value}}'
+              name='system.radar.value'
+              value='{{system.radar.value}}'
               class="ability-score"
               data-dtype='Number'
             />
@@ -163,13 +147,29 @@
             <label
               class='resource-label rollable flexlarge align-right'
               data-action='roll'
-              data-roll='d10+@radar.value+{{system.abilities.radar_missiles.value}}'
-              data-label={{localize 'AIR_MERCS.Actor.base.FIELDS.radar'}}
-            >{{localize 'AIR_MERCS.Actor.base.FIELDS.radar'}}</label>
+              data-roll='d10+@hpInternal.value'
+              data-label={{localize 'AIR_MERCS.Actor.base.FIELDS.hpInternal'}}
+            >{{localize 'AIR_MERCS.Actor.base.FIELDS.hpInternal'}}</label>
             <input
               type='text'
-              name='system.radar.value'
-              value='{{system.radar.value}}'
+              name='system.hpInternal.value'
+              value='{{system.hpInternal.value}}'
+              class="ability-score"
+              data-dtype='Number'
+            />
+          </div>
+
+          <div class='ability flexrow flex-group-center'>
+            <label
+              class='resource-label rollable flexlarge align-right'
+              data-action='roll'
+              data-roll='d10+@hpExternal.value'
+              data-label={{localize 'AIR_MERCS.Actor.base.FIELDS.hpExternal'}}
+            >{{localize 'AIR_MERCS.Actor.base.FIELDS.hpExternal'}}</label>
+            <input
+              type='text'
+              name='system.hpExternal.value'
+              value='{{system.hpExternal.value}}'
               class="ability-score"
               data-dtype='Number'
             />

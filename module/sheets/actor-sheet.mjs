@@ -252,18 +252,29 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     // this sheet does with spells/aircraft_weapons
     const gear = [];
     const features = [];
-    const aircraft_weapons = {
-      0: [],
-      1: [],
-      2: [],
-      3: [],
-      4: [],
-      5: [],
-      6: [],
-      7: [],
-      8: [],
-      9: [],
+    let aircraft_weapons = {
+      internal: [],
+      external: []
     };
+    let hpInternal = [this.actor.system.hpInternal.value];
+    let hpExternal = [this.actor.system.hpExternal.value];
+    
+    // Extract the number values
+    let internalCount = hpInternal[0];
+    let externalCount = hpExternal[0];
+    
+    // Add empty arrays to the internal sub-array
+    for (let i = 0; i < internalCount; i++) {
+      aircraft_weapons.internal.push([]);
+    }
+    
+    // Add empty arrays to the external sub-array
+    for (let i = 0; i < externalCount; i++) {
+      aircraft_weapons.external.push([]);
+    }
+    
+    console.log('Aircraft Weapons:', aircraft_weapons);
+
 
     // Iterate through items, allocating to containers
     for (let i of this.document.items) {

@@ -58,14 +58,14 @@
           "damage": "Damage",
           "capacity": "Weight",
           "accel": "Acceleration",
-          "decel": "Deceleration",
           "ecm": "ECM Rating",
-          "groundComp": "Ground Computer",
-          "gun": "Gun",
+          "groundComp": "Air-To-Ground Computer",
+          "gun": "Gun Rating",
           "manv": "Maneuver Rating",
           "radar": "Radar Rating",
-          "power": "Power Rating",
-          "spot": "Spotting"
+          "spot": "Spotting",
+          "hpInternal": "Internal Hardpoints",
+          "hpExternal": "External Hardpoints"
         }
       },
       "Character": {

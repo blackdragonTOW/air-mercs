@@ -228,6 +228,7 @@
   font-family: "Roboto", sans-serif;
 }
 .air-mercs .sheet-header {
+  height: 125px;
   flex: 0 auto;
   overflow: hidden;
   display: flex;
@@ -238,7 +239,7 @@
 }
 .air-mercs .sheet-header .profile-img {
   flex: 0 0 100px;
-  height: 100px;
+  height: 120px;
   margin-right: 10px;
 }
 .air-mercs .sheet-header .header-fields {
@@ -310,10 +311,8 @@
   flex: 2;
   margin: 0;
   overflow: hidden;
-  font-size: 13px;
+  font-size: 15px;
   text-align: left;
-  align-items: center;
-  display: flex;
 }
 .air-mercs .items-list .item-name h3, .air-mercs .items-list .item-name h4 {
   margin: 0;
@@ -343,7 +342,7 @@
 }
 .air-mercs .items-list .item .item-name .item-image {
   flex: 0 0 30px;
-  height: 30px;
+  height: 40px;
   background-size: 30px;
   border: none;
   margin-right: 5px;
@@ -355,7 +354,7 @@
   font-size: 12px;
 }
 .air-mercs .items-list .items-header {
-  height: 28px;
+  height: 20px;
   margin: 2px 0;
   padding: 0;
   align-items: center;
@@ -371,6 +370,12 @@
   padding-left: 5px;
   text-align: left;
 }
+
+.empty-hardpoint {
+  text-align: center;
+  font-weight: bold;
+}
+
 .air-mercs .item-formula {
   flex: 0 0 200px;
   padding: 0 8px;

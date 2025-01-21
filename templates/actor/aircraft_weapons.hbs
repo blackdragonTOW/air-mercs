@@ -1,29 +1,14 @@
 {{! aircraft_weapons Tab }}
 <section class='tab aircraft_weapons {{tab.cssClass}}' data-group='primary' data-tab='aircraft_weapons'>
   <div class='flexrow aircraft_gun'>
-
+    CLICK HERE TO BRRRRRRRRRRRT
   </div>
 
   <ol class='items-list'>
     <li class='item flexrow items-header'>
       <div class='item-name'>{{localize 'Hardpoints'}}</div>
-      <div class='item-formula'>{{localize 'AIR_MERCS.Item.Gear.FIELDS.rollFormula.label'}}</div>
-      <div class='item-controls'>
-        {{#if @root.editable}}
-          <a
-            class='item-control item-create'
-            title='{{localize "DOCUMENT.Create" type='Item'}}'
-            data-action='createDoc'
-            data-document-class='Item'
-            data-type='missile'
-          >
-            <i class='fas fa-plus'></i>
-            {{localize 'DOCUMENT.New' type='item'}}
-          </a>
-        {{/if}}
-      </div>
     </li>
-    {{#each aircraft_weapons as |item id|}}
+    {{#each aircraft_weapons.internal as |item id|}}
       <li
         class='item flexrow'
         data-item-id='{{item._id}}'
@@ -32,17 +17,56 @@
       >
         <div class='item-name'>
           <div class='item-image'>
-            <a class='rollable' data-roll-type='item' data-action='roll'>
+            <a>
               <img
-                src='{{item.img}}'
-                title='{{item.name}}'
+                src='systems/air-mercs/assets/planes/sheet/internalHP.png'
                 width='100'
-                height='30'
+                height='35'
               />
             </a>
           </div>
-          <div>{{item.name}}</div>
         </div>
+        <div class='empty-hardpoint'>EMPTY INTERNAL HP</div>
+        <div class='item-formula item-prop'>{{item.system.formula}}</div>
+        <div class='item-controls'>
+          <a
+            class='item-control item-edit'
+            title='{{localize "DOCUMENT.Update" type='Gear'}}'
+            data-action='viewDoc'
+          >
+            <i class='fas fa-edit'></i>
+          </a>
+          {{#if @root.editable}}
+            <a
+              class='item-control item-delete'
+              title='{{localize "DOCUMENT.Delete" type='Gear'}}'
+              data-action='deleteDoc'
+            >
+              <i class='fas fa-trash'></i>
+            </a>
+          {{/if}}
+        </div>
+      </li>
+    {{/each}}
+        {{#each aircraft_weapons.external as |item id|}}
+      <li
+        class='item flexrow'
+        data-item-id='{{item._id}}'
+        data-drag='true'
+        data-document-class='Item'
+      >
+        <div class='item-name'>
+          <div class='item-image'>
+            <a>
+              <img
+                src='systems/air-mercs/assets/planes/sheet/externalHP.png'
+                width='100'
+                height='35'
+              />
+            </a>
+          </div>
+        </div>
+        <div class='empty-hardpoint'>EMPTY EXTERNAL HP</div>
         <div class='item-formula item-prop'>{{item.system.formula}}</div>
         <div class='item-controls'>
           <a
