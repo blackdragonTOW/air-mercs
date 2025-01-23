@@ -1,14 +1,14 @@
 {{! aircraft_weapons Tab }}
 <section class='tab aircraft_weapons {{tab.cssClass}}' data-group='primary' data-tab='aircraft_weapons'>
   <div class='flexrow aircraft_gun'>
-    CLICK HERE TO BRRRRRRRRRRRT
+    CLICK HERE TO BRRRRT  {{actor.system.hpExternal.value}}
   </div>
 
   <ol class='items-list'>
     <li class='item flexrow items-header'>
       <div class='item-name'>{{localize 'Hardpoints'}}</div>
     </li>
-    {{#each aircraft_weapons.internal as |item id|}}
+    {{#each actor.system.loadout.internal as |item id|}}
       <li
         class='item flexrow'
         data-item-id='{{item._id}}'
@@ -48,7 +48,7 @@
         </div>
       </li>
     {{/each}}
-        {{#each aircraft_weapons.external as |item id|}}
+        {{#each actor.system.loadout.external as |item id|}}
       <li
         class='item flexrow'
         data-item-id='{{item._id}}'

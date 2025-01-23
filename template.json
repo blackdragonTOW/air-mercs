@@ -73,6 +73,24 @@
         "spot": {"value": 0},
         "notes":  {"value": ""},
         "engines": {"value": 0}
+      },
+      "hardpoints": {
+        "acceptedHP": "generic"
+      },
+      "a2g": {
+        "type": "",
+        "range": "",
+        "rof": "",
+        "ammo": {
+          "value": 0,
+          "min": 0,
+          "max": 0
+        },
+        "tarLight": 0,
+        "tarMedium": 0,
+        "tarHeavy": 0,
+        "damage": 0,
+        "load": 0
       }
     },
     "character": {
@@ -88,7 +106,7 @@
       "photo": ["reference"]
     },
     "missile": {
-      "templates": ["base"],
+      "templates": ["base", "hardpoints"],
       "nameFull": "",
       "type": "a2a",
       "guidance": "",
@@ -104,10 +122,10 @@
       "img": ""
     },
     "bomb": {
-      "templates": [""]
+      "templates": ["hardpoints", "base", "a2g"]
     },
     "rocket": {
-      "templates": [""]
+      "templates": ["hardpoints", "base", "a2g"]
     }
   },
 
@@ -137,7 +155,7 @@
           "min": 0,
           "max": 0
         },
-        "tarLight":  0,
+        "tarLight": 0,
         "tarMedium": 0,
         "tarHeavy": 0,
         "damage": 0,

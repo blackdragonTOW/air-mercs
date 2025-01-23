@@ -120,7 +120,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       config: CONFIG.AIR_MERCS,
       tabs: this._getTabs(options.parts),
     };
-    console.log(context.config)
     // Offloading context prep to a helper function
     this._prepareItems(context);
 
@@ -249,32 +248,10 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     // Initialize containers.
     // You can just use `this.document.itemTypes` instead
     // if you don't need to subdivide a given type like
-    // this sheet does with spells/aircraft_weapons
+    // this sheet does with spells/aircraft_weapons 
     const gear = [];
     const features = [];
-    let aircraft_weapons = {
-      internal: [],
-      external: []
-    };
-    let hpInternal = [this.actor.system.hpInternal.value];
-    let hpExternal = [this.actor.system.hpExternal.value];
-    
-    // Extract the number values
-    let internalCount = hpInternal[0];
-    let externalCount = hpExternal[0];
-    
-    // Add empty arrays to the internal sub-array
-    for (let i = 0; i < internalCount; i++) {
-      aircraft_weapons.internal.push([]);
-    }
-    
-    // Add empty arrays to the external sub-array
-    for (let i = 0; i < externalCount; i++) {
-      aircraft_weapons.external.push([]);
-    }
-    
-    console.log('Aircraft Weapons:', aircraft_weapons);
-
+    const aircraft_weapons = [];
 
     // Iterate through items, allocating to containers
     for (let i of this.document.items) {
@@ -315,68 +292,70 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
   _onRender(context, options) {
 
     super._onRender(context, options); // Ensure to call the parent render method
+    
+    if (this.actor.type == 'aircraft') {
+      let maneuverSelect = document.getElementById("maneuver");
+      const maneuverDetails = CONFIG.AIR_MERCS.maneuver; // Make sure to use "maneuver" for accessing the object
+      const actor = this.actor;
 
-    let maneuverSelect = document.getElementById("maneuver");
-    const maneuverDetails = CONFIG.AIR_MERCS.maneuver; // Make sure to use "maneuver" for accessing the object
-    const actor = this.actor;
+      // Load saved maneuver from actor's data
+      let savedManeuver = actor.currentManeuver; // Use flags to persist data
+      if (savedManeuver) {
+          maneuverSelect.value = savedManeuver; // Set the dropdown to the saved value
+      }
 
-    // Load saved maneuver from actor's data
-    let savedManeuver = actor.currentManeuver; // Use flags to persist data
-    if (savedManeuver) {
-        maneuverSelect.value = savedManeuver; // Set the dropdown to the saved value
-    }
+      // Event listener for when the maneuver changes
+      maneuverSelect.addEventListener("change", async (event) => {
+          const selectedKey = event.target.value;
 
-    // Event listener for when the maneuver changes
-    maneuverSelect.addEventListener("change", async (event) => {
-        const selectedKey = event.target.value;
+          const selectedManeuver = maneuverDetails[selectedKey];
 
-        const selectedManeuver = maneuverDetails[selectedKey];
+          // Save the selection to the actor's flags for future tracking
+          actor.currentManeuver = selectedKey // Use flags for persistence
+          // Update the maneuver details display
+          document.getElementById("maneuverName").textContent = selectedManeuver.name;
+          document.getElementById("maneuverDiff").textContent = selectedManeuver.diff;
+          document.getElementById("maneuverPassEffect").textContent = selectedManeuver.passEffect.movement;
+          document.getElementById("maneuverFailEffect").textContent = selectedManeuver.failEffect.movement;
 
-        // Save the selection to the actor's flags for future tracking
-        actor.currentManeuver = selectedKey // Use flags for persistence
-        // Update the maneuver details display
-        document.getElementById("maneuverName").textContent = selectedManeuver.name;
-        document.getElementById("maneuverDiff").textContent = selectedManeuver.diff;
-        document.getElementById("maneuverPassEffect").textContent = selectedManeuver.passEffect.movement;
-        document.getElementById("maneuverFailEffect").textContent = selectedManeuver.failEffect.movement;
-
-        const maneuverImageElement = document.getElementById("maneuverImage");
-        maneuverImageElement.src = `systems/air-mercs/assets/maneuvers/${selectedManeuver.img}.png`;
-    });
-
-    // Update the details display immediately if a maneuver is already selected
-    if (savedManeuver && maneuverDetails[savedManeuver]) {
-        const selectedManeuver = maneuverDetails[savedManeuver];
-        document.getElementById("maneuverName").textContent = selectedManeuver.name;
-        document.getElementById("maneuverDiff").textContent = selectedManeuver.diff;
-        document.getElementById("maneuverPassEffect").textContent = selectedManeuver.passEffect.movement;
-        document.getElementById("maneuverFailEffect").textContent = selectedManeuver.failEffect.movement;
-
-        const maneuverImageElement = document.getElementById("maneuverImage");
-        maneuverImageElement.src = `systems/air-mercs/assets/maneuvers/${selectedManeuver.img}.png`;
-    }
-
-    this.#dragDrop.forEach((d) => d.bind(this.element));
-    this.#disableOverrides();
-    // You may want to add other special handling here
-    // Foundry comes with a large number of utility classes, e.g. SearchFilter
-    // That you may want to implement yourself.
-    const speedSlider = this.element.querySelectorAll('.aircraft-speed-slider');
-
-    for (const slider of speedSlider) {
-      slider.addEventListener("change", (e) => {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        const sliderValue = e.currentTarget.value;
-        
-        const valueDisplay = this.element.querySelector('.slider-value-display');
-        if (valueDisplay) {
-          valueDisplay.textContent = sliderValue;
-        }
-        
-        const actorId = e.currentTarget.dataset.actorId;
-        this.actor.update({ system: { speed: sliderValue } })
+          const maneuverImageElement = document.getElementById("maneuverImage");
+          maneuverImageElement.src = `systems/air-mercs/assets/maneuvers/${selectedManeuver.img}.png`;
       });
+
+      // Update the details display immediately if a maneuver is already selected
+      if (savedManeuver && maneuverDetails[savedManeuver]) {
+          const selectedManeuver = maneuverDetails[savedManeuver];
+          document.getElementById("maneuverName").textContent = selectedManeuver.name;
+          document.getElementById("maneuverDiff").textContent = selectedManeuver.diff;
+          document.getElementById("maneuverPassEffect").textContent = selectedManeuver.passEffect.movement;
+          document.getElementById("maneuverFailEffect").textContent = selectedManeuver.failEffect.movement;
+
+          const maneuverImageElement = document.getElementById("maneuverImage");
+          maneuverImageElement.src = `systems/air-mercs/assets/maneuvers/${selectedManeuver.img}.png`;
+      }
+
+      this.#dragDrop.forEach((d) => d.bind(this.element));
+      this.#disableOverrides();
+      // You may want to add other special handling here
+      // Foundry comes with a large number of utility classes, e.g. SearchFilter
+      // That you may want to implement yourself.
+      const speedSlider = this.element.querySelectorAll('.aircraft-speed-slider');
+
+      for (const slider of speedSlider) {
+        slider.addEventListener("change", (e) => {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          const sliderValue = e.currentTarget.value;
+          
+          const valueDisplay = this.element.querySelector('.slider-value-display');
+          if (valueDisplay) {
+            valueDisplay.textContent = sliderValue;
+          }
+          
+          const actorId = e.currentTarget.dataset.actorId;
+          this.actor.update({ system: { speed: sliderValue } })
+        });
+      }
     }
   }
 
@@ -554,7 +533,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
           label: "GO!",
           callback: () => {
             this.actor.setFlag('air-mercs', 'prepPhaseReady', true)
-            console.log("Player confirmed action.");
             event.preventDefault();
             const actorData = this.actor;
             this.actor.updateTokenReadyState(actorData);
@@ -574,7 +552,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
         no: {
           label: "No-Go",
           callback: () => {
-            console.log("Player canceled action.");
           }
         }
       },
@@ -598,7 +575,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
           label: "GO!",
           callback: () => {
             event.preventDefault();
-            console.log("We pressed the EXECUTE button!");
             this.actor.setFlag('air-mercs', 'prepPhaseReady', false);
             this.actor.updateTokenReadyState(actorData);
 
@@ -645,7 +621,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
           },
         no: {
           label: "No-Go",
-          callback: () => {console.log("Player canceled action.");}
+          callback: () => { }
         }
       },
       default: "no" // Sets the default button to "no"

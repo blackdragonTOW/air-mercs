@@ -31,7 +31,6 @@ export class AirMercsActor extends Actor {
     const actorData = this;
     const systemData = actorData.system;
     const flags = actorData.flags.airmercs || {};
-
     // Make separate methods for each Actor type (character, npc, etc.) to keep
     // things organized.
     this._prepareCharacterData(actorData);

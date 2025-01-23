@@ -231,17 +231,6 @@ async function toggleMovementTemplate() {
   await token.document.setFlag("air-mercs", "moveTemplate", placedTemplate.uuid);
 }
 
-async function toggleSpeedMenu() {
-  if (!canvas.tokens.controlled[0]) {
-    ui.notifications.warn("No token selected")
-    return
-  }
-  if (canvas.tokens.controlled[0].actor.type != 'aircraft') {
-    ui.notifications.warn("This token is not an Aircraft");
-    return
-  }
-  console.log("F1 works.")
-};
 
 function registerKeys() {
   registerMovementKey();
@@ -259,23 +248,6 @@ function registerKeys() {
       ],
       onDown: () => {
           toggleMovementTemplate();
-          return true;
-      },
-    });
-  }
-
-  //Speed and Maneuver Selection menu
-  function registerPrepKey() {
-    game.keybindings.register("air-mercs", "SpeedPrep", {
-      name: "SETTINGS.air-mercs.SpeedPrep",
-      hint: "SETTINGS.air-mercs.SpeedPrepHint",
-      editable: [
-          {
-          key: "F1",
-          },
-      ],
-      onDown: () => {
-          toggleSpeedMenu();
           return true;
       },
     });
