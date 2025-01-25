@@ -275,6 +275,7 @@
 .air-mercs .ability-mod {
   flex: 0 0 44px;
 }
+
 .air-mercs .items-header {
   height: 28px;
   margin: 2px 0;
@@ -518,6 +519,29 @@
   width: 40%;
 }
 
+.jettison-button {
+  width: 65px;
+  display: inline-block;
+  padding: 15px 25px;
+  font-size: 24px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  color: #fff;
+  background-color: #04AA6D;
+  border: none;
+  border-radius: 2px;
+  box-shadow: 0 5px #999;  
+}
+
+.jettison-button:hover {background-color: #3e8e41}
+
+.jettison-button:active {
+  background-color: #3e8e41;
+  transform: translateY(4px);
+}
+
 .maneuver-button {
   display: inline-block;
   padding: 15px 25px;
@@ -536,6 +560,27 @@
 .maneuver-button:hover {background-color: #3e8e41}
 
 .maneuver-button:active {
+  background-color: #3e8e41;
+  transform: translateY(4px);
+}
+
+.initializeHardpoints-button {
+  margin: 5px;
+  width: 150px;
+  display: inline-block;
+  font-size: 24px;
+  cursor: pointer;
+  text-align: center;
+  color: #fff;
+  background-color: #86aa04;
+  border: none;
+  border-radius: 2px;
+  box-shadow: 0 5px #999;
+}
+
+.initializeHardpoints-button:hover {background-color: #3e8e41}
+
+.initializeHardpoints-button:active {
   background-color: #3e8e41;
   transform: translateY(4px);
 }

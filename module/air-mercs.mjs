@@ -28,7 +28,26 @@ globalThis.airMercs = {
   utils: {
     rollItemMacro,
   },
+
 };
+
+async function loadHandleBarTemplates()
+{
+  // register templates parts
+  const templatePaths = [
+    'systems/air-mercs/templates/item/sheet-missile.hbs',
+    'systems/air-mercs/templates/item/sheet-rack.hbs',
+    'systems/air-mercs/templates/item/sheet-bomb.hbs',
+    'systems/air-mercs/templates/item/sheet-rocket.hbs',
+    'systems/air-mercs/templates/item/sheet-equipment.hbs',
+  ];
+  return loadTemplates( templatePaths );
+}
+
+Hooks.once( "init", function() {
+  loadHandleBarTemplates();
+});
+
 
 //Token HUD stuff
 class MyTokenHud extends TokenHUD {

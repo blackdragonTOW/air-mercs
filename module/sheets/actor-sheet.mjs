@@ -8,7 +8,6 @@ const { api, sheets } = foundry.applications;
  */
 export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.ActorSheetV2) {
 
-
   constructor(options = {}) {
     super(options);
     this.#dragDrop = this.#createDragDropHandlers();
@@ -31,6 +30,8 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       roll: this._onRoll,
       prepPhaseReadyButton: this.prepPhaseReadyStoreData,
       prepPhaseExecuteButton: this.prepPhaseExecute,
+      initializeHardpointsButton: this.initializeHardpoints,
+      jettisonButton: this.jettisonOrdinance,
     },
     // Custom property that's merged into `this.options`
     dragDrop: [{ dragSelector: '[data-drag]', dropSelector: null }],
@@ -519,6 +520,52 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     } else return console.warn('Could not find document class');
   }
 
+  _getTargetItem(target) {
+    const li = target.closest(".item");
+    console.log(li?.dataset.itemId) 
+    return this.actor.items.get(li?.dataset.itemId);
+  }
+
+  static async jettisonOrdinance(event, target) { 
+    const tarItem = this._getTargetItem(target);
+    await tarItem.delete();
+  }
+
+  static initializeHardpoints() {
+
+  //At present I dont have a good way to take the values from int/ext hardpoints and convert it to an array with an equal number of entries
+  //This needs to happen before the actor gets used, but also shouldn't happen more than once to not stomp player loadouts
+  //This is my very first TODO
+  //TODO: Find a way to initialize hardpoints without needing player or GM to click a button
+
+    let weapons = {
+      internal: [],
+      external: []
+    };
+    const hpInternal = [this.actor.system.hpInternal.value];
+    const hpExternal = [this.actor.system.hpExternal.value];
+    
+    // Extract the number values
+    let internalCount = hpInternal[0];
+    let externalCount = hpExternal[0];
+    
+    // Add empty arrays to the internal sub-array
+    for (let i = 0; i < internalCount; i++) {weapons.internal.push([]);}
+    
+    // Add empty arrays to the external sub-array
+    for (let i = 0; i < externalCount; i++) {weapons.external.push([]);}
+
+    this.actor.update({
+      system: {
+        loadout: weapons,
+        HPinitialized: true
+      }
+    })
+
+    //Refresh HTML so that button vanishes
+    this.render()
+  }
+
   static prepPhaseReadyStoreData() {
     if (this.actor.getFlag('air-mercs', 'prepPhaseReady') == true) {
       ui.notifications.warn("You are already locked and ready!");
@@ -643,6 +690,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
    */
   _canDragStart(selector) {
     // game.user fetches the current user
+    console.log("Can Drag Start")
     return this.isEditable;
   }
 
@@ -654,6 +702,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
    */
   _canDragDrop(selector) {
     // game.user fetches the current user
+    console.log("Can Drag Drop")
     return this.isEditable;
   }
 
@@ -670,9 +719,9 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     let dragData = this._getEmbeddedDocument(docRow)?.toDragData();
 
     if (!dragData) return;
-
     // Set data transfer
     event.dataTransfer.setData('text/plain', JSON.stringify(dragData));
+    console.log("On Drag Start")
   }
 
   /**
@@ -680,7 +729,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
    * @param {DragEvent} event       The originating DragEvent
    * @protected
    */
-  _onDragOver(event) {}
+  _onDragOver(event) { }
 
   /**
    * Callback actions which occur when a dragged element is dropped on a target.
@@ -692,7 +741,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     const actor = this.actor;
     const allowed = Hooks.call('dropActorSheetData', actor, this, data);
     if (allowed === false) return;
-
     // Handle different data types
     switch (data.type) {
       case 'ActiveEffect':
@@ -806,7 +854,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
   async _onDropItem(event, data) {
     if (!this.actor.isOwner) return false;
     const item = await Item.implementation.fromDropData(data);
-
     // Handle item sorting within the same Actor
     if (this.actor.uuid === item.parent?.uuid)
       return this._onSortItem(event, item);

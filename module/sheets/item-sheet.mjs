@@ -58,6 +58,9 @@ export class AirMercsItemSheet extends api.HandlebarsApplicationMixin(
     effects: {
       template: 'systems/air-mercs/templates/item/effects.hbs',
     },
+    missile: {
+      template: 'systems/air-mercs/templates/item/sheet-missile.hbs',
+    },
   };
 
   /** @override */
@@ -77,6 +80,10 @@ export class AirMercsItemSheet extends api.HandlebarsApplicationMixin(
         break;
       case 'spell':
         options.parts.push('attributesSpell');
+        break;
+      case 'missile':
+        options.parts = [];
+        options.parts.push('missile');
         break;
     }
   }
@@ -532,4 +539,6 @@ export class AirMercsItemSheet extends api.HandlebarsApplicationMixin(
       return new DragDrop(d);
     });
   }
+
+
 }
