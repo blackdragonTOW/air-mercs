@@ -494,6 +494,11 @@
   border: none;
 }
 
+.air-mercs .item-sheet-image {
+  flex: 0 0 auto;
+}
+
+
 .aircraft_weapons{
   overflow-y:auto;
 }
@@ -501,6 +506,77 @@
 .aircraft_gun {
   border: 2px solid #000;
   height: 75px;
+}
+
+
+.air-mercs .center-name {
+  justify-content: center;
+  align-items: center;
+  display: inline-flex; /* Inline-flex ensures the row sizes to its content */
+}
+
+.air-mercs .missile-name {
+  color:#000000;
+  font-size: 14px;
+  width: 125px;
+  text-transform: capitalize;
+  justify-content: left;
+  padding: 3px;
+  margin-right: auto;
+  flex: 0 0 auto;
+}
+
+.air-mercs .row-aspect {
+  width: 100px;
+  text-transform: capitalize;
+  margin-right: 5px;
+  flex: 0 0 auto;
+}
+
+.air-mercs .row-type {
+  text-transform: capitalize;
+  margin-right: 25px;
+  flex: 0 0 auto;
+}
+
+.air-mercs .row-lock {
+  width: 100px;
+  text-transform: capitalize;
+  margin-right: 5px;
+  flex: 0 0 auto;  
+}
+
+.air-mercs .row-guidance {
+  width: 100px;
+  text-transform: capitalize;
+  margin-right: 5px;
+  flex: 0 0 auto;
+}
+
+.air-mercs .row-hit {
+  text-transform: capitalize;
+  margin-right: 5px;
+  flex: 0 0 auto;
+}
+
+.air-mercs .row-range {
+  width: 90px;
+  text-transform: capitalize;
+  margin-right: 15px;
+  flex: 0 0 auto;
+}
+
+.air-mercs .row-damage {
+  width: 100px;
+  text-transform: capitalize;
+  margin-right: 5px;
+  flex: 0 0 auto;
+}
+
+.air-mercs .row-load {
+  text-transform: capitalize;
+  margin-right: 5px;
+  flex: 0 0 auto;
 }
 
 .maneuver-wrapper {
@@ -513,39 +589,41 @@
   width: auto;
 }
 
-.maneuver-selection {
+.air-mercs .maneuver-selection {
   height: 290px;
   border: 2px solid #000;
   width: 40%;
 }
 
-.jettison-button {
-  width: 65px;
+.air-mercs .jettison-button {
   display: inline-block;
-  padding: 15px 25px;
-  font-size: 24px;
+  font-size: 12px;
   cursor: pointer;
   text-align: center;
-  text-decoration: none;
-  outline: none;
   color: #fff;
-  background-color: #04AA6D;
-  border: none;
-  border-radius: 2px;
-  box-shadow: 0 5px #999;  
+  background-color: #af1f1f;
+  border-radius: 5px;
+  box-shadow: 0 3px #999;
+  margin-right: auto;
+  flex: 0 0 auto;
 }
 
-.jettison-button:hover {background-color: #3e8e41}
+#jettison-select {
+  width: 50px;
+  margin-left: auto;
+  flex: 0 0 auto;
+}
 
-.jettison-button:active {
+.air-mercs .jettison-button:hover {background-color: #3e8e41}
+
+.air-mercs .jettison-button:active {
   background-color: #3e8e41;
   transform: translateY(4px);
 }
 
-.maneuver-button {
+.air-mercs .maneuver-button {
   display: inline-block;
-  padding: 15px 25px;
-  font-size: 24px;
+  font-size: 16px;
   cursor: pointer;
   text-align: center;
   text-decoration: none;
@@ -557,9 +635,9 @@
   box-shadow: 0 5px #999;
 }
 
-.maneuver-button:hover {background-color: #3e8e41}
+.air-mercs .maneuver-button:hover {background-color: #3e8e41}
 
-.maneuver-button:active {
+.air-mercs .maneuver-button:active {
   background-color: #3e8e41;
   transform: translateY(4px);
 }
@@ -568,7 +646,7 @@
   margin: 5px;
   width: 150px;
   display: inline-block;
-  font-size: 24px;
+  font-size: 16px;
   cursor: pointer;
   text-align: center;
   color: #fff;
