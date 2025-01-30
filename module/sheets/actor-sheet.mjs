@@ -30,7 +30,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       roll: this._onRoll,
       prepPhaseReadyButton: this.prepPhaseReadyStoreData,
       prepPhaseExecuteButton: this.prepPhaseExecute,
-      initializeHardpointsButton: this.initializeHardpoints,
       jettisonButton: this.jettisonOrdinance,
     },
     // Custom property that's merged into `this.options`
@@ -488,8 +487,9 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
 
     // Handle rolls that supply the formula directly.
     if (dataset.roll) {
-      let label = dataset.label ? `[ability] ${dataset.label}` : '';
+      let label = dataset.label ? `${dataset.label}` : '';
       let roll = new Roll(dataset.roll, this.actor.getRollData());
+      
       await roll.toMessage({
         speaker: ChatMessage.getSpeaker({ actor: this.actor }),
         flavor: label,
@@ -531,40 +531,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     await tarItem.delete();
   }
 
-  static initializeHardpoints() {
-
-  //At present I dont have a good way to take the values from int/ext hardpoints and convert it to an array with an equal number of entries
-  //This needs to happen before the actor gets used, but also shouldn't happen more than once to not stomp player loadouts
-  //This is my very first TODO
-  //TODO: Find a way to initialize hardpoints without needing player or GM to click a button
-
-    let weapons = {
-      internal: [],
-      external: []
-    };
-    const hpInternal = [this.actor.system.hpInternal.value];
-    const hpExternal = [this.actor.system.hpExternal.value];
-    
-    // Extract the number values
-    let internalCount = hpInternal[0];
-    let externalCount = hpExternal[0];
-    
-    // Add empty arrays to the internal sub-array
-    for (let i = 0; i < internalCount; i++) {weapons.internal.push([]);}
-    
-    // Add empty arrays to the external sub-array
-    for (let i = 0; i < externalCount; i++) {weapons.external.push([]);}
-
-    this.actor.update({
-      system: {
-        loadout: weapons,
-        HPinitialized: true
-      }
-    })
-
-    //Refresh HTML so that button vanishes
-    this.render()
-  }
 
   static prepPhaseReadyStoreData() {
     if (this.actor.getFlag('air-mercs', 'prepPhaseReady') == true) {

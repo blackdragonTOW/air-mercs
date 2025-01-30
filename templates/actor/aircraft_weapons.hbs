@@ -3,19 +3,37 @@
   <div class='flexrow aircraft_gun'>
     CLICK HERE TO BRRRRT  {{actor.system.hpExternal.value}}
   </div>
-  {{#unless actor.system.HPinitialized}}
-    <div>
-      <button type="button" class="initializeHardpoints-button" data-action="initializeHardpointsButton">Initialize Hardpoints</button>
-    </div>
-  {{/unless}}
   <ol class='items-list'>
     <li class='flexrow items-header'>
       <div class='item-name'>
         {{localize 'External Hardpoints: '}}{{actor.system.hpExternal.value}} 
+      </div>
+    </li>
+    <ol class='item-list weapon-list external-hardpoints'>
+      {{#each actor.items as |item|}}
+        {{#if (eq item.type 'missile')}} 
+          {{> 'systems/air-mercs/templates/item/sheet-missile.hbs'}} 
+        {{/if}}
+        {{#if (eq item.type 'rack')}} 
+          {{> 'systems/air-mercs/templates/item/sheet-rack.hbs'}} 
+        {{/if}}
+        {{#if (eq item.type 'bomb')}} 
+          {{> 'systems/air-mercs/templates/item/sheet-bomb.hbs'}} 
+        {{/if}}
+        {{#if (eq item.type 'rocket')}} 
+          {{> 'systems/air-mercs/templates/item/sheet-rocket.hbs'}} 
+        {{/if}}
+        {{#if (eq item.type 'equipment')}} 
+          {{> 'systems/air-mercs/templates/item/sheet-equipment.hbs'}} 
+        {{/if}}
+      {{/each}}
+    </ol>
+    <li class='flexrow items-header'>
+      <div class='item-name'>
         {{localize 'Internal Hardpoints: '}}{{actor.system.hpInternal.value}}
       </div>
     </li>
-    <ol class='item-list weapon-list'>
+        <ol class='item-list weapon-list internal-hardpoints'>
       {{#each actor.items as |item|}}
         {{#if (eq item.type 'missile')}} 
           {{> 'systems/air-mercs/templates/item/sheet-missile.hbs'}} 
