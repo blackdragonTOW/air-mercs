@@ -647,6 +647,10 @@
   transform: translateY(4px);
 }
 
+.air-mercs .warning-indicator {
+  background-color: #ff0000;
+}
+
 .air-mercs .maneuver-button {
   display: inline-block;
   font-size: 16px;

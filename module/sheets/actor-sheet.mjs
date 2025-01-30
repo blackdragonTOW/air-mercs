@@ -529,6 +529,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
   static async jettisonOrdinance(event, target) { 
     const tarItem = this._getTargetItem(target);
     await tarItem.delete();
+    await this.actor.update({ "system.capacity.value": this.actor.calculateTotalWeight() })
   }
 
 
@@ -656,7 +657,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
    */
   _canDragStart(selector) {
     // game.user fetches the current user
-    console.log("Can Drag Start")
     return this.isEditable;
   }
 
@@ -668,7 +668,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
    */
   _canDragDrop(selector) {
     // game.user fetches the current user
-    console.log("Can Drag Drop")
     return this.isEditable;
   }
 
@@ -968,4 +967,5 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       }
     }
   }
+
 }

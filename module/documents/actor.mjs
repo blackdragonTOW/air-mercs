@@ -5,6 +5,14 @@
 export class AirMercsActor extends Actor {
   /** @override */
   prepareData() {
+    Hooks.on('dropActorSheetData', async (actor, sheet, data) => {
+      if (data.type === "Item") {
+        setTimeout(() => {
+          console.log(actor.calculateTotalWeight())
+          actor.update({ "system.capacity.value": actor.calculateTotalWeight() });
+        }, 100);
+      }
+    });
     // Prepare data for the actor. Calling the super version of this executes
     // the following, in order: data reset (to clear active effects),
     // prepareBaseData(), prepareEmbeddedDocuments() (including active effects),
@@ -169,6 +177,16 @@ export class AirMercsActor extends Actor {
     }
 
     return relativeBearing;
+  }
+
+  calculateTotalWeight() {
+    const items = this.items.contents; // Get all items
+    const totalWeight = items.reduce((total, item) => {
+        const weight = item.system.load || 0; // Ensure weight is valid
+        return total + weight;
+    }, 0);
+    console.log(totalWeight)
+    return totalWeight;
   }
 
 }
