@@ -149,24 +149,24 @@ export class AirMercsActor extends Actor {
   } 
 
   getRelBearing(shooter, target) {
-      // Get the position of both tokens
-    const x1 = shooter.x + (shooter.width * canvas.grid.size) / 2;
-    const y1 = shooter.y + (shooter.height * canvas.grid.size) / 2;
-    const x2 = target.x + (target.width * canvas.grid.size) / 2;
-    const y2 = target.y + (target.height * canvas.grid.size) / 2;
 
+    // Get the position of both tokens
+    const x1 = shooter.token.x //+ (shooter.token.width * canvas.grid.size) / 2;
+    const y1 = shooter.token.y //+ (shooter.token.height * canvas.grid.size) / 2;
+    const x2 = target.token.x //+ (target.token.width * canvas.grid.size) / 2;
+    const y2 = target.token.y //+ (target.token.height * canvas.grid.size) / 2;
+    
     // Calculate the angle between the two tokens
     const deltaX = x2 - x1;
     const deltaY = y2 - y1;
-    let angleToTarget = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+    let angleToTarget = (Math.atan2(deltaY, deltaX) * (180 / Math.PI)) - 90;
 
     // Normalize angleToTarget to 0-360 degrees
     if (angleToTarget < 0) {
       angleToTarget += 360;
     }
-
-    // Get the rotation of the first token
-    const shooterRotation = shooter.rotation;
+    // Get the rotation of the shooter
+    const shooterRotation = shooter.token.rotation;
 
     // Calculate relative bearing
     let relativeBearing = angleToTarget - shooterRotation;
@@ -175,9 +175,24 @@ export class AirMercsActor extends Actor {
     if (relativeBearing < 0) {
       relativeBearing += 360;
     }
-
     return relativeBearing;
   }
+
+  getDistance(shooter, target) {
+    const x1 = shooter.token.x;
+    const y1 = shooter.token.y;
+    const x2 = target.token.x;
+    const y2 = target.token.y;
+
+    const pixelDistance = Math.hypot(x2 - x1, y2 - y1);
+
+    const gridDistance = pixelDistance / canvas.grid.size;
+
+    console.log(`Pixel Distance: ${pixelDistance}, Grid Distance: ${gridDistance}`);
+
+    return gridDistance;
+  } 
+
 
   calculateTotalWeight() {
     const items = this.items.contents; // Get all items
@@ -188,5 +203,93 @@ export class AirMercsActor extends Actor {
     console.log(totalWeight)
     return totalWeight;
   }
+
+  shootCannon(burst, shooter, target) {
+    const relBearing = shooter.getRelBearing(shooter,target)
+    const aspect = shooter.getRelBearing(target,shooter)
+    const distance = shooter.getDistance(target,shooter)
+    const ammoCount = shooter.system.ammo.value
+    const burstLen = burst
+    const pilotSkill = shooter.system.abilities.gunnery.value
+    const gunValue = shooter.system.gun.value
+    const tarSpeed = target.system.curSpeed
+
+    let rangeBand = 0
+    let diceCount = 0
+
+    if (ammoCount < 1) {return ui.notifications.warn('Out of Ammo!');}
+    if (ammoCount < burstLen) {return ui.notifications.warn('Not enough Ammo for this Burst Length!');}   
+    if (!(relBearing <= 15 || relBearing >= 345)) {return ui.notifications.warn('Target not in frontal 30 degree arc');}
+    if (distance > 9) {return ui.notifications.warn('Target is out of range: Further than 9');}
+    if (distance <= 3) {rangeBand = 3}
+    else if (distance <= 6) {rangeBand = 5}
+    else if (distance <= 9) {rangeBand = 6}
+
+    //Value of onboard Gun
+    diceCount = gunValue
+    console.log("Gun Value:", diceCount)
+
+    //Length of Burst bonus
+    switch (burstLen) {
+      case 1:
+        diceCount += -2;
+        shooter.system.ammo.value += -1
+        console.log("Burst Length: Short")
+        break;
+      case 2:
+        diceCount += 0;
+        shooter.system.ammo.value += -2
+        console.log("Burst Length: Normal")
+        break;
+      case 3:
+        diceCount += 2;
+        shooter.system.ammo.value += -3
+        console.log("Burst Length: Long")
+        break;
+    }
+    console.log("Dice Pool Now:", diceCount)
+
+    //Pilot Skill (Gunnery)
+    diceCount += pilotSkill;
+    console.log("Pilot Skill:", pilotSkill)
+    console.log("Dice Pool Now:", diceCount)
+
+    //Firing from Beam aspect
+    if ((aspect <= 130 && aspect >= 90) || (aspect <= 270 && aspect >= 210)) {
+      diceCount += -2
+      console.log("Firing From Beam")
+      console.log("Dice Pool Now:", diceCount)
+    }
+
+    //Enemy Maneuver Bonus/Malus
+    if (tarSpeed == 0) {
+      diceCount += 2
+      console.log("Target Stalled")
+      console.log("Dice Pool Now:", diceCount)
+    }
+    else if (target.attemptedManeuverOutcome == 'failure' && target.attemptedManeuver.failEffect.defBonus != 0) {
+      diceCount += 2
+      console.log("Target Failed Maneuver")
+      console.log("Dice Pool Now:", diceCount)
+    }
+
+    //Firing from Front
+    if (aspect < 90 || aspect > 270) {
+      diceCount = Math.ceil((diceCount / 2))
+      console.log("Firing From Front Aspect")
+      console.log("Dice Pool Now:", diceCount)
+    }
+
+    //Target is Maneuvering
+    if (target.attemptedManeuverOutcome == 'success') {
+      diceCount = Math.ceil((diceCount / 2))
+      console.log("Target Is Maneuvering")
+      console.log("Dice Pool Now:", diceCount)
+    }
+    
+
+    console.log('Final Dice Pool of:', diceCount, "With Target Number:", rangeBand)
+    return diceCount, rangeBand
+  } 
 
 }

@@ -31,6 +31,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       prepPhaseReadyButton: this.prepPhaseReadyStoreData,
       prepPhaseExecuteButton: this.prepPhaseExecute,
       jettisonButton: this.jettisonOrdinance,
+      cannonfireButton: this.burstSelect,
     },
     // Custom property that's merged into `this.options`
     dragDrop: [{ dragSelector: '[data-drag]', dropSelector: null }],
@@ -531,6 +532,52 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     await tarItem.delete();
     await this.actor.update({ "system.capacity.value": this.actor.calculateTotalWeight() })
   }
+
+  static burstSelect() {
+    if (!this.actor.getActiveTokens()?.[0]?.document.actor) {return ui.notifications.warn('Select a Token to be the Shooter');}
+    if (!game.user.targets.values().next().value.actor) {return ui.notifications.warn('Select a Token to be the Target');}
+
+    const shooter = this.actor.getActiveTokens()?.[0]?.document.actor
+    const target = game.user.targets.values().next().value.actor
+
+    if (this.actor.getActiveTokens()?.[0]?.document.actor.uuid != canvas.tokens.controlled[0].actor.token.actor.uuid) {return ui.notifications.warn('Verify your selected Shooter');}
+    if (shooter == target) {return ui.notifications.warn('Attempting to Fire at Self');}
+
+    new Dialog({
+      title: "Confirm Action",
+      content: "<p>Select Burst Length</p>",
+      buttons: {
+        Short: {
+          label: "Short",
+          callback: () => {
+            event.preventDefault();
+            this.actor.shootCannon(1,shooter,target)
+          }
+        },
+        Normal: {
+          label: "Normal",
+          callback: () => {
+            event.preventDefault();
+            this.actor.shootCannon(2,shooter,target)
+          }
+        },
+        Long: {
+          label: "Long",
+          callback: () => {
+            event.preventDefault();
+            this.actor.shootCannon(3,shooter,target)
+          }
+        },
+        No: {
+          label: "Cancel",
+          callback: () => { }
+        }
+      },
+      default: "no" // Sets the default button to "no"
+        }).render(true);
+  }
+
+
 
 
   static prepPhaseReadyStoreData() {

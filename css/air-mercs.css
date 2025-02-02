@@ -677,6 +677,25 @@
   display: block !important;
 }
 
+.air-mercs .cannon-button {
+  font-size: 16px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  color: #000000;
+  border-radius: 2px;
+  box-shadow: 0 3px #999;
+  background-color: #f3e309;
+}
+
+.air-mercs .cannon-button:hover {background-color: #aa0c0c}
+
+.air-mercs .cannon-button:active {
+  background-color: #ff0000;
+  transform: translateY(2px);
+}
+
 /*
 .slider-vertical {
   input[type="range"][orient="vertical"] {

@@ -228,7 +228,7 @@ async function toggleMovementTemplate() {
   let tokenCenterY = (token.document._object.shape.width / 2)
 
   const posData = {
-  rotation: tokenRotation,
+  rotation: tokenRotation + 180, //we have to flip tokens due to foundry's facing "choices", 0 degrees is south? amazing
   x: (token.document.x - (250 - tokenCenterX)),
   y: (token.document.y - (250 - tokenCenterY)),
   texture: {
