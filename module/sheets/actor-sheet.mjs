@@ -551,21 +551,105 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
           label: "Short",
           callback: () => {
             event.preventDefault();
-            this.actor.shootCannon(1,shooter,target)
+            let [diceCount, rangeBand, chatMessage] = this.actor.shootCannon('Short',shooter,target)
+            ChatMessage.create({content: chatMessage})
+
+            Hooks.once("renderChatMessage", (chatMessage, html) => {
+              html.find(".roll-gunsgunsguns").click(async event => {
+                let roll = await new Roll(`${diceCount}d6`).evaluate({ async: true });
+                let diceResults = roll.dice[0].results.map(r => Number(r.result));
+                let hits = 0
+                rangeBand = Number(rangeBand)
+
+                if (diceResults.length > 0) {
+                  hits = diceResults.filter(diceResults => diceResults >= rangeBand).length;
+                }
+
+                console.log(diceResults)
+                console.log(rangeBand)
+                console.log(hits)
+
+                let formattedResults = diceResults.join(", ");
+
+                let resultMessage = `
+                <h2><b>${shooter.name}</b> opens fire!</h2>
+                <b>Rolls: </b> ${formattedResults}<br>
+                <br><h2><b> Total Damage: </b> ${hits}</h2>
+                `;
+
+                ChatMessage.create({content: resultMessage});
+              });
+            });
           }
         },
         Normal: {
           label: "Normal",
           callback: () => {
             event.preventDefault();
-            this.actor.shootCannon(2,shooter,target)
+            let [diceCount, rangeBand, chatMessage] = this.actor.shootCannon('Medium',shooter,target)
+            ChatMessage.create({content: chatMessage})
+
+            Hooks.once("renderChatMessage", (chatMessage, html) => {
+              html.find(".roll-gunsgunsguns").click(async event => {
+                let roll = await new Roll(`${diceCount}d6`).evaluate({ async: true });
+                let diceResults = roll.dice[0].results.map(r => Number(r.result));
+                let hits = 0
+                rangeBand = Number(rangeBand)
+
+                if (diceResults.length > 0) {
+                  hits = diceResults.filter(diceResults => diceResults >= rangeBand).length;
+                }
+
+                console.log(diceResults)
+                console.log(rangeBand)
+                console.log(hits)
+
+                let formattedResults = diceResults.join(", ");
+
+                let resultMessage = `
+                <h2><b>${shooter.name}</b> opens fire!</h2>
+                <b>Rolls: </b> ${formattedResults}<br>
+                <br><h2><b> Total Damage: </b> ${hits}</h2>
+                `;
+
+                ChatMessage.create({content: resultMessage});
+              });
+            });
           }
         },
         Long: {
           label: "Long",
           callback: () => {
             event.preventDefault();
-            this.actor.shootCannon(3,shooter,target)
+            let [diceCount, rangeBand, chatMessage] = this.actor.shootCannon('Long',shooter,target)
+            ChatMessage.create({content: chatMessage})
+
+            Hooks.once("renderChatMessage", (chatMessage, html) => {
+              html.find(".roll-gunsgunsguns").click(async event => {
+                let roll = await new Roll(`${diceCount}d6`).evaluate({ async: true });
+                let diceResults = roll.dice[0].results.map(r => Number(r.result));
+                let hits = 0
+                rangeBand = Number(rangeBand)
+
+                if (diceResults.length > 0) {
+                  hits = diceResults.filter(diceResults => diceResults >= rangeBand).length;
+                }
+
+                console.log(diceResults)
+                console.log(rangeBand)
+                console.log(hits)
+
+                let formattedResults = diceResults.join(", ");
+
+                let resultMessage = `
+                <h2><b>${shooter.name}</b> opens fire!</h2>
+                <b>Rolls: </b> ${formattedResults}<br>
+                <br><h2><b> Total Damage: </b> ${hits}</h2>
+                `;
+
+                ChatMessage.create({content: resultMessage});
+              });
+            });
           }
         },
         No: {

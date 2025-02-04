@@ -207,43 +207,52 @@ export class AirMercsActor extends Actor {
   shootCannon(burst, shooter, target) {
     const relBearing = shooter.getRelBearing(shooter,target)
     const aspect = shooter.getRelBearing(target,shooter)
-    const distance = shooter.getDistance(target,shooter)
+    const distance = Number(shooter.getDistance(target,shooter)).toPrecision(2)
     const ammoCount = shooter.system.ammo.value
     const burstLen = burst
     const pilotSkill = shooter.system.abilities.gunnery.value
     const gunValue = shooter.system.gun.value
     const tarSpeed = target.system.curSpeed
-
+    
     let rangeBand = 0
     let diceCount = 0
+    let distanceName = ''
 
     if (ammoCount < 1) {return ui.notifications.warn('Out of Ammo!');}
     if (ammoCount < burstLen) {return ui.notifications.warn('Not enough Ammo for this Burst Length!');}   
     if (!(relBearing <= 15 || relBearing >= 345)) {return ui.notifications.warn('Target not in frontal 30 degree arc');}
     if (distance > 9) {return ui.notifications.warn('Target is out of range: Further than 9');}
-    if (distance <= 3) {rangeBand = 3}
-    else if (distance <= 6) {rangeBand = 5}
-    else if (distance <= 9) {rangeBand = 6}
+    if (distance <= 3) {rangeBand = 3; distanceName = 'Short'}
+    else if (distance <= 6) {rangeBand = 5; distanceName = 'Medium'}
+    else if (distance <= 9) {rangeBand = 6; distanceName = 'Long'}
+    
+    let chatMessage = `
+                      <h2><b>${shooter.name}</b> fires a ${burstLen} burst at: <b>${target.name}</b> from ${distanceName} range!</h2>
+                      `
 
     //Value of onboard Gun
-    diceCount = gunValue
+    diceCount += gunValue
+    chatMessage += `<p>+${gunValue}:<b> Aircraft Gun Rating</b>`
     console.log("Gun Value:", diceCount)
 
     //Length of Burst bonus
     switch (burstLen) {
-      case 1:
+      case 'Short':
         diceCount += -2;
         shooter.system.ammo.value += -1
+        chatMessage += `<br>-2:<b> Burst Length</b>`
         console.log("Burst Length: Short")
         break;
-      case 2:
+      case 'Medium':
         diceCount += 0;
         shooter.system.ammo.value += -2
-        console.log("Burst Length: Normal")
+        chatMessage += `<br>+0:<b> Burst Length</b>`
+        console.log("Burst Length: Medium")
         break;
-      case 3:
+      case 'Long':
         diceCount += 2;
         shooter.system.ammo.value += -3
+        chatMessage += `<br>+2:<b> Burst Length</b>`
         console.log("Burst Length: Long")
         break;
     }
@@ -251,12 +260,14 @@ export class AirMercsActor extends Actor {
 
     //Pilot Skill (Gunnery)
     diceCount += pilotSkill;
+    pilotSkill < 0 ? chatMessage += `<br>${pilotSkill}:<b> Pilot Gunnery Rating</b>` : chatMessage += `<br>+${pilotSkill}:<b> Pilot Gunnery Rating</b>`
     console.log("Pilot Skill:", pilotSkill)
     console.log("Dice Pool Now:", diceCount)
 
     //Firing from Beam aspect
     if ((aspect <= 130 && aspect >= 90) || (aspect <= 270 && aspect >= 210)) {
       diceCount += -2
+      chatMessage += `<br>-2<b>: Firing From Beam</b>`
       console.log("Firing From Beam")
       console.log("Dice Pool Now:", diceCount)
     }
@@ -264,11 +275,13 @@ export class AirMercsActor extends Actor {
     //Enemy Maneuver Bonus/Malus
     if (tarSpeed == 0) {
       diceCount += 2
+      chatMessage += `<br>+2<b>: Target Stalled</b>`
       console.log("Target Stalled")
       console.log("Dice Pool Now:", diceCount)
     }
     else if (target.attemptedManeuverOutcome == 'failure' && target.attemptedManeuver.failEffect.defBonus != 0) {
       diceCount += 2
+      chatMessage += `<br>+2<b>: Target Failed Maneuver</b>`
       console.log("Target Failed Maneuver")
       console.log("Dice Pool Now:", diceCount)
     }
@@ -276,6 +289,7 @@ export class AirMercsActor extends Actor {
     //Firing from Front
     if (aspect < 90 || aspect > 270) {
       diceCount = Math.ceil((diceCount / 2))
+      chatMessage += `<br>DICE COUNT HALVED<b>: Firing From Front</b`
       console.log("Firing From Front Aspect")
       console.log("Dice Pool Now:", diceCount)
     }
@@ -283,13 +297,18 @@ export class AirMercsActor extends Actor {
     //Target is Maneuvering
     if (target.attemptedManeuverOutcome == 'success') {
       diceCount = Math.ceil((diceCount / 2))
+      chatMessage += `<br>DICE COUNT HALVED<b>: Target Successfully Maneuvering</b>`
       console.log("Target Is Maneuvering")
       console.log("Dice Pool Now:", diceCount)
     }
     
+    chatMessage += `
+                    <p><b>Total Dice:</b> ${diceCount}d6 hitting on ${rangeBand}+ 
+                    <button class="roll-gunsgunsguns" type="button">Guns! Guns! Guns!</button>
+                    `
 
     console.log('Final Dice Pool of:', diceCount, "With Target Number:", rangeBand)
-    return diceCount, rangeBand
+    return [diceCount, rangeBand, chatMessage];
   } 
 
 }
