@@ -253,7 +253,6 @@ async function toggleMovementTemplate() {
   await token.document.setFlag("air-mercs", "moveTemplate", placedTemplate.uuid);
 }
 
-
 function registerKeys() {
   registerMovementKey();
   registerPrepKey();

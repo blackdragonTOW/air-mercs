@@ -3,16 +3,10 @@
  * @extends {Actor}
  */
 export class AirMercsActor extends Actor {
+
+
   /** @override */
   prepareData() {
-    Hooks.on('dropActorSheetData', async (actor, sheet, data) => {
-      if (data.type === "Item") {
-        setTimeout(() => {
-          console.log(actor.calculateTotalWeight())
-          actor.update({ "system.capacity.value": actor.calculateTotalWeight() });
-        }, 100);
-      }
-    });
     // Prepare data for the actor. Calling the super version of this executes
     // the following, in order: data reset (to clear active effects),
     // prepareBaseData(), prepareEmbeddedDocuments() (including active effects),
@@ -43,6 +37,7 @@ export class AirMercsActor extends Actor {
     // things organized.
     this._prepareCharacterData(actorData);
     this._prepareNpcData(actorData);
+    this.system.capacity.value = this.calcTotalWeight;
   }
 
   /**
@@ -194,8 +189,8 @@ export class AirMercsActor extends Actor {
   } 
 
 
-  calculateTotalWeight() {
-    const items = this.items.contents; // Get all items
+  get calcTotalWeight() {
+    const items = this.items; // Get all items
     const totalWeight = items.reduce((total, item) => {
         const weight = item.system.load || 0; // Ensure weight is valid
         return total + weight;
@@ -289,7 +284,7 @@ export class AirMercsActor extends Actor {
     //Firing from Front
     if (aspect < 90 || aspect > 270) {
       diceCount = Math.ceil((diceCount / 2))
-      chatMessage += `<br>DICE COUNT HALVED<b>: Firing From Front</b`
+      chatMessage += `<br>1/2'd<b>: Firing From Front</b>`
       console.log("Firing From Front Aspect")
       console.log("Dice Pool Now:", diceCount)
     }
@@ -297,7 +292,7 @@ export class AirMercsActor extends Actor {
     //Target is Maneuvering
     if (target.attemptedManeuverOutcome == 'success') {
       diceCount = Math.ceil((diceCount / 2))
-      chatMessage += `<br>DICE COUNT HALVED<b>: Target Successfully Maneuvering</b>`
+      chatMessage += `<br>1/2'd<b>: Target Successfully Maneuvering</b>`
       console.log("Target Is Maneuvering")
       console.log("Dice Pool Now:", diceCount)
     }

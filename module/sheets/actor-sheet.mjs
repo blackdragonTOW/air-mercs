@@ -32,6 +32,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       prepPhaseExecuteButton: this.prepPhaseExecute,
       jettisonButton: this.jettisonOrdinance,
       cannonfireButton: this.burstSelect,
+      weaponPrep: this.weaponPrepMessage,
     },
     // Custom property that's merged into `this.options`
     dragDrop: [{ dragSelector: '[data-drag]', dropSelector: null }],
@@ -530,8 +531,138 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
   static async jettisonOrdinance(event, target) { 
     const tarItem = this._getTargetItem(target);
     await tarItem.delete();
-    await this.actor.update({ "system.capacity.value": this.actor.calculateTotalWeight() })
   }
+
+  static async weaponPrepMessage(event, target) {
+    const airTarget = game.user.targets.values().next().value
+    let shooter = this.actor
+    let weapon = this._getTargetItem(target)
+    console.log(weapon)
+    switch (weapon.type) {
+      case 'missile':
+      const lockon = weapon.system.lock === 'radar'? shooter.system.radar.value : weapon.system.lock;
+      const lockType = weapon.system.lock
+      const locks = 0
+      const pilotSkill = weapon.system.lock === 'radar'? shooter.system.abilities.radar_missiles : shooter.system.abilities.ir_missiles
+      const availableWeapons = shooter.items.reduce((count, item) => count + (item.name === weapon.name ? 1 : 0), 0)
+      const chatMessage = `
+                          <h2><b>${shooter.name}</b> preps a <b>${weapon.name}</b>!</h2>
+                          <b>${weapon.system.guidance} Lock: </b>${lockon}+
+                          <br><b>Aspect: </b>${weapon.system.aspect}
+                          <br><b>Range: </b>${weapon.system.minRange} - ${weapon.system.maxRange} 
+                          <br><b>Hit: </b>${weapon.system.hit}+
+                          <br><b>Damage: </b>${weapon.system.damage} 
+                          <button class="roll-lockattempt" type="button" data-lockvalue="${lockon}">Attempt Lock-on</button>
+                          <button class="roll-launchattempt" type="button">Launch Weapon (unlocked)</button>
+                          `
+      ChatMessage.create({ content: chatMessage }).then(msg => {
+        Hooks.once("renderChatMessage", (chatMessage, html) => {
+          html.find(".roll-lockattempt").click(() => {handleMissileLock(weapon, lockType, shooter)});
+          html.find(".roll-launchattempt").click(() => {launchAttempt(locks, weapon, airTarget, pilotSkill, availableWeapons)});
+        });
+      });
+        return;
+      case 'actor':
+        console.log("It's not a missile!")
+        return;
+      }
+
+    async function handleMissileLock(weapon, lockType, shooter) {
+      event.preventDefault();
+      if (!game.user.targets.values().next().value) {return ui.notifications.warn('No Lock Target Selected!');} 
+      const target = game.user.targets.values().next().value.actor
+      const availableWeapons = shooter.items.reduce((count, item) => count + (item.name === weapon.name ? 1 : 0), 0)
+      let diceCount = 0
+      availableWeapons > 1 ? diceCount = 2 : diceCount = 1
+      lockType === 'radar'? diceCount = 1 : diceCount = 2
+      if (shooter == target) {return ui.notifications.warn('Attempting to Fire at Self');}    
+      if (shooter.system.radar.value == 0) {ChatMessage.create({ content: `${this.actor.name} has no Air-to-Air Radar and can't lock-on!` });} 
+
+      //Aspect checks
+      let targetAspect = shooter.getRelBearing(target, shooter)
+      if (weapon.aspect === 'rear-180') {
+        if (!(targetAspect >= 90 && targetAspect <= 270)) {return ui.notifications.warn('This Missile requires a Rear 180 aspect!');};
+      };
+      if (weapon.aspect === 'rear-60') {
+        if (!(targetAspect >= 150 && targetAspect <= 210)) {return ui.notifications.warn('This Missile requires a Rear 60 aspect!');};
+      };
+  
+      let dieTarget = lockType === 'radar' ? shooter.system.radar.value : weapon.system.lock
+      let modifiers = 0
+      const pilotSkill = lockType === 'radar' ? shooter.system.abilities.radar_missiles : shooter.system.abilities.ir_missiles
+      const tarECM = target.system.ecm.value
+
+      let chatMessage = `
+                        <h2><b>${shooter.name}</b> attempts to lock onto <b>${target.name}</b>!</h2>
+                        <b>${weapon.system.guidance} Locks on: </b>${dieTarget}+<br>
+                        `
+
+      if (target.lowAltitude) {
+        //TODO: This is a placeholder for when we add high/low alt conditions
+        chatMessage += `<br>-1:<b> Target Down Low</b>`
+        modifiers += -1
+      }
+      if (lockType === 'radar') {
+        //TODO: This is a placeholder for when we add high/low alt conditions
+        chatMessage += `<br>${tarECM}:<b> Target ECM</b>`
+        modifiers += tarECM
+      }
+      let modString = modifiers < 0 ? modifiers : `+${modifiers}`
+
+      let roll = await new Roll(`${diceCount}d10+${modifiers}`).evaluate({ async: true });
+      let diceResults = roll.dice[0].results.map(r => Number(r.result));
+      const locks = diceResults.filter(die => die >= dieTarget).length;
+      let lockString = lockType === 'radar' ? `Radar locked on!` : `${locks} IR Locks`
+      locks == 0 ? lockString = 'Unable to Lock Target!' : ``
+
+      chatMessage +=    `
+                        <br><br><b>${diceCount}d10${modString}: </b> ${diceResults.join(", ")}
+                        <br><h2><b>${lockString}</b></h2>
+                        <button class="roll-launchattempt" type="button" data-lockcount="${locks}">Launch Weapon</button>
+                        `
+
+      ChatMessage.create({ content: chatMessage }).then(msg => {
+        Hooks.once("renderChatMessage", (chatMessage, html) => {
+          html.find(".roll-launchattempt").click(() => {launchAttempt(locks, weapon, target, pilotSkill, availableWeapons)});
+        });
+      });
+      
+    }
+
+    async function launchAttempt(locks, weapon, target, pilotSkill, availableWeapons) {
+      if (!target) {return ui.notifications.warn('No Lock Target Selected!');} 
+      event.preventDefault();
+      console.log("Attempting to launch with", locks, "locks")
+      new Dialog({
+        title: "Confirm Action",
+        content: `<p>Launching <b>${weapon.name}</b> at <b>${target.name}</b> with: <b>${locks}</b> weapons locked and <b>${availableWeapons}</b> weapons available.<p>How many will you use?`,
+        buttons: {
+          One: {
+            label: "One",
+            callback: () => console.log("one") // handleCannonShot(1, locks, weapon, target, pilotSkill)
+          },
+          Two: {
+            label: "Two",
+            callback: () => console.log("two") // handleCannonShot(2, locks, weapon, target, pilotSkill)
+          },
+          Cancel: {
+            label: "Cancel",
+            callback: () => {} // No action needed for cancel
+          }
+        },
+        default: "Cancel", // Sets the default button to "No"
+        render: (html) => {
+          if (availableWeapons < 2 || weapon.system.guidance === 'SARH') {
+            let twoButton = html.find("button:contains('Two')");
+            twoButton.prop("disabled", true).css("opacity", "0.5"); // Disables and greys out
+          }
+        }
+      }).render(true);
+    }
+
+  }
+
+
 
   static burstSelect() {
     if (!this.actor.getActiveTokens()?.[0]?.document.actor) {return ui.notifications.warn('Select a Token to be the Shooter');}
@@ -547,118 +678,54 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       title: "Confirm Action",
       content: "<p>Select Burst Length</p>",
       buttons: {
-        Short: {
-          label: "Short",
-          callback: () => {
-            event.preventDefault();
-            let [diceCount, rangeBand, chatMessage] = this.actor.shootCannon('Short',shooter,target)
-            ChatMessage.create({content: chatMessage})
-
-            Hooks.once("renderChatMessage", (chatMessage, html) => {
-              html.find(".roll-gunsgunsguns").click(async event => {
-                let roll = await new Roll(`${diceCount}d6`).evaluate({ async: true });
-                let diceResults = roll.dice[0].results.map(r => Number(r.result));
-                let hits = 0
-                rangeBand = Number(rangeBand)
-
-                if (diceResults.length > 0) {
-                  hits = diceResults.filter(diceResults => diceResults >= rangeBand).length;
-                }
-
-                console.log(diceResults)
-                console.log(rangeBand)
-                console.log(hits)
-
-                let formattedResults = diceResults.join(", ");
-
-                let resultMessage = `
-                <h2><b>${shooter.name}</b> opens fire!</h2>
-                <b>Rolls: </b> ${formattedResults}<br>
-                <br><h2><b> Total Damage: </b> ${hits}</h2>
-                `;
-
-                ChatMessage.create({content: resultMessage});
-              });
-            });
-          }
-        },
-        Normal: {
-          label: "Normal",
-          callback: () => {
-            event.preventDefault();
-            let [diceCount, rangeBand, chatMessage] = this.actor.shootCannon('Medium',shooter,target)
-            ChatMessage.create({content: chatMessage})
-
-            Hooks.once("renderChatMessage", (chatMessage, html) => {
-              html.find(".roll-gunsgunsguns").click(async event => {
-                let roll = await new Roll(`${diceCount}d6`).evaluate({ async: true });
-                let diceResults = roll.dice[0].results.map(r => Number(r.result));
-                let hits = 0
-                rangeBand = Number(rangeBand)
-
-                if (diceResults.length > 0) {
-                  hits = diceResults.filter(diceResults => diceResults >= rangeBand).length;
-                }
-
-                console.log(diceResults)
-                console.log(rangeBand)
-                console.log(hits)
-
-                let formattedResults = diceResults.join(", ");
-
-                let resultMessage = `
-                <h2><b>${shooter.name}</b> opens fire!</h2>
-                <b>Rolls: </b> ${formattedResults}<br>
-                <br><h2><b> Total Damage: </b> ${hits}</h2>
-                `;
-
-                ChatMessage.create({content: resultMessage});
-              });
-            });
-          }
-        },
         Long: {
           label: "Long",
-          callback: () => {
-            event.preventDefault();
-            let [diceCount, rangeBand, chatMessage] = this.actor.shootCannon('Long',shooter,target)
-            ChatMessage.create({content: chatMessage})
-
-            Hooks.once("renderChatMessage", (chatMessage, html) => {
-              html.find(".roll-gunsgunsguns").click(async event => {
-                let roll = await new Roll(`${diceCount}d6`).evaluate({ async: true });
-                let diceResults = roll.dice[0].results.map(r => Number(r.result));
-                let hits = 0
-                rangeBand = Number(rangeBand)
-
-                if (diceResults.length > 0) {
-                  hits = diceResults.filter(diceResults => diceResults >= rangeBand).length;
-                }
-
-                console.log(diceResults)
-                console.log(rangeBand)
-                console.log(hits)
-
-                let formattedResults = diceResults.join(", ");
-
-                let resultMessage = `
-                <h2><b>${shooter.name}</b> opens fire!</h2>
-                <b>Rolls: </b> ${formattedResults}<br>
-                <br><h2><b> Total Damage: </b> ${hits}</h2>
-                `;
-
-                ChatMessage.create({content: resultMessage});
-              });
-            });
-          }
+          callback: () => handleCannonShot("Long", shooter, target)
+        },
+        Medium: {
+          label: "Medium",
+          callback: () => handleCannonShot("Medium", shooter, target)
+        },
+        Short: {
+          label: "Short",
+          callback: () => handleCannonShot("Short", shooter, target)
         },
         No: {
           label: "Cancel",
-          callback: () => { }
+          callback: () => {} // No action needed for cancel
         }
       },
-      default: "no" // Sets the default button to "no"
-        }).render(true);
+      default: "No" // Sets the default button to "No"
+    }).render(true);
+
+      /** Handles shooting logic */
+    async function handleCannonShot(range, shooter, target) {
+      event.preventDefault();
+      
+      let [diceCount, rangeBand, chatMessage] = shooter.shootCannon(range, shooter, target);
+      ChatMessage.create({ content: chatMessage });
+
+      Hooks.once("renderChatMessage", (chatMessage, html) => {
+        html.find(".roll-gunsgunsguns").click(() => resolveAttackRoll(diceCount, rangeBand, shooter));
+      });
+    }
+
+    /** Processes dice roll and sends results */
+    async function resolveAttackRoll(diceCount, rangeBand, shooter) {
+      let roll = await new Roll(`${diceCount}d6`).evaluate({ async: true });
+      let diceResults = roll.dice[0].results.map(r => Number(r.result));
+      let hits = diceResults.filter(die => die >= rangeBand).length;
+
+      console.log(diceResults, rangeBand, hits);
+
+      let resultMessage = `
+        <h2><b>${shooter.name}</b> opens fire!</h2>
+        <b>Rolls: </b> ${diceResults.join(", ")}<br>
+        <br><h2><b> Total Damage: </b> ${hits}</h2>
+      `;
+
+      ChatMessage.create({ content: resultMessage });
+    }
   }
 
 

@@ -10,8 +10,8 @@ AIR_MERCS.abilities = {
   maneuvers: 'Maneuvers',
   perception: 'Perception',
   gunnery: 'Gunnery',
-  ir_missiles: 'Missiles (IR)',
-  radar_missiles: 'Missiles (Radar)',
+  ir_missiles: 'IR Missiles',
+  radar_missiles: 'Radar Missiles',
   ground_unguided: 'Ground Attack (Unguided)',
   ground_guided: 'Ground Attack (Guided)',
 };

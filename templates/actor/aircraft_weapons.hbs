@@ -6,7 +6,7 @@
   <ol class='items-list'>
     <li class='flexrow items-header'>
       <div class='item-name'>
-        {{localize 'External Hardpoints: '}}{{actor.system.hpExternal.value}} 
+        {{localize 'External Hardpoints: '}}{{actor.system.hpExternal.value}} / {{actor.system.hpExternal.value}} 
       </div>
     </li>
     <ol class='item-list weapon-list external-hardpoints'>
@@ -30,11 +30,11 @@
     </ol>
     <li class='flexrow items-header'>
       <div class='item-name'>
-        {{localize 'Internal Hardpoints: '}}{{actor.system.hpInternal.value}}
+        {{localize 'Internal Hardpoints: '}}{{actor.system.hpInternal.value}} / {{actor.system.hpInternal.value}}
       </div>
     </li>
         <ol class='item-list weapon-list internal-hardpoints'>
-      {{#each actor.items as |item|}}
+      <!-- {{#each actor.items as |item|}}  TEMP COMMENTED UNTIL I CAN SPLIT OFF INTERNAL HPs
         {{#if (eq item.type 'missile')}} 
           {{> 'systems/air-mercs/templates/item/sheet-missile.hbs'}} 
         {{/if}}
@@ -50,7 +50,7 @@
         {{#if (eq item.type 'equipment')}} 
           {{> 'systems/air-mercs/templates/item/sheet-equipment.hbs'}} 
         {{/if}}
-      {{/each}}
+      {{/each}} -->
     </ol>
     <!--
     {{#each actor.system.loadout.external}}
