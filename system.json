@@ -70,21 +70,6 @@
             ]
         }
     }
-  },
-  {
-    "name": "lite-missiles",
-    "label": "LITE Missiles",
-    "system": "air-mercs",
-    "path": "packs/lite-missiles",
-    "type": "Actor",
-    "private": false,
-    "flags": {
-        "airmercs": {
-            "types": [
-                "missile"
-            ]
-        }
-    }
   }
   ],
 "packFolders": [],

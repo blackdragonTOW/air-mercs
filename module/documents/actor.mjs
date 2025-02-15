@@ -37,7 +37,9 @@ export class AirMercsActor extends Actor {
     // things organized.
     this._prepareCharacterData(actorData);
     this._prepareNpcData(actorData);
-    this.system.capacity.value = this.calcTotalWeight;
+    if (this.type == "aircraft") {
+      this.system.capacity.value = this.calcTotalWeight;
+    }
   }
 
   /**
@@ -195,7 +197,6 @@ export class AirMercsActor extends Actor {
         const weight = item.system.load || 0; // Ensure weight is valid
         return total + weight;
     }, 0);
-    console.log(totalWeight)
     return totalWeight;
   }
 

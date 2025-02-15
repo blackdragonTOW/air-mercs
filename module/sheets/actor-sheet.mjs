@@ -68,6 +68,9 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     missile_header: {
       template: 'systems/air-mercs/templates/actor/missile_header.hbs',
     },
+    missile_features: {
+      template: 'systems/air-mercs/templates/actor/missile_features.hbs',
+    },
     aircraft_header: {
       template: 'systems/air-mercs/templates/actor/aircraft_header.hbs',
     },
@@ -97,7 +100,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       case 'npc':
         options.parts.push('header', 'tabs','gear', 'effects', 'biography');
       case 'missile':
-        options.parts.push('missile_header', 'tabs', 'biography');
+        options.parts.push('missile_header', 'missile_features');
         break;
     }
   
@@ -133,6 +136,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     switch (partId) {
       case 'features':
       case 'aircraft_features':
+      case 'missile_features':
       case 'aircraft_speed':
       case 'aircraft_weapons':
       case 'missile_header':
@@ -181,7 +185,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     let defaultTab = null;
     switch (this.actor.type) {
       case "missile":
-        defaultTab = 'biography'
+        defaultTab = 'missile_features'
         break;
       case "aircraft":
         defaultTab = 'aircraft_features'
@@ -217,6 +221,10 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
         case 'aircraft_features':
           tab.id = 'aircraft_features';
           tab.label += 'aircraft_features';
+          break;
+        case 'missile_features':
+          tab.id = 'missile_features';
+          tab.label += 'missile_features';
           break;
         case 'aircraft_speed':
           tab.id = 'aircraft_speed';
@@ -604,7 +612,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       }
       if (lockType === 'radar') {
         //TODO: This is a placeholder for when we add high/low alt conditions
-        chatMessage += `<br>${tarECM}:<b> Target ECM</b>`
+        chatMessage += `<br>${tarECM}:<b> ECM</b>`
         modifiers += tarECM
       }
       let modString = modifiers < 0 ? modifiers : `+${modifiers}`
@@ -623,13 +631,13 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
 
       ChatMessage.create({ content: chatMessage }).then(msg => {
         Hooks.once("renderChatMessage", (chatMessage, html) => {
-          html.find(".roll-launchattempt").click(() => {launchAttempt(locks, weapon, target, pilotSkill, availableWeapons)});
+          html.find(".roll-launchattempt").click(() => {launchAttempt(shooter, locks, weapon, target, pilotSkill, availableWeapons)});
         });
       });
       
     }
 
-    async function launchAttempt(locks, weapon, target, pilotSkill, availableWeapons) {
+    async function launchAttempt(shooter, locks, weapon, target, pilotSkill, availableWeapons) {
       if (!target) {return ui.notifications.warn('No Lock Target Selected!');} 
       event.preventDefault();
       console.log("Attempting to launch with", locks, "locks")
@@ -639,11 +647,11 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
         buttons: {
           One: {
             label: "One",
-            callback: () => console.log("one") // handleCannonShot(1, locks, weapon, target, pilotSkill)
+            callback: () => handleMissileLaunch(shooter, 1, locks, weapon, target, pilotSkill)
           },
           Two: {
             label: "Two",
-            callback: () => console.log("two") // handleCannonShot(2, locks, weapon, target, pilotSkill)
+            callback: () => handleMissileLaunch(shooter, 2, locks, weapon, target, pilotSkill)
           },
           Cancel: {
             label: "Cancel",
@@ -658,6 +666,65 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
           }
         }
       }).render(true);
+
+      async function handleMissileLaunch(shooter, LaunchCount, locks, weapon, target, pilotSkill) {
+        event.preventDefault();
+        const scene = game.scenes.active;
+        if (!scene) {
+            ui.notifications.error("No active scene found!");
+            return;
+        }
+
+        const aspect = shooter.getRelBearing(target, shooter)
+        let tarAspect = ''
+          if ((aspect <= 130 && aspect >= 90) || (aspect <= 270 && aspect >= 210))
+            {tarAspect = 'Beam'}
+          else if (aspect > 90 && aspect < 210)
+            {tarAspect = 'Rear'}
+          else {tarAspect = 'Front'}
+        for (let i = LaunchCount; i > 0; i--) {
+          //Create an actor so the token has a sheet where we click buttons to resolve the token
+          console.log(weapon.system)
+          let missileActorData = {
+            name: `${weapon.name}`,
+            type: "missile",
+            img: weapon.img,
+            system: weapon.toObject().system,
+            flags: {
+                "airmercs.missileData": {
+                    launchAspect: tarAspect,
+                    shotBy: shooter,
+                    shotAt: target,
+                    shooterSkill: pilotSkill.value,
+                    hasLock: locks > 0 ? true : false,
+                    isCounterMeasured: false,
+                    launchDistance: Number(shooter.getDistance(shooter, target).toPrecision(2))
+                }
+            }
+          };
+
+          let missileActor = await Actor.create(missileActorData);
+          if (!missileActor) {
+              console.error("Failed to create missile actor");
+              continue;
+          }
+
+          let filename = weapon.img.split("/").pop()
+          let tokenData = {
+            name: weapon.name,
+            texture: { src: `systems/air-mercs/assets/missiles/${filename}` },
+            x: target.token.x + 200, // Adjusted X coordinate
+            y: target.token.y, 
+            width: 0.3, 
+            height: 0.3,
+            vision: false,
+            actorLink: true,
+            actorId: missileActor.id, 
+          };
+          locks--
+          await scene.createEmbeddedDocuments("Token", [tokenData]);
+        }
+      }
     }
 
   }

@@ -25,6 +25,7 @@
         "missile_stats": "Statistics",
         "aircraft_header": "Aircraft",
         "aircraft_features": "Statistics",
+        "missile_features": "Statistics",
         "aircraft_speed": "Prep Phase"
       },
       "base": {
@@ -71,6 +72,17 @@
       "Character": {
         "FIELDS": {
           "attributes.level.value": {"label": "Level"}
+        }
+      },
+      "Missile": {
+        "FIELDS": {
+          "target": {"label": "Target:"},
+          "shooter": {"label": "Fired By:"},
+          "range": {"label": "Range:"},
+          "aspect": {"label": "Aspect:"},
+          "cm": {"label": "Countermeasured:"},
+          "launchrange": {"label": "Launch Dist:"},
+          "locked": {"label": "Locked:"}
         }
       },
       "NPC": {

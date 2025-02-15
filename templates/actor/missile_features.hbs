@@ -1,0 +1,32 @@
+<section class='tab missile_features missile_actor {{tab.cssClass}}' data-group='primary' data-tab='missile_features'>
+  <section class='grid grid-3col'>
+    <aside class='sidebar'>
+      {{! The grid classes are defined in scss/global/_grid.scss. To use,
+          use both the "grid" and "grid-Ncol" class where "N" can be any number
+          from 1 to 12 and will create that number of columns.  }}
+      <div class='flexcol align-left'>
+          <div><b>{{localize 'AIR_MERCS.Actor.Missile.FIELDS.shooter.label'}} </b>{{flags.airmercs.missileData.shotBy.name}}</div>
+          <div><b>{{localize 'AIR_MERCS.Actor.Missile.FIELDS.target.label'}} </b>{{flags.airmercs.missileData.shotAt.name}}</div>
+      </div>
+    </aside>
+
+    <aside class='sidebar'>
+          <div><b>{{localize 'AIR_MERCS.Actor.Missile.FIELDS.locked.label'}} </b>
+          {{#if flags.airmercs.missileData.hasLock}}
+          Yes
+          {{else}}No{{/if}}</div>
+          <div><b>{{localize 'AIR_MERCS.Actor.Missile.FIELDS.cm.label'}} </b>
+          {{#if flags.airmercs.missileData.isCounterMeasured}}
+          Yes
+          {{else}}No{{/if}}</div>
+    </aside>
+
+    <aside class='sidebar'>
+          <div><b>{{localize 'AIR_MERCS.Actor.Missile.FIELDS.launchrange.label'}} </b>{{flags.airmercs.missileData.launchDistance}} ({{system.minRange}} - {{system.maxRange}})</div>
+          <div><b>{{localize 'AIR_MERCS.Actor.Missile.FIELDS.aspect.label'}} </b>{{flags.airmercs.missileData.launchAspect}}</div>
+    </aside>
+  </section>
+    <div class="align-center" style="margin: 0 auto; width: 200px">
+      <button type="button" class="missileResolve-button" data-action="resolveMissileAttack">Resolve Attack</button>
+    </div>
+</section>

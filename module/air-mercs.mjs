@@ -255,7 +255,6 @@ async function toggleMovementTemplate() {
 
 function registerKeys() {
   registerMovementKey();
-  registerPrepKey();
 
   //Movement Template Toggle Key
   function registerMovementKey() {

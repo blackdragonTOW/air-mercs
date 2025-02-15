@@ -58,7 +58,7 @@
 
       <div class='resource flex-group-center'>
         <label for='system.lock' 
-          class='resource-label rollable'
+          class='resource-label'
           data-action='roll'
           data-roll='d10'
           data-label={{localize 'AIR_MERCS.Actor.base.FIELDS.lock'}}
@@ -68,7 +68,7 @@
             disabled='true'
             type='text'
             name='system.lock'
-            value='{{system.lock}}'
+            value='{{system.lock}}+'
             data-dtype='String'
           />
         </div>
@@ -106,7 +106,7 @@
 
       <div class='resource flex-group-center'>
         <label for='system.hit' 
-          class='resource-label rollable'
+          class='resource-label'
           data-action='roll'
           data-roll='d10'
           data-label={{localize 'AIR_MERCS.Actor.base.FIELDS.hit'}}
@@ -116,7 +116,7 @@
             disabled='true'
             type='text'
             name='system.hit'
-            value='{{system.hit}}'
+            value='{{system.hit}}+'
             data-dtype='Number'
           />
         </div>
@@ -124,7 +124,7 @@
 
       <div class='resource flex-group-center'>
         <label for='system.damage' 
-          class='resource-label rollable'
+          class='resource-label'
           data-action='roll'
           data-roll='{{system.damage}}'
           data-label={{localize 'AIR_MERCS.Actor.base.FIELDS.damage'}}
@@ -142,7 +142,7 @@
 
             <div class='resource flex-group-center'>
         <label for='system.load' class='resource-label'>
-          {{localize 'AIR_MERCS.Actor.base.FIELDS.load'}}
+          {{localize 'AIR_MERCS.Actor.base.FIELDS.capacity'}}
         </label>
         <div class='resource-content flexrow flex-center flex-between'>
           <input
@@ -153,44 +153,6 @@
             data-dtype='Number'
           />
         </div>
-      </div>
-
-
-      <div class='resource flex-group-center'>
-        {{#if (eq actor.type 'character')}}
-          <label class='resource-label'>
-            {{localize 'AIR_MERCS.Actor.Character.FIELDS.attributes.level.value.label'}}
-          </label>
-          <div class='resource-content flexrow flex-center flex-between'>
-            <input
-              type='text'
-              name='system.attributes.level.value'
-              value='{{system.attributes.level.value}}'
-              data-dtype='Number'
-            />
-          </div>
-        {{/if}}
-        {{#if (eq actor.type 'npc')}}
-          <label class='resource-label'>
-            {{localize 'AIR_MERCS.Actor.NPC.FIELDS.cr.label'}} / {{localize 'AIR_MERCS.Actor.NPC.xp.label'}}
-          </label>
-          <div class='resource-content flexrow flex-center flex-between'>
-            <input
-              type='text'
-              name='system.cr'
-              value='{{system.cr}}'
-              data-dtype='Number'
-            />
-            <span></span>
-            <input
-              type='text'
-              disabled='true'
-              name='system.xp'
-              value='{{system.xp}}'
-              data-dtype='Number'
-            />
-          </div>
-        {{/if}}
       </div>
     </div>
   </div>
