@@ -1,7 +1,3 @@
-2025/02/14-11:52:19.605 f4c Recovering log #51
-2025/02/14-11:52:19.618 f4c Delete type=0 #51
-2025/02/14-11:52:19.618 f4c Delete type=3 #50
-2025/02/14-15:10:27.562 650 Level-0 table #55: started
-2025/02/14-15:10:27.562 650 Level-0 table #55: 0 bytes OK
-2025/02/14-15:10:27.568 650 Delete type=0 #53
-2025/02/14-15:10:27.581 650 Manual compaction at level-0 from '!actors!87NEcI9v0n7tmCyn' @ 72057594037927935 : 1 .. '!actors!KS3AszNr8OAqbkpk' @ 0 : 0; will stop at (end)
+2025/02/14-15:10:52.521 f4c Recovering log #54
+2025/02/14-15:10:52.537 f4c Delete type=0 #54
+2025/02/14-15:10:52.537 f4c Delete type=3 #52

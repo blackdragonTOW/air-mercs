@@ -33,6 +33,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       jettisonButton: this.jettisonOrdinance,
       cannonfireButton: this.burstSelect,
       weaponPrep: this.weaponPrepMessage,
+      deleteMissile: this.missileDelete,
     },
     // Custom property that's merged into `this.options`
     dragDrop: [{ dragSelector: '[data-drag]', dropSelector: null }],
@@ -536,6 +537,36 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     return this.actor.items.get(li?.dataset.itemId);
   }
 
+  static async missileDelete() {
+    //I know some coder somewhere is going to be really upset by this
+    //But missiles start as items for actors, and then temporarily become actors in order to have sheets and a token
+    //and once We're done with them they can be disposed of, otherwise we accumulate actors per missile fired
+    //So a campaign might be several missions in and you'll have 80 some actors you will NEVER use again
+    if (this.actor.type === !'missile') {return ui.notifications.warn('Something has gone very wrong in the delete process!');}
+
+    new Dialog({
+      title: "Confirm Action",
+      content: `Are you sure you wish to delete <strong>${this.actor.name}</strong>?`,
+      buttons: {
+        Yes: {
+          label: "Delete",
+          callback: () => {
+            const weaponActor = this.actor
+            const weaponToken = canvas.tokens.placeables.filter(t => t.actor?.id === weaponActor.id);
+            const weaponTokenUUID = weaponToken.map(t => t.document.uuid)
+            Promise.all(weaponToken.map(t => t.document.delete()));
+            weaponActor.delete();
+          }
+        },
+        Cancel: {
+          label: "Cancel",
+          callback: () => {} // No action needed for cancel
+        }
+      },
+      default: "Cancel", // Sets the default button to "No"
+    }).render(true);
+  }
+
   static async jettisonOrdinance(event, target) { 
     const tarItem = this._getTargetItem(target);
     await tarItem.delete();
@@ -675,6 +706,44 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
             return;
         }
 
+        function getLeadPosition() {
+          //This will find the angle of the lead position relative to the shooters facing
+          //Given that this is the angle, it's agnostic of the forward or backward facing of the target
+          //We will combine it with a distance to the target to calculate a reasonable lead tracking solution
+          const angle = (target.parent.rotation + 90) * (Math.PI / 180); // Convert degrees to radians, all South is 0 degrees, Foundry.txt I guess
+          const speed = target.system.curSpeed.value
+          const gridSize = canvas.scene.grid.size; 
+          const gridDistance = canvas.scene.grid.distance; 
+
+          const speedInPixels = (speed * gridSize) / gridDistance;
+          const newX = target.parent.x + speedInPixels * Math.cos(angle);
+          const newY = target.parent.y + speedInPixels * Math.sin(angle);
+
+          //TODO: Make this not shitty and getRelBearing() should accept more than just actors... or something else idk I'm not a smart man
+          let tarPoint = {}
+          tarPoint.token = {}
+          tarPoint.token.x = 0
+          tarPoint.token.y = 0
+          tarPoint.token.x = newX
+          tarPoint.token.y = newY
+          const bearingLead = shooter.getRelBearing(shooter, tarPoint)
+          return { x: newX, y: newY, bearing: bearingLead};
+        }
+
+        const interceptPoint = getLeadPosition()
+        const leadAngle = getLeadPosition().bearing
+            const startX = shooter.parent.x, startY = shooter.parent.y; // starting coordinates
+            const endX = target.parent.x, endY = target.parent.y
+        const tarDistance = Math.sqrt((endX - startX) ** 2 + (endY - startY) ** 2) //raw dist to target
+        const ipDistance = Math.sqrt((interceptPoint.x - startX) ** 2 + (interceptPoint.y - startY) ** 2)
+        const shortestDist = ipDistance < tarDistance ? ipDistance : tarDistance
+        const distScalar = 0.8 //what percent of the distance to target do we want to create our token at
+        const calcdistance = shortestDist  * distScalar; 
+        // const leadPos = getNewPositionFromAzimuth(startX, startY, leadAngle, distance);
+        const leadAngleRad =  Math.toRadians(shooter.parent.rotation + 90+leadAngle)
+        const ray = Ray.fromAngle(shooter.parent.x, shooter.parent.y, leadAngleRad , calcdistance )
+
+
         const aspect = shooter.getRelBearing(target, shooter)
         let tarAspect = ''
           if ((aspect <= 130 && aspect >= 90) || (aspect <= 270 && aspect >= 210))
@@ -684,7 +753,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
           else {tarAspect = 'Front'}
         for (let i = LaunchCount; i > 0; i--) {
           //Create an actor so the token has a sheet where we click buttons to resolve the token
-          console.log(weapon.system)
           let missileActorData = {
             name: `${weapon.name}`,
             type: "missile",
@@ -712,9 +780,10 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
           let filename = weapon.img.split("/").pop()
           let tokenData = {
             name: weapon.name,
-            texture: { src: `systems/air-mercs/assets/missiles/${filename}` },
-            x: target.token.x + 200, // Adjusted X coordinate
-            y: target.token.y, 
+            texture: { src: `systems/air-mercs/assets/missiles/tokens/${filename}` },
+            x: ray.B.x,
+            y: ray.B.y,
+            rotation: shooter.parent.rotation + leadAngle, 
             width: 0.3, 
             height: 0.3,
             vision: false,
@@ -728,6 +797,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     }
 
   }
+
 
 
 

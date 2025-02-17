@@ -25,8 +25,16 @@
           <div><b>{{localize 'AIR_MERCS.Actor.Missile.FIELDS.launchrange.label'}} </b>{{flags.airmercs.missileData.launchDistance}} ({{system.minRange}} - {{system.maxRange}})</div>
           <div><b>{{localize 'AIR_MERCS.Actor.Missile.FIELDS.aspect.label'}} </b>{{flags.airmercs.missileData.launchAspect}}</div>
     </aside>
+
+      <aside class="align-left" style="margin: 0 auto; width: 200px">
+        <button type="button" class="missileResolve-button" data-action="resolveMissileAttack">Resolve Attack</button>
+      </aside>
+      <aside>
+
+      </aside>
+      <aside class="align-right" style="margin: 0 auto; width: 200px">
+        <button type="button" class="missileDelete-button" data-action="deleteMissile">Delete (PERMANENT!)</button>
+      </aside>
   </section>
-    <div class="align-center" style="margin: 0 auto; width: 200px">
-      <button type="button" class="missileResolve-button" data-action="resolveMissileAttack">Resolve Attack</button>
-    </div>
+
 </section>

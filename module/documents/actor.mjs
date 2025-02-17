@@ -185,8 +185,6 @@ export class AirMercsActor extends Actor {
 
     const gridDistance = pixelDistance / canvas.grid.size;
 
-    console.log(`Pixel Distance: ${pixelDistance}, Grid Distance: ${gridDistance}`);
-
     return gridDistance;
   } 
 
