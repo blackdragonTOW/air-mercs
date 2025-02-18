@@ -661,6 +661,13 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       console.log(`Launched beyond min range: ${weaponData.launchDistance}, total now: ${hitMod}`)
     }
 
+    if (weaponData.shooterSpeed >= 14) {
+      mach = Math.floor((weaponData.shooterSpeed / 14));
+      hitMod += mach
+      chatMessage += `<br>+${mach}:<b> Launched at Mach ${mach}</b>`
+      console.log(`Launched at mach ${mach}, total now: ${hitMod}`)
+    }
+
     if (weaponData.hasLock) {
       if (['SARH'].includes(weaponType) && outOfGimbal) {
         hitMod += -3
@@ -1016,6 +1023,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
                     launchAspect: tarAspect,
                     shotBy: shooter,
                     shotByUUID: shooter.uuid,
+                    shooterSpeed: shooter.system.curSpeed.value,
                     shotAt: target,
                     shotAtUUID: target.uuid,
                     shooterSkill: pilotSkill.value,
