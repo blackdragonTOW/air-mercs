@@ -34,6 +34,9 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       cannonfireButton: this.burstSelect,
       weaponPrep: this.weaponPrepMessage,
       deleteMissile: this.missileDelete,
+      chafffireButton: this.dispRadarCM,
+      flarefireButton: this.dispIRCM,
+      resolveMissileAttack: this.missileHit,
     },
     // Custom property that's merged into `this.options`
     dragDrop: [{ dragSelector: '[data-drag]', dropSelector: null }],
@@ -537,6 +540,255 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     return this.actor.items.get(li?.dataset.itemId);
   }
 
+  //Chaff and Flare functions are largely identical, but I may want to do things with them differently in the future
+  //Thus they are two seperate functions for the time being
+  static async dispRadarCM() {
+    this.dispCountermeasures('chaff')
+  }
+
+  static async dispIRCM() {
+    this.dispCountermeasures('flare')
+  }
+
+  dispCountermeasures(type) {
+    const shooter = this.actor
+    const target = game.user.targets.values().next().value
+    const cmType = type
+    const missileType = target.actor.system.guidance
+    const cmCount = shooter.system[cmType].value
+
+    //Target validation checkpoint, papers please
+    if (!shooter) {return ui.notifications.warn('No token selected');}
+    if (!target) {return ui.notifications.warn('No target selected to defend against');}
+    if (!cmCount) {return ui.notifications.warn(`You have no ${cmType} left`);}
+    if (target.actor.type != 'missile') {return ui.notifications.warn(`Target is not a missile`);}
+    if (target.actor.flags.airmercs.missileData.shotAt._id != shooter.id) {return ui.notifications.warn(`This missile is not fired at you`);}
+    if (target.actor.flags.airmercs.missileData.isCounterMeasured) {return ui.notifications.warn(`This missile has already been countered`);}
+    if (cmType == 'flare' && missileType != 'IR') {return ui.notifications.warn(`Flares only work on IR guided missiles!`);}
+    if (cmType == 'chaff' && (!['ARH', 'SARH', 'CGR'].includes(missileType))) {return ui.notifications.warn(`Chaff only work on Radar guided missiles!`);}
+
+    target.actor.update({flags: {airmercs: {missileData: {isCounterMeasured: {value: true}}}}});
+    shooter.update({system: {[cmType]: {value: cmCount - 1}}});
+
+    const chatMessage = `<h2><b>${shooter.name}</b> dispenses ${cmType} countermeasures against <b>${target.actor.name}</b></h2>`
+    ChatMessage.create({ content: chatMessage });
+  }
+
+  static async missileHit() {
+    const weapon = this.actor
+    const weaponType = weapon.system.guidance
+
+    const shooter = await fromUuid(weapon.flags.airmercs.missileData.shotByUUID);
+    const target = await fromUuid(weapon.flags.airmercs.missileData.shotAtUUID);
+    console.log(shooter)
+    console.log(target)
+
+    const weaponData = weapon.flags.airmercs.missileData
+
+    let pilotSkill = 0; // Default value in case weaponType doesn't match
+
+    if (weaponType === 'IR') {
+        pilotSkill = shooter.system.abilities.ir_missiles.value;
+    } else if (['ARH', 'SARH', 'CRG'].includes(weaponType)) {
+        pilotSkill = shooter.system.abilities.radar_missiles.value;
+    }
+    const relBearing = shooter.getRelBearing(shooter,target)
+    const outOfGimbal = !(relBearing <= 30 || relBearing >= 330) // If the radar can still be pointed at the target at the time of impact, only matters for SARH weapons
+    let hitMod = 0
+    let chatMessage =  `
+                        <h2><b>${weapon.name}</b> flies towards <b>${target.name}</b>!</h2>
+                        `
+
+    hitMod += pilotSkill;
+    pilotSkill < 0 ? chatMessage += `${pilotSkill}:<b> Pilot Weapon Rating</b>` : chatMessage += `+${pilotSkill}:<b> Pilot Weapon Rating</b>`
+    console.log(`Pilot skill: ${pilotSkill}, total now: ${hitMod}`)
+
+    switch (weaponType) {
+      case 'IR':
+        if (weaponData.launchAspect == 'Front') {
+          hitMod += -2
+          chatMessage += `<br>-2:<b> Frontal Launch Aspect</b>`
+          console.log(`Aspect on launch: ${weaponData.launchAspect}, total now: ${hitMod}`)
+        }
+        if (weaponData.launchAspect == 'Beam') {
+          hitMod += -1
+          chatMessage += `<br>-1:<b> Beam Launch Aspect</b>`
+          console.log(`Aspect on launch: ${weaponData.launchAspect}, total now: ${hitMod}`)
+
+        }
+        if (weaponData.launchAspect == 'Rear') {
+          hitMod += 0
+          chatMessage += `<br>+0:<b> Rear Launch Aspect</b>`
+          console.log(`Aspect on launch: ${weaponData.launchAspect}, total now: ${hitMod}`)
+        }
+        if (target.system.curSpeed.value >= 14) {
+          hitMod += 1
+          chatMessage += `<br>+1:<b> Target Engines Hot</b>`
+          console.log(`Target Speed: ${target.system.curSpeed.value}, total now: ${hitMod}`)
+        }
+        break;
+      case 'ARH':
+      case 'SARH':
+      case 'CRG':
+      case 'OG':
+      case 'LG':
+        if (weaponData.launchAspect == 'Front') {
+          hitMod += -1
+          chatMessage += `<br>-1:<b> Frontal Launch Aspect</b>`
+          console.log(`Aspect on launch: ${weaponData.launchAspect}, total now: ${hitMod}`)
+        }
+        if (weaponData.launchAspect == 'Beam') {
+          hitMod += -2
+          chatMessage += `<br>-2:<b> Beam Launch Aspect</b>`
+          console.log(`Aspect on launch: ${weaponData.launchAspect}, total now: ${hitMod}`)
+        }
+        if (weaponData.launchAspect == 'Rear') {
+          hitMod += 0
+          chatMessage += `<br>+0:<b> Rear Launch Aspect</b>`
+          console.log(`Aspect on launch: ${weaponData.launchAspect}, total now: ${hitMod}`)
+        }
+        if (weaponData.launchDistance > weapon.system.maxRange) {
+          hitMod += -1
+          chatMessage += `<br>+1:<b> Launched beyond Maximum range</b>`
+          console.log(`Launched beyond max range: ${weaponData.launchDistance}, total now: ${hitMod}`)
+        }
+        break;
+    }
+
+    if (weaponData.launchDistance < weapon.system.minRange) {
+      hitMod += -3
+      chatMessage += `<br>-3:<b> Launched under Minimum range</b>`
+      console.log(`Launched beyond min range: ${weaponData.launchDistance}, total now: ${hitMod}`)
+    }
+
+    if (weaponData.hasLock) {
+      if (['SARH'].includes(weaponType) && outOfGimbal) {
+        hitMod += -3
+        chatMessage += `<br>-3:<b> SARH Lock Lost!!</b>`
+        console.log(`Lock lost from bearing ${relBearing}, total now: ${hitMod}`)
+      }
+    }
+
+    if (!weaponData.hasLock) {
+      hitMod += -3
+      chatMessage += `<br>-3:<b> No Lock</b>`
+      console.log(`No Lock, total now: ${hitMod}`)
+    }
+
+    if (target.system.curSpeed.value == 0) {
+      hitMod += 1
+      chatMessage += `<br>+1<b>: Target Stalled</b>`
+      console.log(`Target Stalled total now ${hitMod}`)
+    }
+    else if (target.attemptedManeuverOutcome == 'failure' && target.attemptedManeuver.failEffect.defBonus != 0) {
+      diceCount += 1
+      chatMessage += `<br>+1<b>: Target Failed Maneuver</b>`
+      console.log(`Target Failed to maneuver total now ${hitMod}`)
+    }
+
+    if (target.attemptedManeuverOutcome == 'success') {
+      switch (target.attemptedManeuver) {
+        case 'Break':
+        case 'Viff':
+          hitMod += -3
+          chatMessage += `<br>-3:<b> Defensive ${target.attemptedManeuve}</b>`
+          console.log(`Performed ${target.attemptedManeuve}: now at ${hitMod}`)
+        break;
+        case 'Split-S':
+        case 'Immelmann':
+        case 'Barrel Roll and Turn':
+          hitMod += -2
+          chatMessage += `<br>-2:<b> Defensive ${target.attemptedManeuve}</b>`
+          console.log(`Performed ${target.attemptedManeuve}: now at ${hitMod}`)
+        break;
+        case 'Barrel Roll':
+        case 'High Yo-Yo':
+          hitMod += -1
+          chatMessage += `<br>-1:<b> Defensive ${target.attemptedManeuve}</b>`
+          console.log(`Performed ${target.attemptedManeuve}: now at ${hitMod}`)
+        break;
+      }
+    }
+
+    if (target.lowAltitude) {
+      hitMod += -1
+      chatMessage += `<br>-1:<b> Target is down low</b>`
+      console.log(`Target Low, total now: ${hitMod}`)
+    }
+
+    if (weaponData.isCounterMeasured) {
+      switch (weaponType) {
+        case 'IR':
+          hitMod += -2
+          chatMessage += `<br>-2:<b> Dispensed Countermeasures</b>`
+          console.log(`Countermeasures deployed, total now: ${hitMod}`)
+        break;
+        case 'SARH':
+        case 'ARH':
+          hitMod += -1
+          chatMessage += `<br>-1:<b> Dispensed Countermeasures</b>`
+          console.log(`Countermeasures deployed, total now: ${hitMod}`)
+        break;
+      }
+    }
+
+    if (target.hasDecoy) {
+      hitMod += -2
+      chatMessage += `<br>-2:<b> Towed Decoy</b>`
+      console.log(`Towing Decoy, total now: ${hitMod}`)
+    }
+
+    const modifiedHit = hitMod < 0 ? `${hitMod}` : `+${hitMod}`
+
+    chatMessage += `<br><br><b>Hit Roll: </b>1d10${modifiedHit}
+                    <br><b>Weapon hits on: </b>${weapon.system.hit}+
+                    <br><b>Damage: </b>${weapon.system.damage} 
+                    <button class="roll-missilehitattempt" type="button">Roll to Hit</button>
+                    <button class="roll-missiledamage" type="button">Roll Damage</button>
+                    `
+    ChatMessage.create({ content: chatMessage }).then(msg => {
+      Hooks.once("renderChatMessage", (chatMessage, html) => {
+        html.find(".roll-missilehitattempt").click(() => {missilehitattempt(weapon, shooter, target, modifiedHit)});
+      });
+    });
+    async function missilehitattempt(weapon, shooter, target, modifiedHit) {
+      event.preventDefault();
+      let roll = await new Roll(`1d10`).evaluate({ async: true });
+      const diceResults = roll.dice[0].results.map(r => Number(r.result));
+
+      let resultEvent = diceResults >= modifiedHit ? 'Hit!' : 'Miss!'
+      if (diceResults == 1) {resultEvent = 'Automatic Miss!'};
+      if (diceResults == 10) {resultEvent = 'Automatic Hit!'};
+
+      const chatMessage = `<h2><b>${weapon.name}</b> flies towards <b>${target.name}</b>!</h2>
+                          <p style="text-align:center"><b>Hit Roll: </b>1d10${modifiedHit}<p>
+                          <h3><p style="text-align:center"><b>1d10 Result: ${diceResults}<br>${resultEvent}<p></b></h3>
+                          <button class="roll-missiledamage" type="button">Roll Damage</button>
+                          `
+
+      ChatMessage.create({ content: chatMessage }).then(msg => {
+        Hooks.once("renderChatMessage", (chatMessage, html) => {
+          html.find(".roll-missiledamage").click(() => {missiledamage(weapon, shooter, target)});
+        });
+      });
+    }
+    async function missiledamage(weapon, shooter, target) {
+      let roll = await new Roll(`${weapon.system.damage}`).evaluate({ async: true });
+      const diceResults = roll.dice[0].results.map(r => Number(r.result));
+      const chatMessage = `<h2><b>${weapon.name}</b> detonates!</h2>
+                          <p style="text-align:center"><b>Damage Roll: </b>${weapon.system.damage}<p>
+                          <h3><p style="text-align:center"><b>${weapon.system.damage} Result: ${diceResults} damage!<p></b></h3>
+                          <button class="roll-missiledamage" type="button">Additional Damage Table</button>
+                          `
+
+      ChatMessage.create({ content: chatMessage }).then(msg => {
+        Hooks.once("renderChatMessage", (chatMessage, html) => {
+          html.find(".roll-extraDamageTable").click(() => {extraDamageTable()});
+          });
+        });
+    }
+  }
+
   static async missileDelete() {
     //I know some coder somewhere is going to be really upset by this
     //But missiles start as items for actors, and then temporarily become actors in order to have sheets and a token
@@ -574,9 +826,10 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
 
   static async weaponPrepMessage(event, target) {
     const airTarget = game.user.targets.values().next().value
-    let shooter = this.actor
+    const shooterUUID = this.actor?.uuid
+    let shooter = await fromUuid(shooterUUID);
+
     let weapon = this._getTargetItem(target)
-    console.log(weapon)
     switch (weapon.type) {
       case 'missile':
       const lockon = weapon.system.lock === 'radar'? shooter.system.radar.value : weapon.system.lock;
@@ -762,7 +1015,9 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
                 "airmercs.missileData": {
                     launchAspect: tarAspect,
                     shotBy: shooter,
+                    shotByUUID: shooter.uuid,
                     shotAt: target,
+                    shotAtUUID: target.uuid,
                     shooterSkill: pilotSkill.value,
                     hasLock: locks > 0 ? true : false,
                     isCounterMeasured: false,
@@ -1021,7 +1276,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     if (!dragData) return;
     // Set data transfer
     event.dataTransfer.setData('text/plain', JSON.stringify(dragData));
-    console.log("On Drag Start")
   }
 
   /**
