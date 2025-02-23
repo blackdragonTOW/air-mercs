@@ -26,7 +26,8 @@
         "aircraft_header": "Aircraft",
         "aircraft_features": "Statistics",
         "missile_features": "Statistics",
-        "aircraft_speed": "Prep Phase"
+        "aircraft_speed": "Prep Phase",
+        "character_features": "Pilot Ratings"
       },
       "base": {
         "FIELDS": {

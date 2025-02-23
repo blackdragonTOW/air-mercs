@@ -84,6 +84,9 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     aircraft_speed: {
       template: 'systems/air-mercs/templates/actor/aircraft_speed.hbs',
     },
+    character_features: {
+      template: 'systems/air-mercs/templates/actor/character_features.hbs',
+    },
   };
 
   /** @override */
@@ -99,7 +102,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
         options.parts.push('aircraft_header', 'tabs', 'aircraft_features', 'aircraft_speed', 'aircraft_weapons', 'effects', 'biography');
         break;
       case 'character':
-        options.parts.push('header', 'tabs','features', 'gear', 'effects', 'biography');
+        options.parts.push('header', 'tabs','character_features', 'gear', 'effects', 'biography');
         break;
       case 'npc':
         options.parts.push('header', 'tabs','gear', 'effects', 'biography');
@@ -139,6 +142,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
   async _preparePartContext(partId, context) {
     switch (partId) {
       case 'features':
+      case 'character_features':
       case 'aircraft_features':
       case 'missile_features':
       case 'aircraft_speed':
@@ -194,6 +198,9 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       case "aircraft":
         defaultTab = 'aircraft_features'
         break;
+      case "character":
+        defaultTab = 'character_features'
+        break;
     }
 
     if (!this.tabGroups[tabGroup]) this.tabGroups[tabGroup] = defaultTab;
@@ -225,6 +232,10 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
         case 'aircraft_features':
           tab.id = 'aircraft_features';
           tab.label += 'aircraft_features';
+          break;
+          case 'character_features':
+          tab.id = 'character_features';
+          tab.label += 'character_features';
           break;
         case 'missile_features':
           tab.id = 'missile_features';
@@ -751,7 +762,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
                     <br><b>Weapon hits on: </b>${weapon.system.hit}+
                     <br><b>Damage: </b>${weapon.system.damage} 
                     <button class="roll-missilehitattempt" type="button">Roll to Hit</button>
-                    <button class="roll-missiledamage" type="button">Roll Damage</button>
                     `
     ChatMessage.create({ content: chatMessage }).then(msg => {
       Hooks.once("renderChatMessage", (chatMessage, html) => {
@@ -763,13 +773,14 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       let roll = await new Roll(`1d10`).evaluate({ async: true });
       const diceResults = roll.dice[0].results.map(r => Number(r.result));
 
-      let resultEvent = diceResults >= modifiedHit ? 'Hit!' : 'Miss!'
+      const dieTotal = Number(diceResults) + Number(modifiedHit)
+      let resultEvent = dieTotal >= weapon.system.hit ? 'Hit!' : 'Miss!'
       if (diceResults == 1) {resultEvent = 'Automatic Miss!'};
       if (diceResults == 10) {resultEvent = 'Automatic Hit!'};
 
       const chatMessage = `<h2><b>${weapon.name}</b> flies towards <b>${target.name}</b>!</h2>
-                          <p style="text-align:center"><b>Hit Roll: </b>1d10${modifiedHit}<p>
-                          <h3><p style="text-align:center"><b>1d10 Result: ${diceResults}<br>${resultEvent}<p></b></h3>
+                          <p style="text-align:center"><b>Hit Roll: </b>1d10${modifiedHit}<br><b>Weapon hits on: </b>${weapon.system.hit}+<p>
+                          <h3><p style="text-align:center"><b>Result: ${diceResults}${modifiedHit} = ${dieTotal}<br>${resultEvent}</p></b></h3>
                           <button class="roll-missiledamage" type="button">Roll Damage</button>
                           `
 
@@ -782,11 +793,13 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     async function missiledamage(weapon, shooter, target) {
       let roll = await new Roll(`${weapon.system.damage}`).evaluate({ async: true });
       const diceResults = roll.dice[0].results.map(r => Number(r.result));
+      const totalDamage = diceResults.reduce((sum, value) => sum + value, 0);
       const chatMessage = `<h2><b>${weapon.name}</b> detonates!</h2>
                           <p style="text-align:center"><b>Damage Roll: </b>${weapon.system.damage}<p>
-                          <h3><p style="text-align:center"><b>${weapon.system.damage} Result: ${diceResults} damage!<p></b></h3>
+                          <h3><p style="text-align:center"><b>${weapon.system.damage} Result: ${diceResults} <br>${totalDamage} Damage!</p></b></h3>
                           <button class="roll-missiledamage" type="button">Additional Damage Table</button>
                           `
+      target.update({system: {hitPoints: {value: (target.system.hitPoints.value - totalDamage)}}})
 
       ChatMessage.create({ content: chatMessage }).then(msg => {
         Hooks.once("renderChatMessage", (chatMessage, html) => {
@@ -1002,7 +1015,13 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
         // const leadPos = getNewPositionFromAzimuth(startX, startY, leadAngle, distance);
         const leadAngleRad =  Math.toRadians(shooter.parent.rotation + 90+leadAngle)
         const ray = Ray.fromAngle(shooter.parent.x, shooter.parent.y, leadAngleRad , calcdistance )
+        const secondWeapon = shooter.items.find(item => item.name === weapon.name && item.id !== weapon.id);
+        const weaponIDArray = [weapon, secondWeapon]
+        console.log(weaponIDArray)
 
+        //the logic for assigning a second weapon for a second launch is very bad
+        //I make no excuses other than my eyes hurt and words are starting to blur together
+        //I have dishonored my family
 
         const aspect = shooter.getRelBearing(target, shooter)
         let tarAspect = ''
@@ -1012,6 +1031,10 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
             {tarAspect = 'Rear'}
           else {tarAspect = 'Front'}
         for (let i = LaunchCount; i > 0; i--) {
+          let activeWeapon = weaponIDArray[i - 1]
+          console.log(weaponIDArray[i])
+          console.log(i)
+          
           //Create an actor so the token has a sheet where we click buttons to resolve the token
           let missileActorData = {
             name: `${weapon.name}`,
@@ -1044,8 +1067,8 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
           let tokenData = {
             name: weapon.name,
             texture: { src: `systems/air-mercs/assets/missiles/tokens/${filename}` },
-            x: ray.B.x,
-            y: ray.B.y,
+            x: (ray.B.x) + ((i-1) * 25),
+            y: (ray.B.y) + ((i-1) * 25),
             rotation: shooter.parent.rotation + leadAngle, 
             width: 0.3, 
             height: 0.3,
@@ -1054,6 +1077,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
             actorId: missileActor.id, 
           };
           locks--
+          await shooter.deleteEmbeddedDocuments("Item", [activeWeapon.id]);
           await scene.createEmbeddedDocuments("Token", [tokenData]);
         }
       }
@@ -1118,15 +1142,27 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
 
       console.log(diceResults, rangeBand, hits);
 
-      let resultMessage = `
-        <h2><b>${shooter.name}</b> opens fire!</h2>
-        <b>Rolls: </b> ${diceResults.join(", ")}<br>
-        <br><h2><b> Total Damage: </b> ${hits}</h2>
-      `;
+      let chatMessage = `
+                        <h2><b>${shooter.name}</b> opens fire!</h2>
+                        <b>${diceCount}d6 Rolls: </b> ${diceResults.join(", ")}
+                        <br><b>Hitting on:</b> ${rangeBand}+
+                        <br><h3><b> Total Damage: </b> ${hits}</h3>
+                        <button class="roll-missiledamage" type="button">Additional Damage Table</button>
+                        `
+      target.update({system: {hitPoints: {value: (target.system.hitPoints.value - hits)}}})
 
-      ChatMessage.create({ content: resultMessage });
+      ChatMessage.create({ content: chatMessage }).then(msg => {
+        Hooks.once("renderChatMessage", (chatMessage, html) => {
+          html.find(".roll-extraDamageTable").click(() => {extraDamageTable()});
+        });
+      });
     }
   }
+
+
+  
+
+
 
 
 
@@ -1402,6 +1438,23 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
    */
   async _onDropActor(event, data) {
     if (!this.actor.isOwner) return false;
+
+    let sourceActor = null;
+    sourceActor = game.actors.get(id);
+
+    if (!sourceActor) {
+      console.log('No Source Actor')
+      return;
+    }
+
+    if (sourceActor.type != 'character') {
+      console.log('Not a Character')
+      return
+    }
+
+    let curPilot = this.actor.system.curPilot[0]
+    const newPilot = data.id
+    console.log(curPilot)
   }
 
   /* -------------------------------------------- */
