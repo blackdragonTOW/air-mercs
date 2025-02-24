@@ -49,26 +49,39 @@
     "type": "Actor",
     "private": false,
     "flags": {
-        "airmercs": {
-            "types": [
-                "airframe"
-            ]
-        }
+      "airmercs": {
+        "types": [
+          "airframe"
+        ]
+      }
     }
   },
   {
-    "name": "lite-aircraft-update",
-    "label": "LITE Aircraft Update",
+    "name": "lite-missiles",
+    "label": "LITE Missiles",
     "system": "air-mercs",
-    "path": "packs/lite-aircraft-update",
-    "type": "Actor",
+    "path": "packs/lite-missiles",
+    "type": "Item",
     "private": false,
     "flags": {
-        "airmercs": {
-            "types": [
-                "airframe"
-            ]
-        }
+      "airmercs": {
+        "types": [
+          "missile"
+        ]
+      }
+    }
+  },
+  {
+    "name": "rollable-tables",
+    "label": "Tables",
+    "system": "air-mercs",
+    "path": "packs/rollable-tables",
+    "type": "RollTable",
+    "private": false,
+    "flags": {
+      "airmercs": {
+        "types": []
+      }
     }
   }
   ],

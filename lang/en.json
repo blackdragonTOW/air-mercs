@@ -122,7 +122,23 @@
       "Toggle": "Toggle Effect",
       "Temporary": "Temporary Effects",
       "Passive": "Passive Effects",
-      "Inactive": "Inactive Effects"
+      "Inactive": "Inactive Effects",
+      "crippled": "Crippled",
+      "stalled": "Stalled",
+      "radar_failure": "Radar Failure",
+      "missile_failure": "Missile Failure",
+      "gun_failure": "Gun Failure",
+      "systems_failure": "Systems Failure",
+      "engine_damage": "Engine Damage",
+      "control_damage": "Control Damage",
+      "control_jammed_left": "Controls Jammed (Left)",
+      "control_jammed_right": "Controls Jammed (Right)",
+      "pilot_wounded": "Pilot Wounded",
+      "power_failure": "Power Failure", 
+      "fuel_leak": "Fuel Leak",  
+      "airframe_damaged": "Airframe Damaged",
+      "pilot_incap": "Pilot Incapacitated",
+      "firefirefire": "Fire! Fire! Fire!"
     }
   },
   "TYPES": {
@@ -139,6 +155,13 @@
       "maneuver": "Maneuver"
     }
   },
-  "SETTINGS.air-mercs.MovementTemplateName": "Toggle Movement Template",
-  "SETTINGS.air-mercs.MovementTemplateHint": "Toggle the Movement Template for the selected token."
+  "SETTINGS" : {
+    "air-mercs.MovementTemplateName": "Toggle Movement Template",
+    "air-mercs.MovementTemplateHint": "Toggle the Movement Template for the selected token."
+  }
 }
+
+
+
+
+

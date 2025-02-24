@@ -126,7 +126,7 @@ class Combat extends ClientDocumentMixin(foundry.documents.BaseCombat) {
 
   /** @override */
   prepareDerivedData() {
-    if ( this.combatants.size && !this.turns?.length ) this.setupTurns();
+    if (this.combatants.size && !this.turns?.length ) this.setupTurns();
   }
 
   /* -------------------------------------------- */

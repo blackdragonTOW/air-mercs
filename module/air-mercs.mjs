@@ -44,17 +44,177 @@ async function loadHandleBarTemplates()
   return loadTemplates( templatePaths );
 }
 
-Hooks.once( "init", function() {
-  loadHandleBarTemplates();
-});
-
-
 //Token HUD stuff
 class MyTokenHud extends TokenHUD {
 
 }
 
 Hooks.once('init', function () {
+  //Custom status Effect changes.mode keys:
+  // 0 Custom - custom logic
+  // 1 Multiply - multiplies KEY by VALUE
+  // 2 Add - adds VALUE to KEY
+  // 3 Downgrade - takes the lower between VALUE and KEY
+  // 4 Upgrade - takes the higher between VALUE and KEY
+  // 5 Override - sets KEY to VALUE temporarily
+
+  CONFIG.statusEffects = [
+    {
+      id: "crippled",
+      name: "AIR_MERCS.Effect.crippled",
+      img: "icons/svg/skull.svg",
+      changes: [
+        {
+          key: "system.manv.value",
+          value: "-15",
+          mode: 2,
+          priority: null
+        },
+        {
+          key: "system.gun.value",
+          value: "-1",
+          mode: 2,
+          priority: null
+        },
+        {
+          key: "system.maxSpeed.value",
+          value: "0.5",
+          mode: 1,
+          priority: null
+        },
+      ]
+    },
+    {
+      id: "stalled",
+      name: "AIR_MERCS.Effect.stalled",
+      img: "icons/svg/skull.svg",
+      changes: [
+        {
+          key: "system.curSpeed.value",
+          value: "0",
+          mode: 5,
+          priority: null
+        },
+      ]
+    },
+    {
+      id: "radar_failure",
+      name: "AIR_MERCS.Effect.radar_failure",
+      img: "icons/svg/skull.svg",
+      changes: [
+      ]
+    },
+    {
+      id: "missile_failure",
+      name: "AIR_MERCS.Effect.missile_failure",
+      img: "icons/svg/skull.svg",
+      changes: [
+      ]
+    },
+    {
+      id: "gun_failure",
+      name: "AIR_MERCS.Effect.gun_failure",
+      img: "icons/svg/skull.svg",
+      changes: [
+      ]
+    },
+    {
+      id: "systems_failure",
+      name: "AIR_MERCS.Effect.systems_failure",
+      img: "icons/svg/skull.svg",
+      changes: [
+        {
+          key: "key",
+          value: "0",
+          mode: 2,
+          priority: null
+        },
+      ]
+    },
+    {
+      id: "engine_damage",
+      name: "AIR_MERCS.Effect.engine_damage",
+      img: "icons/svg/skull.svg",
+      changes: [
+        {
+          key: "system.accel.value",
+          value: "-1",
+          mode: 2,
+          priority: null
+        },
+      ]
+    },
+    {
+      id: "control_damage",
+      name: "AIR_MERCS.Effect.control_damage",
+      img: "icons/svg/skull.svg",
+      changes: [
+        {
+          key: "system.manv.value",
+          value: "-15",
+          mode: 2,
+          priority: null
+        },
+      ]
+    },
+    {
+      id: "control_jammed_left",
+      name: "AIR_MERCS.Effect.control_jammed_left",
+      img: "icons/svg/skull.svg",
+      changes: [
+      ]
+    },
+    {
+      id: "control_jammed_right",
+      name: "AIR_MERCS.Effect.control_jammed_right",
+      img: "icons/svg/skull.svg",
+      changes: [
+      ]
+    },
+    {
+      id: "pilot_wounded",
+      name: "AIR_MERCS.Effect.pilot_wounded",
+      img: "icons/svg/skull.svg",
+      changes: [
+      ]
+    },
+    {
+      id: "power_failure",
+      name: "AIR_MERCS.Effect.power_failure",
+      img: "icons/svg/skull.svg",
+      changes: [
+      ]
+    },
+    {
+      id: "fuel_leak",
+      name: "AIR_MERCS.Effect.fuel_leak",
+      img: "icons/svg/skull.svg",
+      changes: [
+      ]
+    },
+    {
+      id: "airframe_damaged",
+      name: "AIR_MERCS.Effect.airframe_damaged",
+      img: "icons/svg/skull.svg",
+      changes: [
+      ]
+    },
+    {
+      id: "pilot_incap",
+      name: "AIR_MERCS.Effect.pilot_incap",
+      img: "icons/svg/skull.svg",
+      changes: [
+      ]
+    },
+    {
+      id: "firefirefire",
+      name: "AIR_MERCS.Effect.firefirefire",
+      img: "icons/svg/skull.svg",
+      changes: [
+      ]
+    },
+  ]
+  loadHandleBarTemplates();
   // Add custom constants for configuration.
   CONFIG.AIR_MERCS = AIR_MERCS;
 

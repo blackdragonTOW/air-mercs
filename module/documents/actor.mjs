@@ -281,6 +281,14 @@ export class AirMercsActor extends Actor {
       console.log("Dice Pool Now:", diceCount)
     }
 
+    //Shooter Crippled
+    if (this.statuses.has('crippled')) {
+      diceCount += 0 //The Status Effect 'crippled' subtracts 1 from the gun rating, we don't need to double it here
+      chatMessage += `<br>-1<b>: Firing While Crippled</b>`
+      console.log("Firing While Crippled")
+      console.log("Dice Pool Now:", diceCount)
+    }
+
     //Enemy Maneuver Bonus/Malus
     if (tarSpeed == 0) {
       diceCount += 2

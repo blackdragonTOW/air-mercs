@@ -85,6 +85,8 @@ export class AirMercsItemSheet extends api.HandlebarsApplicationMixin(
         options.parts = [];
         options.parts.push('missile');
         break;
+      case 'effect':
+      options.parts.push('effects');
     }
   }
 

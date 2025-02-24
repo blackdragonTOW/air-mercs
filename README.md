@@ -1,6 +1,6 @@
 # AirMercs System
 
-![Foundry v11](https://img.shields.io/badge/foundry-v11-green) ![Foundry v12](https://img.shields.io/badge/foundry-v12-green)
+![Foundry v12](https://img.shields.io/badge/foundry-v12-green)
 
 This system is a air-mercs system that you can use as a starting point for building your own custom systems. It's similar to Simple World-building, but has examples of creating attributes in code rather than dynamically through the UI.
 
