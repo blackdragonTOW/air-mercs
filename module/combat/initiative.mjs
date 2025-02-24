@@ -44,7 +44,7 @@ export class Initiative extends Combat {
         
         await roll.evaluate();
 
-        const combatantReact = combatant.actor.system.abilities.reactions.value + 3;
+        const combatantReact = combatant.actor.system.abilities.reactions.total + 3;
         const combatantSpeed = combatant.actor.system.curSpeed.value;
         const combatantManv =  combatant.actor.system.manv.value;
 

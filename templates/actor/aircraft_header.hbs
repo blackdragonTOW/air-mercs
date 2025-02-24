@@ -9,13 +9,30 @@
     height='100'
     width='100'
   />
+  <div class="pilot-handler">
+  <img
+    class='pilot-img'
+    src='{{actor.system.curPilot.img}}'
+    title='Pilot'
+    height='100'
+    width='100'
+  />
+  <button type="button" class="removePilot-button" data-action="removePilot">Remove</button>
+  </div>
   <div class='header-fields'>
     <div class='document-name'>
       <input
         name='name'
         type='text'
         value='{{actor.name}}'
-        placeholder='Name'
+        placeholder='Callsign'
+      />
+    <div class='document-name-pilot'>
+      <input
+        name="system.curPilot.name"
+        type='text'
+        value='{{actor.system.curPilot.name}}'
+        placeholder='Pilot'
       />
     </div>
     {{! The grid classes are defined in scss/global/_grid.scss. To use,

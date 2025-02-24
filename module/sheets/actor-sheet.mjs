@@ -37,6 +37,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       chafffireButton: this.dispRadarCM,
       flarefireButton: this.dispIRCM,
       resolveMissileAttack: this.missileHit,
+      removePilot: this.removePilot,
     },
     // Custom property that's merged into `this.options`
     dragDrop: [{ dragSelector: '[data-drag]', dropSelector: null }],
@@ -585,6 +586,11 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     ChatMessage.create({ content: chatMessage });
   }
 
+  static async removePilot() {
+    this.actor.update({system: {curPilot: null}})
+    console.log(this.actor.system)
+  }
+
   static async missileHit() {
     const weapon = this.actor
     const weaponType = weapon.system.guidance
@@ -599,9 +605,9 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     let pilotSkill = 0; // Default value in case weaponType doesn't match
 
     if (weaponType === 'IR') {
-        pilotSkill = shooter.system.abilities.ir_missiles.value;
+        pilotSkill = shooter.system.abilities.ir_missiles.total;
     } else if (['ARH', 'SARH', 'CRG'].includes(weaponType)) {
-        pilotSkill = shooter.system.abilities.radar_missiles.value;
+        pilotSkill = shooter.system.abilities.radar_missiles.total;
     }
     const relBearing = shooter.getRelBearing(shooter,target)
     const outOfGimbal = !(relBearing <= 30 || relBearing >= 330) // If the radar can still be pointed at the target at the time of impact, only matters for SARH weapons
@@ -1234,8 +1240,11 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
             let start_message = `
                                 <h2>${targetName} attempts:<br><b>${targetManeuverString}!</b></h2>
                                 <p><b>Difficulty: </b>${targetManeuver.diff}</body>
-                                <p><b>Maneuver Rating: </b>1d10+${this.actor.system.abilities.maneuvers.value}
-                                <button class="roll-maneuver" type="button" data-passeffect = "${targetManeuver.passEffect.movementHTML}" data-faileffect = "${targetManeuver.failEffect.movementHTML}" data-diff="${targetManeuver.diff}" data-maneuvers="${this.actor.system.abilities.maneuvers.value}">Execute Maneuver</button>
+                                <p><b>Maneuver Rating: </b>1d10+${this.actor.system.abilities.maneuvers.total}
+                                <button class="roll-maneuver" type="button" data-passeffect = "${targetManeuver.passEffect.movementHTML}" 
+                                data-faileffect = "${targetManeuver.failEffect.movementHTML}" 
+                                data-diff="${targetManeuver.diff}" 
+                                data-maneuvers="${this.actor.system.abilities.maneuvers.total}">Execute Maneuver</button>
                                 `
               ChatMessage.create({content: start_message})
 
@@ -1440,21 +1449,24 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     if (!this.actor.isOwner) return false;
 
     let sourceActor = null;
-    sourceActor = game.actors.get(id);
+    sourceActor = await fromUuid(data.uuid);
+    console.log(sourceActor)
 
     if (!sourceActor) {
-      console.log('No Source Actor')
       return;
     }
 
     if (sourceActor.type != 'character') {
-      console.log('Not a Character')
       return
     }
 
-    let curPilot = this.actor.system.curPilot[0]
-    const newPilot = data.id
-    console.log(curPilot)
+    let activePilot = this.actor.system.curPilot
+    if (activePilot == 'actorUUID') {activePilot = null} //This is due to bad handling on my part, will fix when test Actors are reimported
+    if (activePilot) {return ui.notifications.warn('This Aircraft already has a pilot.')}
+
+    this.actor.update({system: {curPilot: sourceActor}});
+    
+    console.log(`current pilot: ${this.actor.system.curPilot}`)
   }
 
   /* -------------------------------------------- */

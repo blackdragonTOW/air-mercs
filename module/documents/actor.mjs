@@ -39,6 +39,7 @@ export class AirMercsActor extends Actor {
     this._prepareNpcData(actorData);
     if (this.type == "aircraft") {
       this.system.capacity.value = this.calcTotalWeight;
+      this.system.abilities = this.calcUpdatedAbilities
     }
   }
 
@@ -188,6 +189,20 @@ export class AirMercsActor extends Actor {
     return gridDistance;
   } 
 
+  get calcUpdatedAbilities() {
+    const curAbilities = this.system.abilities
+    const pilotAbilities = this.system.curPilot?.system.abilities || {};
+
+    let newTotal = {};
+    for (const key in curAbilities) {
+      if (curAbilities.hasOwnProperty(key)) {
+          newTotal[key] = {
+            total: (curAbilities[key]?.value ?? 0) + (pilotAbilities[key]?.value ?? 0)
+          };
+      }
+    }
+    return newTotal
+  } 
 
   get calcTotalWeight() {
     const items = this.items; // Get all items
@@ -204,7 +219,7 @@ export class AirMercsActor extends Actor {
     const distance = Number(shooter.getDistance(target,shooter)).toPrecision(2)
     const ammoCount = shooter.system.ammo.value
     const burstLen = burst
-    const pilotSkill = shooter.system.abilities.gunnery.value
+    const pilotSkill = shooter.system.abilities.gunnery.total
     const gunValue = shooter.system.gun.value
     const tarSpeed = target.system.curSpeed
     

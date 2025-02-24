@@ -625,6 +625,27 @@
   flex: 0 0 auto;
 }
 
+.air-mercs .sheet-header .removePilot-button {
+  width: 100px;
+  height: 14px;
+  font-size: 10px;
+  cursor: pointer;
+  text-align: center;
+  outline: none;
+  color: #fff;
+}
+
+.air-mercs .sheet-header .pilot-img {
+  width: 100px;
+  height: 100px;
+  text-align: center;
+}
+
+.air-mercs .sheet-header .pilot-handler {
+  width: 200px;
+  flex: 0;
+}
+
 .air-mercs .weapon-button-select .fire-button {
   background-color: #dfd113;
 }

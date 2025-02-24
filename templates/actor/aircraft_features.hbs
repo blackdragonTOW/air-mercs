@@ -11,15 +11,16 @@
             <label
               class='resource-label rollable flexlarge align-right'
               data-action='roll'
-              data-roll='d10+@abilities.{{key}}.value'
+              data-roll='d10+@abilities.{{key}}.total'
               data-label='{{localize (lookup @root.config.abilities key)}}'
             >{{localize (lookup @root.config.abilities key)}}</label>
             <input
               type='text'
-              name='system.abilities.{{key}}.value'
-              value='{{ability.value}}'
+              name='system.abilities.{{key}}.total'
+              value='{{ability.total}}'
               class="ability-score"
               data-dtype='Number'
+              disabled='true'
             />
           </div>
         {{/each}}
@@ -99,7 +100,7 @@
             <label
               class='resource-label rollable flexlarge align-right'
               data-action='roll'
-              data-roll='{{system.gun.value}}d6+{{system.abilities.gunnery.value}}d6'
+              data-roll='{{system.gun.value}}d6+{{system.abilities.gunnery.total}}d6'
               data-label={{localize 'AIR_MERCS.Actor.base.FIELDS.gun'}}
             >{{localize 'AIR_MERCS.Actor.base.FIELDS.gun'}}</label>
             <input
@@ -131,7 +132,7 @@
             <label
               class='resource-label rollable flexlarge align-right'
               data-action='roll'
-              data-roll='d10+@radar.value+{{system.abilities.radar_missiles.value}}'
+              data-roll='d10+@radar.value+{{system.abilities.radar_missiles.total}}'
               data-label={{localize 'AIR_MERCS.Actor.base.FIELDS.radar'}}
             >{{localize 'AIR_MERCS.Actor.base.FIELDS.radar'}}</label>
             <input
