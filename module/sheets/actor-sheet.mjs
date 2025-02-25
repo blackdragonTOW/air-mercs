@@ -803,17 +803,50 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       const chatMessage = `<h2><b>${weapon.name}</b> detonates!</h2>
                           <p style="text-align:center"><b>Damage Roll: </b>${weapon.system.damage}<p>
                           <h3><p style="text-align:center"><b>${weapon.system.damage} Result: ${diceResults} <br>${totalDamage} Damage!</p></b></h3>
-                          <button class="roll-missiledamage" type="button">Additional Damage Table</button>
+                          <button class="roll-extraDamageTable" type="button">Additional Damage Table</button>
                           `
       target.update({system: {hitPoints: {value: (target.system.hitPoints.value - totalDamage)}}})
 
       ChatMessage.create({ content: chatMessage }).then(msg => {
         Hooks.once("renderChatMessage", (chatMessage, html) => {
-          html.find(".roll-extraDamageTable").click(() => {extraDamageTable()});
+          html.find(".roll-extraDamageTable").click(() => {extraDamageTable('air-mercs.rollable-tables', 'Aircraft Damage')});
           });
         });
+
+        async function extraDamageTable(compendiumName, tableName) {
+          console.log("starting table")
+          // Get the compendium
+          const pack = game.packs.get(compendiumName);
+          if (!pack) {
+              console.error(`Compendium '${compendiumName}' not found.`);
+              return;
+          }
+      
+          // Load all index data (so we can search by name)
+          await pack.getIndex();
+          
+          // Find the table entry
+          const tableEntry = pack.index.find(e => e.name === tableName);
+          if (!tableEntry) {
+              console.error(`Table '${tableName}' not found in compendium '${compendiumName}'.`);
+              return;
+          }
+      
+          // Get the full RollTable document
+          const table = await pack.getDocument(tableEntry._id);
+          if (!table) {
+              console.error(`Failed to retrieve table '${tableName}'.`);
+              return;
+          }
+      
+          // Roll on the table and return the result
+          console.log("rolling table")
+          return await table.draw();
+      }
     }
   }
+
+
 
   static async missileDelete() {
     //I know some coder somewhere is going to be really upset by this
@@ -1153,15 +1186,47 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
                         <b>${diceCount}d6 Rolls: </b> ${diceResults.join(", ")}
                         <br><b>Hitting on:</b> ${rangeBand}+
                         <br><h3><b> Total Damage: </b> ${hits}</h3>
-                        <button class="roll-missiledamage" type="button">Additional Damage Table</button>
+                        <button class="roll-extraDamageTable" type="button">Additional Damage Table</button>
                         `
       target.update({system: {hitPoints: {value: (target.system.hitPoints.value - hits)}}})
 
       ChatMessage.create({ content: chatMessage }).then(msg => {
-        Hooks.once("renderChatMessage", (chatMessage, html) => {
-          html.find(".roll-extraDamageTable").click(() => {extraDamageTable()});
+        Hooks.once("renderChatMessage", (msg, html) => {
+          html.find(".roll-extraDamageTable").click(() => {extraDamageTable('air-mercs.rollable-tables', 'Aircraft Damage')});
         });
       });
+
+      async function extraDamageTable(compendiumName, tableName) {
+        console.log("starting table")
+        // Get the compendium
+        const pack = game.packs.get(compendiumName);
+        if (!pack) {
+            console.error(`Compendium '${compendiumName}' not found.`);
+            return;
+        }
+    
+        // Load all index data (so we can search by name)
+        await pack.getIndex();
+        
+        // Find the table entry
+        const tableEntry = pack.index.find(e => e.name === tableName);
+        if (!tableEntry) {
+            console.error(`Table '${tableName}' not found in compendium '${compendiumName}'.`);
+            return;
+        }
+    
+        // Get the full RollTable document
+        const table = await pack.getDocument(tableEntry._id);
+        if (!table) {
+            console.error(`Failed to retrieve table '${tableName}'.`);
+            return;
+        }
+    
+        // Roll on the table and return the result
+        console.log("rolling table")
+        return await table.draw();
+    }
+
     }
   }
 
@@ -1629,5 +1694,4 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       }
     }
   }
-
 }

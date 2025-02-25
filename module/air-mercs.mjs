@@ -213,6 +213,13 @@ Hooks.once('init', function () {
       changes: [
       ]
     },
+    {
+      id: "downlow",
+      name: "AIR_MERCS.Effect.downlow",
+      img: "icons/svg/skull.svg",
+      changes: [
+      ]
+    },
   ]
   loadHandleBarTemplates();
   // Add custom constants for configuration.

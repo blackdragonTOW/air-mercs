@@ -113,6 +113,29 @@ export class AirMercsActor extends Actor {
     // Process additional NPC data here.
   }
 
+  onUpdate() {    
+      const currentHP = foundry.utils.getProperty(actor, 'system.hitPoints.value');
+      const maxHP = foundry.utils.getProperty(actor, 'system.hitPoints.max');
+    
+      if (currentHP <= Math.ceil(maxHP / 2)) {
+          // Looking for half max, rounding up
+          if (!actor.effects.some(e => e.statuses.has('crippled'))) {
+              // Create the ActiveEffect from CONFIG.statusEffects
+              const crippledEffect = ActiveEffect.fromStatusEffect('crippled');
+              if (crippledEffect) {
+                  // Apply the effect to the actor
+                  actor.createEmbeddedDocuments("ActiveEffect", [crippledEffect]);
+              }
+          }
+      } else {
+          // Remove it if HP goes above half
+          const existingEffect = actor.effects.find(e => e.statuses.has('crippled'));
+          if (existingEffect) {
+              existingEffect.delete();
+          }
+      }
+  }
+
   updateTokenReadyState(actorData) {
     const readyState = actorData.getFlag('air-mercs', 'prepPhaseReady')
     if (readyState == null) {
@@ -191,7 +214,7 @@ export class AirMercsActor extends Actor {
 
   get calcUpdatedAbilities() {
     const curAbilities = this.system.abilities
-    const pilotAbilities = this.system.curPilot?.system.abilities || {};
+    const pilotAbilities = this.system.curPilot?.system?.abilities || {};
 
     let newTotal = {};
     for (const key in curAbilities) {
@@ -327,5 +350,4 @@ export class AirMercsActor extends Actor {
     console.log('Final Dice Pool of:', diceCount, "With Target Number:", rangeBand)
     return [diceCount, rangeBand, chatMessage];
   } 
-
 }

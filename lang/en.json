@@ -138,7 +138,8 @@
       "fuel_leak": "Fuel Leak",  
       "airframe_damaged": "Airframe Damaged",
       "pilot_incap": "Pilot Incapacitated",
-      "firefirefire": "Fire! Fire! Fire!"
+      "firefirefire": "Fire! Fire! Fire!",
+      "downlow": "Low Altitude"
     }
   },
   "TYPES": {
