@@ -72,6 +72,21 @@
     }
   },
   {
+    "name": "pilots",
+    "label": "Pilots",
+    "system": "air-mercs",
+    "path": "packs/pilots",
+    "type": "Actor",
+    "private": false,
+    "flags": {
+      "airmercs": {
+        "types": [
+          "character"
+        ]
+      }
+    }
+  },
+  {
     "name": "rollable-tables",
     "label": "Tables",
     "system": "air-mercs",

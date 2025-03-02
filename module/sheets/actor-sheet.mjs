@@ -699,7 +699,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       console.log(`No Lock, total now: ${hitMod}`)
     }
 
-    if (target.system.curSpeed.value == 0) {
+    if (target.system.curSpeed.value < target.system.minSpeed.value) {
       hitMod += 1
       chatMessage += `<br>+1<b>: Target Stalled</b>`
       console.log(`Target Stalled total now ${hitMod}`)
