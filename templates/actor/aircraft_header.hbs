@@ -6,8 +6,6 @@
     data-edit='img'
     data-action='onEditImage'
     title='{{actor.name}}'
-    height='100'
-    width='100'
   />
   <div class="pilot-handler">
   <img
@@ -138,17 +136,14 @@
         <div class='resource-content flexrow flex-center flex-between'>
           <input
             type='text'
-            name='system.capacity.value'
+            disabled='true'
             value='{{system.capacity.value}}'
-            data-dtype='Number'
           />
           <span> / </span>
           <input
             type='text'
-            name='system.capacity.max'
             disabled='true'
             value='{{system.capacity.max}}'
-            data-dtype='Number'
           />
         </div>
       </div>
@@ -162,6 +157,7 @@
             type='text'
             name='system.fuel.value'
             value='{{system.fuel.value}}'
+            disabled='true'
             data-dtype='Number'
           />
           <span> / </span>
@@ -174,11 +170,6 @@
           />
         </div>
       </div>
-
-
-
-
-
       <div class='resource flex-group-center'>
         {{#if (eq actor.type 'character')}}
           <label class='resource-label'>
@@ -189,27 +180,6 @@
               type='text'
               name='system.attributes.level.value'
               value='{{system.attributes.level.value}}'
-              data-dtype='Number'
-            />
-          </div>
-        {{/if}}
-        {{#if (eq actor.type 'npc')}}
-          <label class='resource-label'>
-            {{localize 'AIR_MERCS.Actor.NPC.FIELDS.cr.label'}} / {{localize 'AIR_MERCS.Actor.NPC.xp.label'}}
-          </label>
-          <div class='resource-content flexrow flex-center flex-between'>
-            <input
-              type='text'
-              name='system.cr'
-              value='{{system.cr}}'
-              data-dtype='Number'
-            />
-            <span></span>
-            <input
-              type='text'
-              disabled='true'
-              name='system.xp'
-              value='{{system.xp}}'
               data-dtype='Number'
             />
           </div>

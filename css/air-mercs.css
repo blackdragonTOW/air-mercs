@@ -229,18 +229,13 @@
 }
 .air-mercs .sheet-header {
   height: 125px;
-  flex: 0 auto;
-  overflow: hidden;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: flex-start;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 .air-mercs .sheet-header .profile-img {
-  flex: 0 0 100px;
-  height: 120px;
-  margin-right: 10px;
+  height: 125px;
 }
 .air-mercs .sheet-header .header-fields {
   flex: 1;
@@ -272,6 +267,7 @@
 .air-mercs .ability {
   margin-bottom: 2px;
 }
+
 .air-mercs .ability-score,
 .air-mercs .ability-mod {
   flex: 0 0 44px;
@@ -296,6 +292,7 @@
   text-align: left;
   display: flex;
 }
+
 .air-mercs .items-list {
   list-style: none;
   margin: 0;
@@ -638,7 +635,6 @@
 .air-mercs .sheet-header .pilot-img {
   width: 100px;
   height: 100px;
-  text-align: center;
 }
 
 .air-mercs .sheet-header .pilot-handler {

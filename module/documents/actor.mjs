@@ -138,10 +138,8 @@ export class AirMercsActor extends Actor {
 
   updateTokenReadyState(actorData) {
     const readyState = actorData.getFlag('air-mercs', 'prepPhaseReady')
-    if (readyState == null) {
-      return;
-    }
-    const tokens = canvas.tokens.placeables.filter(t => t.actor?.id === this.id);
+
+    const tokens = canvas.tokens.placeables.filter(t => t.actor?.uuid === this.uuid);
     tokens.forEach(token => {
       let existingText = token.children.find(child => child.name === 'readyText');
 

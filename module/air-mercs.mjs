@@ -10,6 +10,9 @@ import { AIR_MERCS } from './helpers/config.mjs';
 // Import Initiative logic
 import { Initiative } from './combat/initiative.mjs'
 
+//Custom combatant changes
+import { CustomCombatant } from './combat/customCombatant.mjs'
+
 /* -------------------------------------------- */
 /*  Init Hook                                   */
 /* -------------------------------------------- */
@@ -235,6 +238,8 @@ Hooks.once('init', function () {
     formula: '1d10 + @abilities.reactions.total',
     decimals: 0,
   };
+
+  CONFIG.Combatant.documentClass = CustomCombatant;
 
   // Define custom Document classes
   CONFIG.Actor.documentClass = AirMercsActor;

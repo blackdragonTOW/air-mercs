@@ -29,6 +29,7 @@ export class Initiative extends Combat {
         ids = typeof ids === "string" ? [ids] : ids;
         const currentId = this.combatant?.id;
         const chatRollMode = game.settings.get("core", "rollMode");
+
     
         // Iterate over Combatants, performing an initiative roll for each
         const updates = [];
@@ -38,19 +39,20 @@ export class Initiative extends Combat {
         // Get Combatant data (non-strictly)
         const combatant = this.combatants.get(id);
         if ( !combatant?.isOwner ) continue;
+
     
         // Produce an initiative roll for the Combatant
         const roll = combatant.getInitiativeRoll(formula);
         
         await roll.evaluate();
 
-        const combatantReact = combatant.actor.system.abilities.reactions.total + 3;
+        const combatantReact = combatant.actor.system.abilities.reactions.total + 3; //As values can be -3 we want to make sure this value is possitive
         const combatantSpeed = combatant.actor.system.curSpeed.value;
         const combatantManv =  combatant.actor.system.manv.value;
 
         const tieBreakPR =    (0.1000000 * combatantReact);
         const tieBreakSpeed = (0.0010000 * combatantSpeed);
-        const tieBreakTurn =  (0.0000100 * (combatantManv == 'H' ? 45 : 0)); //Temp fix until Maneuver values get converted to ints
+        const tieBreakTurn =  (0.0000100 * combatantManv);
         const tieBreakRand =  (0.0000001 * (Math.floor(Math.random() * 100)));
 
         const speedPenalty = combatantSpeed < 6 || combatantSpeed > 16 ? -1 : 0;

@@ -574,7 +574,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     if (!target) {return ui.notifications.warn('No target selected to defend against');}
     if (!cmCount) {return ui.notifications.warn(`You have no ${cmType} left`);}
     if (target.actor.type != 'missile') {return ui.notifications.warn(`Target is not a missile`);}
-    if (target.actor.flags.airmercs.missileData.shotAt._id != shooter.id) {return ui.notifications.warn(`This missile is not fired at you`);}
+    if (target.actor.flags.airmercs.missileData.shotAtUUID != shooter.token.actor.uuid) {return ui.notifications.warn(`This missile is not fired at you`);}
     if (target.actor.flags.airmercs.missileData.isCounterMeasured) {return ui.notifications.warn(`This missile has already been countered`);}
     if (cmType == 'flare' && missileType != 'IR') {return ui.notifications.warn(`Flares only work on IR guided missiles!`);}
     if (cmType == 'chaff' && (!['ARH', 'SARH', 'CGR'].includes(missileType))) {return ui.notifications.warn(`Chaff only work on Radar guided missiles!`);}
@@ -889,6 +889,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     let shooter = await fromUuid(shooterUUID);
 
     let weapon = this._getTargetItem(target)
+
     switch (weapon.type) {
       case 'missile':
       const lockon = weapon.system.lock === 'radar'? shooter.system.radar.value : weapon.system.lock;
@@ -909,7 +910,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       ChatMessage.create({ content: chatMessage }).then(msg => {
         Hooks.once("renderChatMessage", (chatMessage, html) => {
           html.find(".roll-lockattempt").click(() => {handleMissileLock(weapon, lockType, shooter)});
-          html.find(".roll-launchattempt").click(() => {launchAttempt(locks, weapon, airTarget, pilotSkill, availableWeapons)});
+          html.find(".roll-launchattempt").click(() => {launchAttempt(shooter, locks, weapon, airTarget.actor, pilotSkill, availableWeapons)});
         });
       });
         return;
@@ -923,9 +924,12 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       if (!game.user.targets.values().next().value) {return ui.notifications.warn('No Lock Target Selected!');} 
       const target = game.user.targets.values().next().value.actor
       const availableWeapons = shooter.items.reduce((count, item) => count + (item.name === weapon.name ? 1 : 0), 0)
-      let diceCount = 0
-      availableWeapons > 1 ? diceCount = 2 : diceCount = 1
-      lockType === 'radar'? diceCount = 1 : diceCount = 2
+
+      let diceCount = 1
+      if (availableWeapons > 1 && lockType != 'radar') {
+        diceCount = 2 //IR missiles lock seperately
+      }
+      
       if (shooter == target) {return ui.notifications.warn('Attempting to Fire at Self');}    
       if (shooter.system.radar.value == 0) {ChatMessage.create({ content: `${this.actor.name} has no Air-to-Air Radar and can't lock-on!` });} 
 
@@ -945,7 +949,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
 
       let chatMessage = `
                         <h2><b>${shooter.name}</b> attempts to lock onto <b>${target.name}</b>!</h2>
-                        <b>${weapon.system.guidance} Locks on: </b>${dieTarget}+<br>
+                        <b>${weapon.system.guidance} Locks on: </b>${dieTarget}+
                         `
 
       if (target.lowAltitude) {
@@ -955,7 +959,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       }
       if (lockType === 'radar') {
         //TODO: This is a placeholder for when we add high/low alt conditions
-        chatMessage += `<br>${tarECM}:<b> ECM</b>`
+        chatMessage += `<br>${tarECM}:<b> Target's ECM</b>`
         modifiers += tarECM
       }
       let modString = modifiers < 0 ? modifiers : `+${modifiers}`
@@ -986,7 +990,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       console.log("Attempting to launch with", locks, "locks")
       new Dialog({
         title: "Confirm Action",
-        content: `<p>Launching <b>${weapon.name}</b> at <b>${target.name}</b> with: <b>${locks}</b> weapons locked and <b>${availableWeapons}</b> weapons available.<p>How many will you use?`,
+        content: `<p>Launching <b>${weapon.name}</b> at <b>${target.name}</b> with: <b>${locks}</b> ${weapon.system.guidance} locks and <b>${availableWeapons}</b> weapons available.<p>How many will you use?`,
         buttons: {
           One: {
             label: "One",
@@ -1115,7 +1119,9 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
             actorLink: true,
             actorId: missileActor.id, 
           };
-          locks--
+          if (weapon.system.guidance == 'IR') {
+            locks-- //Only IR missiles lock individually, other systems only need one lock
+          }
           await shooter.deleteEmbeddedDocuments("Item", [activeWeapon.id]);
           await scene.createEmbeddedDocuments("Token", [tokenData]);
         }
@@ -1298,7 +1304,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
             this.actor.updateTokenReadyState(actorData);
 
             let targetName = this.actor.name;
-            let targetManeuver = CONFIG.AIR_MERCS.maneuver[this.actor.system.lockedManeuver];
+            let targetManeuver = CONFIG.AIR_MERCS.maneuver[this.actor.system.lockedManeuver ?? 'none'];
             let targetManeuverString = game.i18n.localize(targetManeuver.name);
             //FIX LATER: If player chooses No Maneuver as their first maneuver of the session we will read an incorrect value
 

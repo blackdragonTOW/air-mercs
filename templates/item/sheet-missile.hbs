@@ -2,7 +2,7 @@
 
 
     <div class='item-image item-sheet-image'>
-        <img src='systems/air-mercs/assets/missiles/r27ea.png' width='100' height='35'/>
+        <img src='systems/air-mercs/assets/missiles/{{system.img}}.png' width='130' height='100%'/>
     </div>
 
     <div class='missile-name'>
@@ -12,49 +12,22 @@
     <div class="center-content">
         <div class="flexrow">
             <div class="row-guidance"><b>Guidance:</b> {{system.guidance}}</div>
+            <div class="row-range"><b>Min Range: </b>{{system.minRange}}</div>
+            <div class="row-damage"><b>Damage: </b>{{system.damage}}</div>
+            <div class="row-hit"><b>Hit: </b>{{system.hit}}+</div>
+        </div>
+        <div class="flexrow">
+            <div class="row-aspect"><b>Aspect: </b>{{system.aspect}}</div>
+            <div class="row-range"><b>Max Range: </b>{{system.maxRange}}</div>
             <div class="row-lock">
                 <b>Lock:</b>
                 {{#if (eq system.lock 'radar')}}
-                <button type="button" class="roll-missile rollable" 
-                data-roll="1d10+@radar.value" 
-                data-label="<b>{{name}}</b> Radar lock attempt:"
-                data-action="roll"
-                >
-                <span style="text-transform:capitalize">{{system.lock}}</span>
-                </button>
+                <span style="text-transform:capitalize">{{this.actor.system.radar.value}}+</span>
                 {{else}}
-                <button type="button" class="roll-missile rollable" 
-                data-roll="1d10+@ir_missiles.total" 
-                data-label="<b>{{name}}</b> IR lock attempt:"
-                data-action="roll"
-                >
                 {{system.lock}}+
-                </button>
                 {{/if}}
-                
             </div>
-            <div class="row-damage">  
-                <b>Damage:</b>          
-                <button type="button" class="roll-missile rollable" 
-                data-roll="{{system.damage}}" 
-                data-label="{{name}} damage:" 
-                data-action="roll"
-                >
-                {{system.damage}}
-                </button>
-            </div>
-            <div class="row-hit">
-                <b>Hit On:</b>           
-                <button type="button" class="roll-missile" data-roll="{{system.hit}}" data-label="{{item.name}}">
-                {{system.hit}}+ 
-                </button>
-            </div>
-        </div>
-        <div class="flexrow">
-            <div class="row-range"><b>Min Range:</b> {{system.minRange}}</div>
-            <div class="row-range"><b>Max Range:</b> {{system.maxRange}}</div>
-            <div class="row-aspect"><b>Aspect:</b> {{system.aspect}}</div>
-            <div class="row-load"><b>Load:</b> {{system.load}}</div>
+            <div class="row-load"><b>Load: </b>{{system.load}}</div>
         </div>
     </div>
     <div class='weapon-button-select flex0'>
