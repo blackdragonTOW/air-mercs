@@ -101,7 +101,7 @@
   }
   ],
 "packFolders": [],
-  "socket": false,
+  "socket": true,
   "manifest": "https://raw.githubusercontent.com/blackdragonTOW/air-mercs/main/system.json",
   "download": "https://github.com/blackdragonTOW/air-mercs/archive/refs/heads/main.zip",
   "background": "systems/air-mercs/assets/anvil-impact.png",

@@ -380,49 +380,45 @@ async function toggleMovementTemplate() {
     ui.notifications.warn("This token is not an Aircraft");
     return
   }
-  const token = TokenLayer.instance.controlled[0];
-  if (!token) return;
-  if (document.body !== document.activeElement) return;
+  const token = canvas.tokens.controlled[0];
 
-  if (token.document.flags["air-mercs"]?.moveTemplate) {
-  const templateTile = fromUuidSync(token.document.flags["air-mercs"].moveTemplate);
+ // Check for an existing movement template and remove it
+  const existingTemplateId = token.document.flags["air-mercs"]?.moveTemplate;
+  if (existingTemplateId) {
+    const existingTemplate = canvas.tokens.get(existingTemplateId);
+    if (existingTemplate) await existingTemplate.document.delete();
 
-  if (templateTile) {
-      await templateTile.delete();
-  }
-  await token.document.unsetFlag("air-mercs", "moveTemplate");
-  return;
+    await token.document.unsetFlag("air-mercs", "moveTemplate");
+    return;
   }
 
+ // Calculate positioning
   let tokenRotation = token.document.rotation;
+  let tokenCenterX = token.document.width * canvas.grid.size / 2;
+  let tokenCenterY = token.document.height * canvas.grid.size / 2;
 
-  let tokenCenterX = (token.document._object.shape.height / 2)
-  let tokenCenterY = (token.document._object.shape.width / 2)
-
-  const posData = {
-  rotation: tokenRotation + 180, //we have to flip tokens due to foundry's facing "choices", 0 degrees is south? amazing
-  x: (token.document.x - (250 - tokenCenterX)),
-  y: (token.document.y - (250 - tokenCenterY)),
-  texture: {
-    alphaThreshold: 0.75,
-    anchorX: 0.5,
-    anchorY: 0.5,
-    fit: "fill",
-    offsetX: 0,
-    offsetY: 0,
-    rotation: 0,
-    scaleX: 1,
-    scaleY: 1,
-    src: "systems/air-mercs/assets/protractorbase2.png",
-    },
-  width: 500,
-  height: 500,
-  sort: 99,
+  const templateData = {
+    name: "Movement Template",
+    texture: {src: "systems/air-mercs/assets/protractorbase2.png"}, 
+    x: token.document.x + tokenCenterX - 250,
+    y: token.document.y + tokenCenterY - 250,
+    width: 500 / canvas.grid.size, 
+    height: 500 / canvas.grid.size, 
+    rotation: tokenRotation + 180,
+    actorLink: false, 
+    hidden: false,
+    locked: true,
+    disposition: CONST.TOKEN_DISPOSITIONS.NEUTRAL, 
+    vision: false, 
+    sort: -99,
+    flags: { "air-mercs": { moveTemplate: true } }
   };
 
-  const placedTemplate = await TileDocument.create(posData, { parent: canvas.scene });
+ // Create the token
+  const templateToken = await TokenDocument.create(templateData, { parent: canvas.scene });
 
-  await token.document.setFlag("air-mercs", "moveTemplate", placedTemplate.uuid);
+ // Store the token ID in the aircraft's flags
+  await token.document.setFlag("air-mercs", "moveTemplate", templateToken.id);
 }
 
 function registerKeys() {
@@ -445,3 +441,17 @@ function registerKeys() {
     });
   }
 }
+
+Hooks.once("setup", () => {
+  if (game.user.isGM) {
+    game.socket.on("system.air-mercs", async (data) => {
+      if (data.action === "updateHP") {
+        let target = await fromUuid(data.targetUUID);
+        console.log(target)
+        if (target) {
+          await target.update({system: {hitPoints: {value: (target.system.hitPoints.value - data.damage)}}});
+        }
+      }
+    });
+  }
+});

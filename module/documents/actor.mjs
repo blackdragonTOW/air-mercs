@@ -168,12 +168,13 @@ export class AirMercsActor extends Actor {
   } 
 
   getRelBearing(shooter, target) {
+    const shooterToken = shooter.getActiveTokens(false)[0].center; 
+    const targetToken = target.getActiveTokens(false)[0].center;
 
-    // Get the position of both tokens
-    const x1 = shooter.token.x //+ (shooter.token.width * canvas.grid.size) / 2;
-    const y1 = shooter.token.y //+ (shooter.token.height * canvas.grid.size) / 2;
-    const x2 = target.token.x //+ (target.token.width * canvas.grid.size) / 2;
-    const y2 = target.token.y //+ (target.token.height * canvas.grid.size) / 2;
+    const x1 = shooterToken.x;
+    const y1 = shooterToken.y;
+    const x2 = targetToken.x;
+    const y2 = targetToken.y;
     
     // Calculate the angle between the two tokens
     const deltaX = x2 - x1;
@@ -198,15 +199,17 @@ export class AirMercsActor extends Actor {
   }
 
   getDistance(shooter, target) {
-    const x1 = shooter.token.x;
-    const y1 = shooter.token.y;
-    const x2 = target.token.x;
-    const y2 = target.token.y;
+    const shooterToken = shooter.getActiveTokens(false)[0].center; 
+    const targetToken = target.getActiveTokens(false)[0].center;
+
+    const x1 = shooterToken.x;
+    const y1 = shooterToken.y;
+    const x2 = targetToken.x;
+    const y2 = targetToken.y;
 
     const pixelDistance = Math.hypot(x2 - x1, y2 - y1);
 
     const gridDistance = pixelDistance / canvas.grid.size;
-
     return gridDistance;
   } 
 
@@ -239,7 +242,12 @@ export class AirMercsActor extends Actor {
     const aspect = shooter.getRelBearing(target,shooter)
     const distance = Number(shooter.getDistance(target,shooter)).toPrecision(2)
     const ammoCount = shooter.system.ammo.value
-    const burstLen = burst
+    const burstMapping = {
+      'Short': 1,
+      'Medium': 2,
+      'Long': 3
+    };
+    const burstLen = burstMapping[burst] || 1;
     const pilotSkill = shooter.system.abilities.gunnery.total
     const gunValue = shooter.system.gun.value
     const tarSpeed = target.system.curSpeed
@@ -247,6 +255,9 @@ export class AirMercsActor extends Actor {
     let rangeBand = 0
     let diceCount = 0
     let distanceName = ''
+
+    console.log(ammoCount, burstLen)
+    shooter.update({ system: { ammo: {value: ammoCount - burstLen }}});
 
     if (ammoCount < 1) {return ui.notifications.warn('Out of Ammo!');}
     if (ammoCount < burstLen) {return ui.notifications.warn('Not enough Ammo for this Burst Length!');}   
@@ -257,7 +268,7 @@ export class AirMercsActor extends Actor {
     else if (distance <= 9) {rangeBand = 6; distanceName = 'Long'}
     
     let chatMessage = `
-                      <h2><b>${shooter.name}</b> fires a ${burstLen} burst at: <b>${target.name}</b> from ${distanceName} range!</h2>
+                      <h2><b>${shooter.name}</b> fires a ${burst} burst at: <b>${target.name}</b> from ${distanceName} range!</h2>
                       `
 
     //Value of onboard Gun
@@ -348,4 +359,25 @@ export class AirMercsActor extends Actor {
     console.log('Final Dice Pool of:', diceCount, "With Target Number:", rangeBand)
     return [diceCount, rangeBand, chatMessage];
   } 
+}
+
+async function drawDebugCircles(points, radius = 10, color = "#FF0000") {
+  if (!canvas.scene) {
+    console.error("No active scene found.");
+    return;
+  }
+
+  let drawings = points.map((point) => ({
+    x: point.x, // Center the circle
+    y: point.y,
+    shape: { type: "e", width: radius * 2, height: radius * 2 }, // "e" for ellipse
+    strokeColor: color, // Outline color
+    strokeWidth: 2,
+    fillColor: color, // Fill color
+    fillAlpha: 0.5, // Transparency
+    locked: true // Prevent accidental movement
+  }));
+
+  // Use createEmbeddedDocuments to properly add drawings to the scene
+  await canvas.scene.createEmbeddedDocuments("Drawing", drawings);
 }

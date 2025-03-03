@@ -805,7 +805,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
                           <h3><p style="text-align:center"><b>${weapon.system.damage} Result: ${diceResults} <br>${totalDamage} Damage!</p></b></h3>
                           <button class="roll-extraDamageTable" type="button">Additional Damage Table</button>
                           `
-      target.update({system: {hitPoints: {value: (target.system.hitPoints.value - totalDamage)}}})
+      await game.socket.emit("system.air-mercs", {action: "updateHP", targetUUID: target.uuid, damage: totalDamage});
 
       ChatMessage.create({ content: chatMessage }).then(msg => {
         Hooks.once("renderChatMessage", (chatMessage, html) => {
@@ -1101,6 +1101,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
           };
 
           let missileActor = await Actor.create(missileActorData);
+
           if (!missileActor) {
               console.error("Failed to create missile actor");
               continue;
@@ -1194,7 +1195,9 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
                         <br><h3><b> Total Damage: </b> ${hits}</h3>
                         <button class="roll-extraDamageTable" type="button">Additional Damage Table</button>
                         `
-      target.update({system: {hitPoints: {value: (target.system.hitPoints.value - hits)}}})
+
+      console.log("send something to the socket")                  
+      await game.socket.emit("system.air-mercs", {action: "updateHP", targetUUID: target.uuid, damage: hits});
 
       ChatMessage.create({ content: chatMessage }).then(msg => {
         Hooks.once("renderChatMessage", (msg, html) => {
@@ -1235,14 +1238,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
 
     }
   }
-
-
-  
-
-
-
-
-
 
   static prepPhaseReadyStoreData() {
     if (this.actor.getFlag('air-mercs', 'prepPhaseReady') == true) {
