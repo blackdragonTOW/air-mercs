@@ -1,3 +1,4 @@
+import { toggleReadyOverlay } from "../air-mercs.mjs";
 /**
  * Extend the base Actor document by defining a custom roll data structure which is ideal for the Simple system.
  * @extends {Actor}
@@ -136,35 +137,12 @@ export class AirMercsActor extends Actor {
       }
   }
 
-  updateTokenReadyState(actorData) {
-    const readyState = actorData.getFlag('air-mercs', 'prepPhaseReady')
-
-    const tokens = canvas.tokens.placeables.filter(t => t.actor?.uuid === this.uuid);
-    tokens.forEach(token => {
-      let existingText = token.children.find(child => child.name === 'readyText');
-
-    if (!readyState) {
-      let readyText = new PIXI.Text('READY!', {
-        fontFamily: 'Arial',
-        fontSize: 30,
-        fill: '#ff0000',
-        stroke: '#000000',
-        strokeThickness: 4,
-      });
-
-      readyText.name = 'readyText';
-      readyText.anchor.set(0,1);
-      readyText.x = ((token.width / 2) - (readyText.width / 2));
-      readyText.y = 0;
-
-      token.addChild(readyText)
-    } 
-
-    if (readyState) {
-      token.removeChild(existingText);
+  async updateTokenReadyState(actorData) {
+    if (game.user.isGM) {
+      game.socket.emit("system.air-mercs", {action: "drawReadyOverlay", targetUUID: actorData.uuid});
+      toggleReadyOverlay(actorData.uuid)
     }
-
-    });
+    else game.socket.emit("system.air-mercs", {action: "playerReadyToggle", targetUUID: actorData.uuid});
   } 
 
   getRelBearing(shooter, target) {

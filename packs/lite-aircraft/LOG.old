@@ -1,3 +1,7 @@
-2025/03/02-13:50:42.506 3058 Recovering log #92
-2025/03/02-13:50:42.512 3058 Delete type=0 #92
-2025/03/02-13:50:42.512 3058 Delete type=3 #91
+2025/03/08-12:20:18.232 2c44 Recovering log #100
+2025/03/08-12:20:18.246 2c44 Delete type=0 #100
+2025/03/08-12:20:18.246 2c44 Delete type=3 #99
+2025/03/08-12:20:26.821 5bbc Level-0 table #104: started
+2025/03/08-12:20:26.821 5bbc Level-0 table #104: 0 bytes OK
+2025/03/08-12:20:26.827 5bbc Delete type=0 #102
+2025/03/08-12:20:26.840 5bbc Manual compaction at level-0 from '!actors!sbJKqhcChISsIpj9' @ 72057594037927935 : 1 .. '!actors!wSvopU21tghdSnW1' @ 0 : 0; will stop at (end)

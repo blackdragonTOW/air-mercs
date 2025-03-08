@@ -443,15 +443,56 @@ function registerKeys() {
 }
 
 Hooks.once("setup", () => {
-  if (game.user.isGM) {
-    game.socket.on("system.air-mercs", async (data) => {
-      if (data.action === "updateHP") {
-        let target = await fromUuid(data.targetUUID);
-        console.log(target)
-        if (target) {
-          await target.update({system: {hitPoints: {value: (target.system.hitPoints.value - data.damage)}}});
-        }
+  game.socket.on("system.air-mercs", async (data) => {
+    if (game.user.isGM && data.action === "updateHP") {
+      let target = await fromUuid(data.targetUUID);
+      console.log(target)
+      if (target) {
+        await target.update({system: {hitPoints: {value: (target.system.hitPoints.value - data.damage)}}});
       }
-    });
-  }
+    }
+
+    if (game.user.isGM && data.action === "playerReadyToggle") {
+      console.log("WERE TOGGLING")
+      const targetUUID = data.targetUUID
+      game.socket.emit("system.air-mercs", {action: "drawReadyOverlay", targetUUID: targetUUID});
+      toggleReadyOverlay(targetUUID)
+    }
+
+    if (data.action === "drawReadyOverlay") {
+      toggleReadyOverlay(data.targetUUID)
+    }
+
+  });
 });
+
+export async function toggleReadyOverlay(targetUUID) { 
+  const targetActor = await fromUuid(targetUUID);
+  console.log(targetActor)
+  const readyState = targetActor.getFlag('air-mercs', 'prepPhaseReady')
+  let tokens = canvas.tokens.placeables.filter(t => t.actor?.uuid === targetActor.uuid);
+  tokens.forEach(token => {
+    let existingText = token.children.find(child => child.name === 'readyText');
+
+    if (!readyState) {
+      let readyText = new PIXI.Text('READY!', {
+        fontFamily: 'Arial',
+        fontSize: 30,
+        fill: '#ff0000',
+        stroke: '#000000',
+        strokeThickness: 4,
+      });
+
+      readyText.name = 'readyText';
+      readyText.anchor.set(0,1);
+      readyText.x = ((token.width / 2) - (readyText.width / 2));
+      readyText.y = 0;
+
+      token.addChild(readyText)
+    } 
+
+    if (readyState) {
+      token.removeChild(existingText);
+    }
+  }); 
+}
