@@ -1,13 +1,8 @@
-2025/03/08-12:20:18.279 300c Recovering log #88
-2025/03/08-12:20:18.294 300c Delete type=0 #88
-2025/03/08-12:20:18.294 300c Delete type=3 #87
-2025/03/08-12:20:26.827 5bbc Level-0 table #92: started
-2025/03/08-12:20:26.827 5bbc Level-0 table #92: 0 bytes OK
-2025/03/08-12:20:26.833 5bbc Delete type=0 #90
-2025/03/08-12:20:26.840 5bbc Manual compaction at level-0 from '!items!KFEcL9kTe41UDWeM' @ 72057594037927935 : 1 .. '!items!UiJR2Mq60LJMHHko' @ 0 : 0; will stop at '!items!UiJR2Mq60LJMHHko' @ 4 : 1
-2025/03/08-12:20:26.840 5bbc Compacting 1@0 + 0@1 files
-2025/03/08-12:20:26.855 5bbc Generated table #93@0: 4 keys, 1223 bytes
-2025/03/08-12:20:26.855 5bbc Compacted 1@0 + 0@1 files => 1223 bytes
-2025/03/08-12:20:26.860 5bbc compacted to: files[ 0 1 0 0 0 0 0 ]
-2025/03/08-12:20:26.861 5bbc Delete type=2 #5
-2025/03/08-12:20:26.885 5bbc Manual compaction at level-0 from '!items!UiJR2Mq60LJMHHko' @ 4 : 1 .. '!items!UiJR2Mq60LJMHHko' @ 0 : 0; will stop at (end)
+2025/03/20-19:39:39.246 2124 Log #95: 0 ops saved to Table #102 OK
+2025/03/20-19:39:39.247 2124 Archiving C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\lite-missiles/000095.log: OK
+2025/03/20-19:39:39.247 2124 Log #101: 0 ops saved to Table #103 OK
+2025/03/20-19:39:39.247 2124 Archiving C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\lite-missiles/000101.log: OK
+2025/03/20-19:39:39.248 2124 Table #93: 4 entries OK
+2025/03/20-19:39:39.251 2124 Archiving C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\lite-missiles/MANIFEST-000094: OK
+2025/03/20-19:39:39.252 2124 Archiving C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\lite-missiles/MANIFEST-000100: OK
+2025/03/20-19:39:39.257 2124 **** Repaired leveldb C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\lite-missiles; recovered 1 files; 1223 bytes. Some data may have been lost. ****

@@ -770,7 +770,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
                     <button class="roll-missilehitattempt" type="button">Roll to Hit</button>
                     `
     ChatMessage.create({ content: chatMessage }).then(msg => {
-      Hooks.once("renderChatMessageHTML", (chatMessage, html) => {
+      Hooks.once("renderChatMessage", (chatMessage, html) => {
         html.find(".roll-missilehitattempt").click(() => {missilehitattempt(weapon, shooter, target, modifiedHit)});
       });
     });
@@ -791,7 +791,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
                           `
 
       ChatMessage.create({ content: chatMessage }).then(msg => {
-        Hooks.once("renderChatMessageHTML", (chatMessage, html) => {
+        Hooks.once("renderChatMessage", (chatMessage, html) => {
           html.find(".roll-missiledamage").click(() => {missiledamage(weapon, shooter, target)});
         });
       });
@@ -808,7 +808,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       await game.socket.emit("system.air-mercs", {action: "updateHP", targetUUID: target.uuid, damage: totalDamage});
 
       ChatMessage.create({ content: chatMessage }).then(msg => {
-        Hooks.once("renderChatMessageHTML", (chatMessage, html) => {
+        Hooks.once("renderChatMessage", (chatMessage, html) => {
           html.find(".roll-extraDamageTable").click(() => {extraDamageTable('air-mercs.rollable-tables', 'Aircraft Damage')});
           });
         });
@@ -908,7 +908,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
                           <button class="roll-launchattempt" type="button">Launch Weapon (unlocked)</button>
                           `
       ChatMessage.create({ content: chatMessage }).then(msg => {
-        Hooks.once("renderChatMessageHTML", (chatMessage, html) => {
+        Hooks.once("renderChatMessage", (chatMessage, html) => {
           html.find(".roll-lockattempt").click(() => {handleMissileLock(weapon, lockType, shooter)});
           html.find(".roll-launchattempt").click(() => {launchAttempt(shooter, locks, weapon, airTarget.actor, pilotSkill, availableWeapons)});
         });
@@ -977,7 +977,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
                         `
 
       ChatMessage.create({ content: chatMessage }).then(msg => {
-        Hooks.once("renderChatMessageHTML", (chatMessage, html) => {
+        Hooks.once("renderChatMessage", (chatMessage, html) => {
           html.find(".roll-launchattempt").click(() => {launchAttempt(shooter, locks, weapon, target, pilotSkill, availableWeapons)});
         });
       });
@@ -1175,7 +1175,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       let [diceCount, rangeBand, chatMessage] = shooter.shootCannon(range, shooter, target);
       ChatMessage.create({ content: chatMessage });
 
-      Hooks.once("renderChatMessageHTML", (chatMessage, html) => {
+      Hooks.once("renderChatMessage", (chatMessage, html) => {
         html.find(".roll-gunsgunsguns").click(() => resolveAttackRoll(diceCount, rangeBand, shooter));
       });
     }
@@ -1200,7 +1200,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       await game.socket.emit("system.air-mercs", {action: "updateHP", targetUUID: target.uuid, damage: hits});
 
       ChatMessage.create({ content: chatMessage }).then(msg => {
-        Hooks.once("renderChatMessageHTML", (msg, html) => {
+        Hooks.once("renderChatMessage", (msg, html) => {
           html.find(".roll-extraDamageTable").click(() => {extraDamageTable('air-mercs.rollable-tables', 'Aircraft Damage')});
         });
       });
@@ -1314,7 +1314,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
                                 `
               ChatMessage.create({content: start_message})
 
-              Hooks.once("renderChatMessageHTML", (chatMessage, html) => {
+              Hooks.once("renderChatMessage", (chatMessage, html) => {
                 html.find(".roll-maneuver").click(async event => {
 
                   let diff = Number(event.currentTarget.dataset.diff);

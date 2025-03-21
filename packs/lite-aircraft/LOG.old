@@ -1,7 +1,9 @@
-2025/03/08-12:20:18.232 2c44 Recovering log #100
-2025/03/08-12:20:18.246 2c44 Delete type=0 #100
-2025/03/08-12:20:18.246 2c44 Delete type=3 #99
-2025/03/08-12:20:26.821 5bbc Level-0 table #104: started
-2025/03/08-12:20:26.821 5bbc Level-0 table #104: 0 bytes OK
-2025/03/08-12:20:26.827 5bbc Delete type=0 #102
-2025/03/08-12:20:26.840 5bbc Manual compaction at level-0 from '!actors!sbJKqhcChISsIpj9' @ 72057594037927935 : 1 .. '!actors!wSvopU21tghdSnW1' @ 0 : 0; will stop at (end)
+2025/03/20-19:39:39.208 3070 Log #106: 0 ops saved to Table #113 OK
+2025/03/20-19:39:39.209 3070 Archiving C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\lite-aircraft/000106.log: OK
+2025/03/20-19:39:39.209 3070 Log #112: 0 ops saved to Table #114 OK
+2025/03/20-19:39:39.210 3070 Archiving C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\lite-aircraft/000112.log: OK
+2025/03/20-19:39:39.210 3070 Table #9: 2 entries OK
+2025/03/20-19:39:39.210 3070 Table #13: 2 entries OK
+2025/03/20-19:39:39.214 3070 Archiving C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\lite-aircraft/MANIFEST-000105: OK
+2025/03/20-19:39:39.214 3070 Archiving C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\lite-aircraft/MANIFEST-000111: OK
+2025/03/20-19:39:39.219 3070 **** Repaired leveldb C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\lite-aircraft; recovered 2 files; 3842 bytes. Some data may have been lost. ****
