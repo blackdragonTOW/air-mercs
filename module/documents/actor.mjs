@@ -265,13 +265,15 @@ export class AirMercsActor extends Actor {
     let diceCount = 0
     let distanceName = ''
 
-    console.log(ammoCount, burstLen)
-    shooter.update({ system: { ammo: {value: ammoCount - burstLen }}});
-
     if (ammoCount < 1) {return ui.notifications.warn('Out of Ammo!');}
     if (ammoCount < burstLen) {return ui.notifications.warn('Not enough Ammo for this Burst Length!');}   
     if (!(relBearing <= 15 || relBearing >= 345)) {return ui.notifications.warn('Target not in frontal 30 degree arc');}
     if (distance > 9) {return ui.notifications.warn('Target is out of range: Further than 9');}
+
+    console.log(ammoCount, burstLen)
+    //Only remove ammo AFTER we validate that we have a good firing solution
+    shooter.update({ system: { ammo: {value: ammoCount - burstLen }}});
+
     if (distance <= 3) {rangeBand = 3; distanceName = 'Short'}
     else if (distance <= 6) {rangeBand = 5; distanceName = 'Medium'}
     else if (distance <= 9) {rangeBand = 6; distanceName = 'Long'}

@@ -1,3 +1,13 @@
-2025/03/24-14:44:37.420 39f0 Recovering log #105
-2025/03/24-14:44:37.426 39f0 Delete type=0 #105
-2025/03/24-14:44:37.426 39f0 Delete type=3 #104
+2025/03/24-14:54:14.426 52ec Recovering log #107
+2025/03/24-14:54:14.432 52ec Delete type=0 #107
+2025/03/24-14:54:14.432 52ec Delete type=3 #106
+2025/03/24-14:57:39.315 2c64 Level-0 table #111: started
+2025/03/24-14:57:39.315 2c64 Level-0 table #111: 0 bytes OK
+2025/03/24-14:57:39.317 2c64 Delete type=0 #109
+2025/03/24-14:57:39.340 2c64 Manual compaction at level-0 from '!items!KFEcL9kTe41UDWeM' @ 72057594037927935 : 1 .. '!items!UiJR2Mq60LJMHHko' @ 0 : 0; will stop at '!items!UiJR2Mq60LJMHHko' @ 4 : 1
+2025/03/24-14:57:39.340 2c64 Compacting 1@0 + 0@1 files
+2025/03/24-14:57:39.349 2c64 Generated table #112@0: 4 keys, 1223 bytes
+2025/03/24-14:57:39.349 2c64 Compacted 1@0 + 0@1 files => 1223 bytes
+2025/03/24-14:57:39.351 2c64 compacted to: files[ 0 1 0 0 0 0 0 ]
+2025/03/24-14:57:39.351 2c64 Delete type=2 #93
+2025/03/24-14:57:39.364 2c64 Manual compaction at level-0 from '!items!UiJR2Mq60LJMHHko' @ 4 : 1 .. '!items!UiJR2Mq60LJMHHko' @ 0 : 0; will stop at (end)
