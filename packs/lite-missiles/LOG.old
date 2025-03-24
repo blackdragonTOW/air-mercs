@@ -1,8 +1,1 @@
-2025/03/20-19:39:39.246 2124 Log #95: 0 ops saved to Table #102 OK
-2025/03/20-19:39:39.247 2124 Archiving C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\lite-missiles/000095.log: OK
-2025/03/20-19:39:39.247 2124 Log #101: 0 ops saved to Table #103 OK
-2025/03/20-19:39:39.247 2124 Archiving C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\lite-missiles/000101.log: OK
-2025/03/20-19:39:39.248 2124 Table #93: 4 entries OK
-2025/03/20-19:39:39.251 2124 Archiving C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\lite-missiles/MANIFEST-000094: OK
-2025/03/20-19:39:39.252 2124 Archiving C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\lite-missiles/MANIFEST-000100: OK
-2025/03/20-19:39:39.257 2124 **** Repaired leveldb C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\lite-missiles; recovered 1 files; 1223 bytes. Some data may have been lost. ****
+2025/03/20-19:39:39.266 2124 Delete type=3 #1

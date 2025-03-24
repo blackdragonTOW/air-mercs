@@ -1,8 +1,1 @@
-2025/03/20-19:39:39.278 54ac Log #21: 0 ops saved to Table #28 OK
-2025/03/20-19:39:39.279 54ac Archiving C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\pilots/000021.log: OK
-2025/03/20-19:39:39.280 54ac Log #27: 0 ops saved to Table #29 OK
-2025/03/20-19:39:39.281 54ac Archiving C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\pilots/000027.log: OK
-2025/03/20-19:39:39.281 54ac Table #19: 7 entries OK
-2025/03/20-19:39:39.284 54ac Archiving C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\pilots/MANIFEST-000020: OK
-2025/03/20-19:39:39.285 54ac Archiving C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\pilots/MANIFEST-000026: OK
-2025/03/20-19:39:39.290 54ac **** Repaired leveldb C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\pilots; recovered 1 files; 6118 bytes. Some data may have been lost. ****
+2025/03/20-19:39:39.300 54ac Delete type=3 #1

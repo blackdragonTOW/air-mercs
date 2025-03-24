@@ -1,8 +1,1 @@
-2025/03/20-19:39:39.313 3070 Log #38: 0 ops saved to Table #45 OK
-2025/03/20-19:39:39.314 3070 Archiving C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\rollable-tables/000038.log: OK
-2025/03/20-19:39:39.314 3070 Log #44: 0 ops saved to Table #46 OK
-2025/03/20-19:39:39.315 3070 Archiving C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\rollable-tables/000044.log: OK
-2025/03/20-19:39:39.315 3070 Table #36: 20 entries OK
-2025/03/20-19:39:39.318 3070 Archiving C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\rollable-tables/MANIFEST-000037: OK
-2025/03/20-19:39:39.319 3070 Archiving C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\rollable-tables/MANIFEST-000043: OK
-2025/03/20-19:39:39.323 3070 **** Repaired leveldb C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\rollable-tables; recovered 1 files; 3455 bytes. Some data may have been lost. ****
+2025/03/20-19:39:39.332 3070 Delete type=3 #1

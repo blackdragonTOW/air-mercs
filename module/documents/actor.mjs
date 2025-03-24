@@ -146,13 +146,44 @@ export class AirMercsActor extends Actor {
   } 
 
   getRelBearing(shooter, target) {
-    const shooterToken = shooter.getActiveTokens(false)[0].center; 
-    const targetToken = target.getActiveTokens(false)[0].center;
+    const shooterTokenCenter = shooter.getActiveTokens(false)[0].center; 
+    const targetTokenCenter = target.getActiveTokens(false)[0].center;
 
-    const x1 = shooterToken.x;
-    const y1 = shooterToken.y;
-    const x2 = targetToken.x;
-    const y2 = targetToken.y;
+    const x1 = shooterTokenCenter.x;
+    const y1 = shooterTokenCenter.y;
+    const x2 = targetTokenCenter.x;
+    const y2 = targetTokenCenter.y;
+    
+    // Calculate the angle between the two tokens
+    const deltaX = x2 - x1;
+    const deltaY = y2 - y1;
+    let angleToTarget = (Math.atan2(deltaY, deltaX) * (180 / Math.PI)) - 90;
+
+    // Normalize angleToTarget to 0-360 degrees
+    if (angleToTarget < 0) {
+      angleToTarget += 360;
+    }
+    // Get the rotation of the shooter
+    const shooterRotation = shooter.token.rotation;
+
+    // Calculate relative bearing
+    let relativeBearing = angleToTarget - shooterRotation;
+
+    // Normalize relative bearing to 0-360 degrees
+    if (relativeBearing < 0) {
+      relativeBearing += 360;
+    }
+    return relativeBearing;
+  }
+
+  getInterceptBearing(shooter, target) {
+    const shooterTokenCenter = shooter.getActiveTokens(false)[0].center; 
+    const targetLocation = target;
+
+    const x1 = shooterTokenCenter.x;
+    const y1 = shooterTokenCenter.y;
+    const x2 = targetLocation.token.x;
+    const y2 = targetLocation.token.y;
     
     // Calculate the angle between the two tokens
     const deltaX = x2 - x1;

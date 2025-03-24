@@ -1042,7 +1042,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
           tarPoint.token.y = 0
           tarPoint.token.x = newX
           tarPoint.token.y = newY
-          const bearingLead = shooter.getRelBearing(shooter, tarPoint)
+          const bearingLead = shooter.getInterceptBearing(shooter, tarPoint)
           return { x: newX, y: newY, bearing: bearingLead};
         }
 
@@ -1075,8 +1075,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
           else {tarAspect = 'Front'}
         for (let i = LaunchCount; i > 0; i--) {
           let activeWeapon = weaponIDArray[i - 1]
-          console.log(weaponIDArray[i])
-          console.log(i)
           
           //Create an actor so the token has a sheet where we click buttons to resolve the token
           let missileActorData = {

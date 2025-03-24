@@ -1,9 +1,1 @@
-2025/03/20-19:39:39.208 3070 Log #106: 0 ops saved to Table #113 OK
-2025/03/20-19:39:39.209 3070 Archiving C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\lite-aircraft/000106.log: OK
-2025/03/20-19:39:39.209 3070 Log #112: 0 ops saved to Table #114 OK
-2025/03/20-19:39:39.210 3070 Archiving C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\lite-aircraft/000112.log: OK
-2025/03/20-19:39:39.210 3070 Table #9: 2 entries OK
-2025/03/20-19:39:39.210 3070 Table #13: 2 entries OK
-2025/03/20-19:39:39.214 3070 Archiving C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\lite-aircraft/MANIFEST-000105: OK
-2025/03/20-19:39:39.214 3070 Archiving C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\lite-aircraft/MANIFEST-000111: OK
-2025/03/20-19:39:39.219 3070 **** Repaired leveldb C:\Users\Josh\AppData\Local\FoundryVTT\Data\systems\air-mercs\packs\lite-aircraft; recovered 2 files; 3842 bytes. Some data may have been lost. ****
+2025/03/20-19:39:39.232 3070 Delete type=3 #1
