@@ -807,6 +807,11 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
                           `
       await game.socket.emit("system.air-mercs", {action: "updateHP", targetUUID: target.uuid, damage: totalDamage});
 
+      if (game.user.isGM) {
+        await target.update({system: {hitPoints: {value: (target.system.hitPoints.value - totalDamage)}}});
+        console.log("HP updated as GM")
+      }
+
       ChatMessage.create({ content: chatMessage }).then(msg => {
         Hooks.once("renderChatMessage", (chatMessage, html) => {
           html.find(".roll-extraDamageTable").click(() => {extraDamageTable('air-mercs.rollable-tables', 'Aircraft Damage')});
@@ -1015,6 +1020,10 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       }).render(true);
 
       async function handleMissileLaunch(shooter, LaunchCount, locks, weapon, target, pilotSkill) {
+        const shooterToken = shooter.getActiveTokens(false)[0].document; 
+        const TargetToken = target.getActiveTokens(false)[0].document;
+        const shooterTokenCenter = shooter.getActiveTokens(false)[0].center; 
+        const targetTokenCenter = target.getActiveTokens(false)[0].center;
         event.preventDefault();
         const scene = game.scenes.active;
         if (!scene) {
@@ -1026,14 +1035,15 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
           //This will find the angle of the lead position relative to the shooters facing
           //Given that this is the angle, it's agnostic of the forward or backward facing of the target
           //We will combine it with a distance to the target to calculate a reasonable lead tracking solution
-          const angle = (target.parent.rotation + 90) * (Math.PI / 180); // Convert degrees to radians, all South is 0 degrees, Foundry.txt I guess
+          const angle = (TargetToken.rotation + 90) * (Math.PI / 180); // Convert degrees to radians, all South is 0 degrees, Foundry.txt I guess
           const speed = target.system.curSpeed.value
           const gridSize = canvas.scene.grid.size; 
           const gridDistance = canvas.scene.grid.distance; 
+          console.log("Target Rotation:", angle)
 
           const speedInPixels = (speed * gridSize) / gridDistance;
-          const newX = target.parent.x + speedInPixels * Math.cos(angle);
-          const newY = target.parent.y + speedInPixels * Math.sin(angle);
+          const newX = targetTokenCenter.x + speedInPixels * Math.cos(angle);
+          const newY = targetTokenCenter.y + speedInPixels * Math.sin(angle);
 
           //TODO: Make this not shitty and getRelBearing() should accept more than just actors... or something else idk I'm not a smart man
           let tarPoint = {}
@@ -1044,20 +1054,22 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
           tarPoint.token.y = newY
           const bearingLead = shooter.getInterceptBearing(shooter, tarPoint)
           return { x: newX, y: newY, bearing: bearingLead};
-        }
+        } 
 
         const interceptPoint = getLeadPosition()
+        drawDebugCircles(interceptPoint)
         const leadAngle = getLeadPosition().bearing
-            const startX = shooter.parent.x, startY = shooter.parent.y; // starting coordinates
-            const endX = target.parent.x, endY = target.parent.y
+        console.log(shooter)
+        const startX = shooterToken.x, startY = shooterToken.y; // starting coordinates
+        const endX = TargetToken.x, endY = TargetToken.y
         const tarDistance = Math.sqrt((endX - startX) ** 2 + (endY - startY) ** 2) //raw dist to target
         const ipDistance = Math.sqrt((interceptPoint.x - startX) ** 2 + (interceptPoint.y - startY) ** 2)
         const shortestDist = ipDistance < tarDistance ? ipDistance : tarDistance
         const distScalar = 0.8 //what percent of the distance to target do we want to create our token at
         const calcdistance = shortestDist  * distScalar; 
         // const leadPos = getNewPositionFromAzimuth(startX, startY, leadAngle, distance);
-        const leadAngleRad =  Math.toRadians(shooter.parent.rotation + 90+leadAngle)
-        const ray = Ray.fromAngle(shooter.parent.x, shooter.parent.y, leadAngleRad , calcdistance )
+        const leadAngleRad =  Math.toRadians(shooterToken.rotation + 90+leadAngle)
+        const ray = Ray.fromAngle(shooterToken.x, shooterToken.y, leadAngleRad , calcdistance )
         const secondWeapon = shooter.items.find(item => item.name === weapon.name && item.id !== weapon.id);
         const weaponIDArray = [weapon, secondWeapon]
         console.log(weaponIDArray)
@@ -1111,7 +1123,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
             texture: { src: `systems/air-mercs/assets/missiles/tokens/${filename}` },
             x: (ray.B.x) + ((i-1) * 25),
             y: (ray.B.y) + ((i-1) * 25),
-            rotation: shooter.parent.rotation + leadAngle, 
+            rotation: shooterToken.rotation + leadAngle, 
             width: 0.3, 
             height: 0.3,
             vision: false,
@@ -1196,6 +1208,11 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
 
       console.log("send something to the socket")                  
       await game.socket.emit("system.air-mercs", {action: "updateHP", targetUUID: target.uuid, damage: hits});
+      
+      if (game.user.isGM) {
+        await target.update({system: {hitPoints: {value: (target.system.hitPoints.value - hits)}}});
+        console.log("HP updated as GM")
+      }
 
       ChatMessage.create({ content: chatMessage }).then(msg => {
         Hooks.once("renderChatMessage", (msg, html) => {
@@ -1693,4 +1710,27 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       }
     }
   }
+}
+
+async function drawDebugCircles(points, radius = 10, color = "#FF0000") {
+  if (!canvas.scene) {
+    console.error("No active scene found.");
+    return;
+  }
+
+  if (!Array.isArray(points)) points = [points];
+
+  let drawings = points.map((point) => ({
+    x: point.x, // Center the circle
+    y: point.y,
+    shape: { type: "e", width: radius * 2, height: radius * 2 }, // "e" for ellipse
+    strokeColor: color, // Outline color
+    strokeWidth: 2,
+    fillColor: color, // Fill color
+    fillAlpha: 0.5, // Transparency
+    locked: true // Prevent accidental movement
+  }));
+
+  // Use createEmbeddedDocuments to properly add drawings to the scene
+  await canvas.scene.createEmbeddedDocuments("Drawing", drawings);
 }

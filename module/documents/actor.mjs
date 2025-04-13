@@ -146,6 +146,8 @@ export class AirMercsActor extends Actor {
   } 
 
   getRelBearing(shooter, target) {
+    const shooterToken = shooter.getActiveTokens(false)[0]; 
+    const targetToken = target.getActiveTokens(false)[0]; 
     const shooterTokenCenter = shooter.getActiveTokens(false)[0].center; 
     const targetTokenCenter = target.getActiveTokens(false)[0].center;
 
@@ -164,7 +166,7 @@ export class AirMercsActor extends Actor {
       angleToTarget += 360;
     }
     // Get the rotation of the shooter
-    const shooterRotation = shooter.token.rotation;
+    const shooterRotation = shooterToken.rotation;
 
     // Calculate relative bearing
     let relativeBearing = angleToTarget - shooterRotation;
@@ -177,6 +179,7 @@ export class AirMercsActor extends Actor {
   }
 
   getInterceptBearing(shooter, target) {
+    const shooterToken = shooter.getActiveTokens(false)[0]; 
     const shooterTokenCenter = shooter.getActiveTokens(false)[0].center; 
     const targetLocation = target;
 
@@ -195,7 +198,7 @@ export class AirMercsActor extends Actor {
       angleToTarget += 360;
     }
     // Get the rotation of the shooter
-    const shooterRotation = shooter.token.rotation;
+    const shooterRotation = shooterToken.rotation;
 
     // Calculate relative bearing
     let relativeBearing = angleToTarget - shooterRotation;
