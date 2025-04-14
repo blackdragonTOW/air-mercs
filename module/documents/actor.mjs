@@ -145,11 +145,9 @@ export class AirMercsActor extends Actor {
     else game.socket.emit("system.air-mercs", {action: "playerReadyToggle", targetUUID: actorData.uuid});
   } 
 
-  getRelBearing(shooter, target) {
-    const shooterToken = shooter.getActiveTokens(false)[0]; 
-    const targetToken = target.getActiveTokens(false)[0]; 
-    const shooterTokenCenter = shooter.getActiveTokens(false)[0].center; 
-    const targetTokenCenter = target.getActiveTokens(false)[0].center;
+  getRelBearing(shooterToken, targetToken) {
+    const shooterTokenCenter = shooterToken.object.center; 
+    const targetTokenCenter = targetToken.object.center;
 
     const x1 = shooterTokenCenter.x;
     const y1 = shooterTokenCenter.y;
@@ -178,15 +176,18 @@ export class AirMercsActor extends Actor {
     return relativeBearing;
   }
 
-  getInterceptBearing(shooter, target) {
-    const shooterToken = shooter.getActiveTokens(false)[0]; 
-    const shooterTokenCenter = shooter.getActiveTokens(false)[0].center; 
-    const targetLocation = target;
+  getInterceptBearing(shooterToken, targetToken) {
+    const shooterTokenCenter = shooterToken.object.center; 
+    let targetTokenCenter = 0;
+    if (!targetToken.object) {
+      //If targetToken isn't an object, it is a fixed point
+      targetTokenCenter = targetToken;
+    } else targetTokenCenter = targetToken.object.center;
 
     const x1 = shooterTokenCenter.x;
     const y1 = shooterTokenCenter.y;
-    const x2 = targetLocation.token.x;
-    const y2 = targetLocation.token.y;
+    const x2 = targetTokenCenter.x;
+    const y2 = targetTokenCenter.y;
     
     // Calculate the angle between the two tokens
     const deltaX = x2 - x1;
@@ -210,14 +211,14 @@ export class AirMercsActor extends Actor {
     return relativeBearing;
   }
 
-  getDistance(shooter, target) {
-    const shooterToken = shooter.getActiveTokens(false)[0].center; 
-    const targetToken = target.getActiveTokens(false)[0].center;
+  getDistance(shooterToken, targetToken) {
+    const shooterTokenCenter = shooterToken.object.center; 
+    const targetTokenCenter = targetToken.object.center;
 
-    const x1 = shooterToken.x;
-    const y1 = shooterToken.y;
-    const x2 = targetToken.x;
-    const y2 = targetToken.y;
+    const x1 = shooterTokenCenter.x;
+    const y1 = shooterTokenCenter.y;
+    const x2 = targetTokenCenter.x;
+    const y2 = targetTokenCenter.y;
 
     const pixelDistance = Math.hypot(x2 - x1, y2 - y1);
 
@@ -248,131 +249,6 @@ export class AirMercsActor extends Actor {
     }, 0);
     return totalWeight;
   }
-
-  shootCannon(burst, shooter, target) {
-    const relBearing = shooter.getRelBearing(shooter,target)
-    const aspect = shooter.getRelBearing(target,shooter)
-    const distance = Number(shooter.getDistance(target,shooter)).toPrecision(2)
-    const ammoCount = shooter.system.ammo.value
-    const burstMapping = {
-      'Short': 1,
-      'Medium': 2,
-      'Long': 3
-    };
-    const burstLen = burstMapping[burst] || 1;
-    const pilotSkill = shooter.system.abilities.gunnery.total
-    const gunValue = shooter.system.gun.value
-    const tarSpeed = target.system.curSpeed
-    
-    let rangeBand = 0
-    let diceCount = 0
-    let distanceName = ''
-
-    if (ammoCount < 1) {return ui.notifications.warn('Out of Ammo!');}
-    if (ammoCount < burstLen) {return ui.notifications.warn('Not enough Ammo for this Burst Length!');}   
-    if (!(relBearing <= 15 || relBearing >= 345)) {return ui.notifications.warn('Target not in frontal 30 degree arc');}
-    if (distance > 9) {return ui.notifications.warn('Target is out of range: Further than 9');}
-
-    console.log(ammoCount, burstLen)
-    //Only remove ammo AFTER we validate that we have a good firing solution
-    shooter.update({ system: { ammo: {value: ammoCount - burstLen }}});
-
-    if (distance <= 3) {rangeBand = 3; distanceName = 'Short'}
-    else if (distance <= 6) {rangeBand = 5; distanceName = 'Medium'}
-    else if (distance <= 9) {rangeBand = 6; distanceName = 'Long'}
-    
-    let chatMessage = `
-                      <h2><b>${shooter.name}</b> fires a ${burst} burst at: <b>${target.name}</b> from ${distanceName} range!</h2>
-                      `
-
-    //Value of onboard Gun
-    diceCount += gunValue
-    chatMessage += `<p>+${gunValue}:<b> Aircraft Gun Rating</b>`
-    console.log("Gun Value:", diceCount)
-
-    //Length of Burst bonus
-    switch (burstLen) {
-      case 'Short':
-        diceCount += -2;
-        shooter.system.ammo.value += -1
-        chatMessage += `<br>-2:<b> Burst Length</b>`
-        console.log("Burst Length: Short")
-        break;
-      case 'Medium':
-        diceCount += 0;
-        shooter.system.ammo.value += -2
-        chatMessage += `<br>+0:<b> Burst Length</b>`
-        console.log("Burst Length: Medium")
-        break;
-      case 'Long':
-        diceCount += 2;
-        shooter.system.ammo.value += -3
-        chatMessage += `<br>+2:<b> Burst Length</b>`
-        console.log("Burst Length: Long")
-        break;
-    }
-    console.log("Dice Pool Now:", diceCount)
-
-    //Pilot Skill (Gunnery)
-    diceCount += pilotSkill;
-    pilotSkill < 0 ? chatMessage += `<br>${pilotSkill}:<b> Pilot Gunnery Rating</b>` : chatMessage += `<br>+${pilotSkill}:<b> Pilot Gunnery Rating</b>`
-    console.log("Pilot Skill:", pilotSkill)
-    console.log("Dice Pool Now:", diceCount)
-
-    //Firing from Beam aspect
-    if ((aspect <= 130 && aspect >= 90) || (aspect <= 270 && aspect >= 210)) {
-      diceCount += -2
-      chatMessage += `<br>-2<b>: Firing From Beam</b>`
-      console.log("Firing From Beam")
-      console.log("Dice Pool Now:", diceCount)
-    }
-
-    //Shooter Crippled
-    if (this.statuses.has('crippled')) {
-      diceCount += 0 //The Status Effect 'crippled' subtracts 1 from the gun rating, we don't need to double it here
-      chatMessage += `<br>-1<b>: Firing While Crippled</b>`
-      console.log("Firing While Crippled")
-      console.log("Dice Pool Now:", diceCount)
-    }
-
-    //Enemy Maneuver Bonus/Malus
-    if (tarSpeed == 0) {
-      diceCount += 2
-      chatMessage += `<br>+2<b>: Target Stalled</b>`
-      console.log("Target Stalled")
-      console.log("Dice Pool Now:", diceCount)
-    }
-    else if (target.attemptedManeuverOutcome == 'failure' && target.attemptedManeuver.failEffect.defBonus != 0) {
-      diceCount += 2
-      chatMessage += `<br>+2<b>: Target Failed Maneuver</b>`
-      console.log("Target Failed Maneuver")
-      console.log("Dice Pool Now:", diceCount)
-    }
-
-    //Firing from Front
-    if (aspect < 90 || aspect > 270) {
-      diceCount = Math.ceil((diceCount / 2))
-      chatMessage += `<br>1/2'd<b>: Firing From Front</b>`
-      console.log("Firing From Front Aspect")
-      console.log("Dice Pool Now:", diceCount)
-    }
-
-    //Target is Maneuvering
-    if (target.attemptedManeuverOutcome == 'success') {
-      diceCount = Math.ceil((diceCount / 2))
-      chatMessage += `<br>1/2'd<b>: Target Successfully Maneuvering</b>`
-      console.log("Target Is Maneuvering")
-      console.log("Dice Pool Now:", diceCount)
-    }
-    
-    chatMessage += `
-                    <p><b>Total Dice:</b> ${diceCount}d6 hitting on ${rangeBand}+ 
-                    <button class="roll-gunsgunsguns" type="button">Guns! Guns! Guns!</button>
-                    `
-
-    console.log('Final Dice Pool of:', diceCount, "With Target Number:", rangeBand)
-    return [diceCount, rangeBand, chatMessage];
-  } 
 }
 
 async function drawDebugCircles(points, radius = 10, color = "#FF0000") {
