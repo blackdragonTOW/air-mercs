@@ -445,10 +445,11 @@ function registerKeys() {
 Hooks.once("setup", () => {
   game.socket.on("system.air-mercs", async (data) => {
     if (game.user.isGM && data.action === "updateHP") {
-      let target = await fromUuid(data.targetUUID);
-      console.log(target)
-      if (target) {
-        await target.update({system: {hitPoints: {value: (target.system.hitPoints.value - data.damage)}}});
+      const target = await fromUuid(data.targetUUID);
+      const targetActor = target.actor
+      console.log(targetActor)
+      if (targetActor) {
+        await targetActor.update({system: {hitPoints: {value: (targetActor.system.hitPoints.value - data.damage)}}});
       }
     }
 

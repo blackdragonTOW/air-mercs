@@ -1078,7 +1078,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
           const newX = targetTokenCenter.x + speedInPixels * Math.cos(angle);
           const newY = targetTokenCenter.y + speedInPixels * Math.sin(angle);
 
-          //TODO: Make this not shitty and getRelBearing() should accept more than just actors... or something else idk I'm not a smart man
           let tarPoint = {}
           tarPoint = {}
           tarPoint.x = 0
@@ -1090,7 +1089,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
         } 
 
         const interceptPoint = getLeadPosition()
-        drawDebugCircles(interceptPoint)
+
         const leadAngle = getLeadPosition().bearing
 
         const startX = shooterToken.x, startY = shooterToken.y; // starting coordinates
@@ -1173,9 +1172,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     }
 
   }
-
-
-
 
   static burstSelect() {
     if (!this.actor.getActiveTokens()?.[0]?.document.actor) {return ui.notifications.warn('Select a Token to be the Shooter');}
@@ -1268,7 +1264,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       if (!(relBearing <= 15 || relBearing >= 345)) {return ui.notifications.warn('Target not in frontal 30 degree arc');}
       if (distance > 9) {return ui.notifications.warn('Target is out of range: Further than 9');}
   
-      console.log(ammoCount, burstLen)
       //Only remove ammo AFTER we validate that we have a good firing solution
       shooterActor.update({ system: { ammo: {value: ammoCount - burstLen }}});
   
@@ -1286,7 +1281,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       console.log("Gun Value:", diceCount)
   
       //Length of Burst bonus
-      switch (burstLen) {
+      switch (burst) {
         case 'Short':
           diceCount += -2;
           shooterActor.system.ammo.value += -1

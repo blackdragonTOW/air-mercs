@@ -113,28 +113,29 @@ export class AirMercsActor extends Actor {
 
     // Process additional NPC data here.
   }
-
-  onUpdate() {    
-      const currentHP = foundry.utils.getProperty(actor, 'system.hitPoints.value');
-      const maxHP = foundry.utils.getProperty(actor, 'system.hitPoints.max');
+  
+  async _onUpdate() {  
+    //TODO: Something in here is fucking with Linked actors updating correctly.  For now it's just hitpoint updates, but we should find out more
+    const currentHP = foundry.utils.getProperty(this, 'system.hitPoints.value');
+    const maxHP = foundry.utils.getProperty(this, 'system.hitPoints.max');
     
-      if (currentHP <= Math.ceil(maxHP / 2)) {
-          // Looking for half max, rounding up
-          if (!actor.effects.some(e => e.statuses.has('crippled'))) {
-              // Create the ActiveEffect from CONFIG.statusEffects
-              const crippledEffect = ActiveEffect.fromStatusEffect('crippled');
-              if (crippledEffect) {
-                  // Apply the effect to the actor
-                  actor.createEmbeddedDocuments("ActiveEffect", [crippledEffect]);
-              }
-          }
-      } else {
-          // Remove it if HP goes above half
-          const existingEffect = actor.effects.find(e => e.statuses.has('crippled'));
-          if (existingEffect) {
-              existingEffect.delete();
-          }
+    if (currentHP <= Math.ceil(maxHP / 2)) {
+        // Looking for half max, rounding up
+        if (!this.effects.some(e => e.statuses.has('crippled'))) {
+            // Create the ActiveEffect from CONFIG.statusEffects
+            const crippledEffect = await ActiveEffect.fromStatusEffect('crippled');
+            if (crippledEffect) {
+                // Apply the effect to the actor
+                this.createEmbeddedDocuments("ActiveEffect", [crippledEffect]);
+            }
+        }
+    } else {
+      // Remove it if HP goes above half
+      const existingEffect = this.effects.find(e => e.statuses.has('crippled'));
+      if (existingEffect) {
+          existingEffect.delete();
       }
+    } 
   }
 
   async updateTokenReadyState(actorData) {
