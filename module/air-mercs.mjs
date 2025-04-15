@@ -441,14 +441,20 @@ Hooks.once("setup", () => {
     if (game.user.isGM && data.action === "updateHP") {
       const target = await fromUuid(data.targetUUID);
       const targetActor = target.actor
-      console.log(targetActor)
       if (targetActor) {
         await targetActor.update({system: {hitPoints: {value: (targetActor.system.hitPoints.value - data.damage)}}});
       }
     }
 
+    if (game.user.isGM && data.action === "updateCM") {
+      const target = await fromUuid(data.targetUUID);
+      const targetActor = target.actor
+      if (targetActor) {
+        await targetActor.update({flags: {airmercs: {missileData: {isCounterMeasured: {value: true}}}}});
+      }
+    }      
+
     if (game.user.isGM && data.action === "playerReadyToggle") {
-      console.log("WERE TOGGLING")
       const targetUUID = data.targetUUID
       game.socket.emit("system.air-mercs", {action: "drawReadyOverlay", targetUUID: targetUUID});
       toggleReadyOverlay(targetUUID)
@@ -463,7 +469,6 @@ Hooks.once("setup", () => {
 
 export async function toggleReadyOverlay(targetUUID) { 
   const targetActor = await fromUuid(targetUUID);
-  console.log(targetActor)
   const readyState = targetActor.getFlag('air-mercs', 'prepPhaseReady')
   let tokens = canvas.tokens.placeables.filter(t => t.actor?.uuid === targetActor.uuid);
   tokens.forEach(token => {

@@ -548,7 +548,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
 
   _getTargetItem(target) {
     const li = target.closest(".item");
-    console.log(li?.dataset.itemId) 
     return this.actor.items.get(li?.dataset.itemId);
   }
 
@@ -562,33 +561,43 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     this.dispCountermeasures('flare')
   }
 
-  dispCountermeasures(type) {
-    const shooter = this.actor
+  async dispCountermeasures(type) {
+    console.log("this is: ", this)
+    const shooterActor = this.actor
+    const shooterToken = this.actor.getActiveTokens()?.[0]?.document
     const target = game.user.targets.values().next().value
+    const targetActor = game.user.targets.values().next().value.actor
+    const targetUUID = game.user.targets.values().next().value.document.uuid
     const cmType = type
     const missileType = target.actor.system.guidance
-    const cmCount = shooter.system[cmType].value
+    const cmCount = shooterActor.system[cmType].value
 
     //Target validation checkpoint, papers please
-    if (!shooter) {return ui.notifications.warn('No token selected');}
+    if (!shooterActor) {return ui.notifications.warn('No token selected');}
     if (!target) {return ui.notifications.warn('No target selected to defend against');}
     if (!cmCount) {return ui.notifications.warn(`You have no ${cmType} left`);}
     if (target.actor.type != 'missile') {return ui.notifications.warn(`Target is not a missile`);}
-    if (target.actor.flags.airmercs.missileData.shotAtUUID != shooter.token.actor.uuid) {return ui.notifications.warn(`This missile is not fired at you`);}
+    console.log("shot at:", target.actor.flags.airmercs.missileData.shotAtUUID)
+    console.log("CM shooter UUID:", shooterToken.uuid)
+    if (target.actor.flags.airmercs.missileData.shotAtUUID != shooterToken.uuid) {return ui.notifications.warn(`This missile is not fired at you`);}
     if (target.actor.flags.airmercs.missileData.isCounterMeasured) {return ui.notifications.warn(`This missile has already been countered`);}
     if (cmType == 'flare' && missileType != 'IR') {return ui.notifications.warn(`Flares only work on IR guided missiles!`);}
     if (cmType == 'chaff' && (!['ARH', 'SARH', 'CGR'].includes(missileType))) {return ui.notifications.warn(`Chaff only work on Radar guided missiles!`);}
 
-    target.actor.update({flags: {airmercs: {missileData: {isCounterMeasured: {value: true}}}}});
-    shooter.update({system: {[cmType]: {value: cmCount - 1}}});
+    await game.socket.emit("system.air-mercs", {action: "updateCM", targetUUID});
+      
+    if (game.user.isGM) {
+      await targetActor.update({flags: {airmercs: {missileData: {isCounterMeasured: {value: true}}}}});
+    }
 
-    const chatMessage = `<h2><b>${shooter.name}</b> dispenses ${cmType} countermeasures against <b>${target.actor.name}</b></h2>`
+    shooterActor.update({system: {[cmType]: {value: cmCount - 1}}});
+
+    const chatMessage = `<h2><b>${shooterActor.name}</b> dispenses ${cmType} countermeasures against <b>${target.actor.name}</b></h2>`
     ChatMessage.create({ content: chatMessage });
   }
 
   static async removePilot() {
     this.actor.update({system: {curPilot: null}})
-    console.log(this.actor.system)
   }
 
   static async missileHit() {
@@ -811,7 +820,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
 
       if (game.user.isGM) {
         await targetActor.update({system: {hitPoints: {value: (targetActor.system.hitPoints.value - totalDamage)}}});
-        console.log("HP updated as GM")
       }
 
       ChatMessage.create({ content: chatMessage }).then(msg => {
@@ -821,7 +829,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
         });
 
         async function extraDamageTable(compendiumName, tableName) {
-          console.log("starting table")
           // Get the compendium
           const pack = game.packs.get(compendiumName);
           if (!pack) {
@@ -847,7 +854,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
           }
       
           // Roll on the table and return the result
-          console.log("rolling table")
           return await table.draw();
       }
     }
@@ -930,7 +936,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       });
         return;
       case 'actor':
-        console.log("It's not a missile!")
         return;
       }
 
@@ -1043,18 +1048,12 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
 
         const shooterToken = await fromUuid(shooterUUID);
         const targetToken = await fromUuid(targetUUID);
-        console.log("shooter token:", shooterToken)
-        console.log("target token:", targetToken)
 
         const shooterActor = shooterToken.actor
         const targetActor = targetToken.actor
-        console.log("shooter actor:", shooterActor)
-        console.log("target actor:", targetActor)
 
         const shooterTokenCenter = shooterToken.object.center; 
         const targetTokenCenter = targetToken.object.center;
-        console.log("shooter token center:", shooterTokenCenter)
-        console.log("target token center:", targetTokenCenter)
 
         event.preventDefault();
         const scene = game.scenes.active;
@@ -1071,9 +1070,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
           const speed = targetActor.system.curSpeed.value
           const gridSize = canvas.scene.grid.size; 
           const gridDistance = canvas.scene.grid.distance; 
-          console.log("Target Rotation:", angle)
 
-          console.log(targetTokenCenter)
           const speedInPixels = (speed * gridSize) / gridDistance;
           const newX = targetTokenCenter.x + speedInPixels * Math.cos(angle);
           const newY = targetTokenCenter.y + speedInPixels * Math.sin(angle);
@@ -1104,7 +1101,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
         const ray = Ray.fromAngle(shooterToken.x, shooterToken.y, leadAngleRad , calcdistance )
         const secondWeapon = shooterActor.items.find(item => item.name === weapon.name && item.id !== weapon.id);
         const weaponIDArray = [weapon, secondWeapon]
-        console.log(weaponIDArray)
 
         //the logic for assigning a second weapon for a second launch is very bad
         //I make no excuses other than my eyes hurt and words are starting to blur together
@@ -1222,7 +1218,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       const targetActor = targetToken.actor
       
       const results = await shootCannon(range, shooterUUID, targetUUID);
-      console.log(results)
       const diceCount = results[0];
       const rangeBand = results[1];
       const chatMessage = results[2];
@@ -1376,22 +1371,17 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       let diceResults = roll.dice[0].results.map(r => Number(r.result));
       let hits = diceResults.filter(die => die >= rangeBand).length;
 
-      console.log(diceResults, rangeBand, hits);
-
       let chatMessage = `
                         <h2><b>${shooterActor.name}</b> opens fire!</h2>
                         <b>${diceCount}d6 Rolls: </b> ${diceResults.join(", ")}
                         <br><b>Hitting on:</b> ${rangeBand}+
                         <br><h3><b> Total Damage: </b> ${hits}</h3>
                         <button class="roll-extraDamageTable" type="button">Additional Damage Table</button>
-                        `
-
-      console.log("send something to the socket")                  
+                        `                 
       await game.socket.emit("system.air-mercs", {action: "updateHP", targetUUID, damage: hits});
       
       if (game.user.isGM) {
         await targetActor.update({system: {hitPoints: {value: (targetActor.system.hitPoints.value - hits)}}});
-        console.log("HP updated as GM")
       }
 
       ChatMessage.create({ content: chatMessage }).then(msg => {
@@ -1401,7 +1391,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       });
 
       async function extraDamageTable(compendiumName, tableName) {
-        console.log("starting table")
         // Get the compendium
         const pack = game.packs.get(compendiumName);
         if (!pack) {
@@ -1427,7 +1416,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
         }
     
         // Roll on the table and return the result
-        console.log("rolling table")
         return await table.draw();
     }
 
@@ -1711,7 +1699,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
 
     let sourceActor = null;
     sourceActor = await fromUuid(data.uuid);
-    console.log(sourceActor)
 
     if (!sourceActor) {
       return;
@@ -1726,8 +1713,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     if (activePilot) {return ui.notifications.warn('This Aircraft already has a pilot.')}
 
     this.actor.update({system: {curPilot: sourceActor}});
-    
-    console.log(`current pilot: ${this.actor.system.curPilot}`)
   }
 
   /* -------------------------------------------- */
