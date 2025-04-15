@@ -114,28 +114,30 @@ export class AirMercsActor extends Actor {
     // Process additional NPC data here.
   }
   
-  async _onUpdate() {  
-    //TODO: Something in here is fucking with Linked actors updating correctly.  For now it's just hitpoint updates, but we should find out more
-    const currentHP = foundry.utils.getProperty(this, 'system.hitPoints.value');
-    const maxHP = foundry.utils.getProperty(this, 'system.hitPoints.max');
-    
-    if (currentHP <= Math.ceil(maxHP / 2)) {
-        // Looking for half max, rounding up
-        if (!this.effects.some(e => e.statuses.has('crippled'))) {
-            // Create the ActiveEffect from CONFIG.statusEffects
-            const crippledEffect = await ActiveEffect.fromStatusEffect('crippled');
-            if (crippledEffect) {
-                // Apply the effect to the actor
-                this.createEmbeddedDocuments("ActiveEffect", [crippledEffect]);
-            }
+  async _onUpdate(data, options, userId) {  
+    super._onUpdate(data, options, userId); { //Do all the normal under the hood update stuff
+      // Then do all of your checks and operations for your crippled state
+      const currentHP = foundry.utils.getProperty(this, 'system.hitPoints.value');
+      const maxHP = foundry.utils.getProperty(this, 'system.hitPoints.max');
+      
+      if (currentHP <= Math.ceil(maxHP / 2)) {
+          // Looking for half max, rounding up
+          if (!this.effects.some(e => e.statuses.has('crippled'))) {
+              // Create the ActiveEffect from CONFIG.statusEffects
+              const crippledEffect = await ActiveEffect.fromStatusEffect('crippled');
+              if (crippledEffect) {
+                  // Apply the effect to the actor
+                  this.createEmbeddedDocuments("ActiveEffect", [crippledEffect]);
+              }
+          }
+      } else {
+        // Remove it if HP goes above half
+        const existingEffect = this.effects.find(e => e.statuses.has('crippled'));
+        if (existingEffect) {
+            existingEffect.delete();
         }
-    } else {
-      // Remove it if HP goes above half
-      const existingEffect = this.effects.find(e => e.statuses.has('crippled'));
-      if (existingEffect) {
-          existingEffect.delete();
       }
-    } 
+    }
   }
 
   async updateTokenReadyState(actorData) {
