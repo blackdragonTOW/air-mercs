@@ -119,6 +119,8 @@ export class AirMercsActor extends Actor {
       // Then do all of your checks and operations for your crippled state
       const currentHP = foundry.utils.getProperty(this, 'system.hitPoints.value');
       const maxHP = foundry.utils.getProperty(this, 'system.hitPoints.max');
+      const currentSpeed = foundry.utils.getProperty(this, 'system.curSpeed.value');
+      const minSpeed = foundry.utils.getProperty(this, 'system.minSpeed.value');
       
       if (currentHP <= Math.ceil(maxHP / 2)) {
           // Looking for half max, rounding up
@@ -137,6 +139,23 @@ export class AirMercsActor extends Actor {
             existingEffect.delete();
         }
       }
+      if (currentSpeed < minSpeed) {
+        // Looking for half max, rounding up
+        if (!this.effects.some(e => e.statuses.has('stalled'))) {
+            // Create the ActiveEffect from CONFIG.statusEffects
+            const stalledEffect = await ActiveEffect.fromStatusEffect('stalled');
+            if (stalledEffect) {
+                // Apply the effect to the actor
+                this.createEmbeddedDocuments("ActiveEffect", [stalledEffect]);
+            }
+        }
+    } else {
+      // Remove it if HP goes above half
+      const existingEffect = this.effects.find(e => e.statuses.has('stalled'));
+      if (existingEffect) {
+          existingEffect.delete();
+      }
+    }
     }
   }
 

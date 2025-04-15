@@ -701,7 +701,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       console.log(`No Lock, total now: ${hitMod}`)
     }
 
-    if (targetActor.system.curSpeed.value < targetActor.system.minSpeed.value) {
+    if (targetActor.statuses.has('stalled')) {
       hitMod += 1
       chatMessage += `<br>+1<b>: Target Stalled</b>`
       console.log(`Target Stalled total now ${hitMod}`)
@@ -1326,7 +1326,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       }
   
       //Enemy Maneuver Bonus/Malus
-      if (tarSpeed == 0) {
+      if (targetActor.statuses.has('stalled')) {
         diceCount += 2
         chatMessage += `<br>+2<b>: Target Stalled</b>`
         console.log("Target Stalled")
