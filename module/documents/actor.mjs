@@ -115,8 +115,10 @@ export class AirMercsActor extends Actor {
   }
   
   async _onUpdate(data, options, userId) {  
-    super._onUpdate(data, options, userId); { //Do all the normal under the hood update stuff
+    await super._onUpdate(data, options, userId);  //Do all the normal under the hood update stuff
       // Then do all of your checks and operations for your crippled state
+      if (game.user.id !== userId) return;
+
       const currentHP = foundry.utils.getProperty(this, 'system.hitPoints.value');
       const maxHP = foundry.utils.getProperty(this, 'system.hitPoints.max');
       const currentSpeed = foundry.utils.getProperty(this, 'system.curSpeed.value');
@@ -129,34 +131,27 @@ export class AirMercsActor extends Actor {
               const crippledEffect = await ActiveEffect.fromStatusEffect('crippled');
               if (crippledEffect) {
                   // Apply the effect to the actor
-                  this.createEmbeddedDocuments("ActiveEffect", [crippledEffect]);
+                  await this.createEmbeddedDocuments("ActiveEffect", [crippledEffect]);
               }
           }
       } else {
         // Remove it if HP goes above half
         const existingEffect = this.effects.find(e => e.statuses.has('crippled'));
-        if (existingEffect) {
-            existingEffect.delete();
-        }
+        if (existingEffect) {await existingEffect.delete();}
       }
       if (currentSpeed < minSpeed) {
-        // Looking for half max, rounding up
         if (!this.effects.some(e => e.statuses.has('stalled'))) {
             // Create the ActiveEffect from CONFIG.statusEffects
             const stalledEffect = await ActiveEffect.fromStatusEffect('stalled');
             if (stalledEffect) {
                 // Apply the effect to the actor
-                this.createEmbeddedDocuments("ActiveEffect", [stalledEffect]);
+                await this.createEmbeddedDocuments("ActiveEffect", [stalledEffect]);
             }
         }
-    } else {
-      // Remove it if HP goes above half
-      const existingEffect = this.effects.find(e => e.statuses.has('stalled'));
-      if (existingEffect) {
-          existingEffect.delete();
-      }
-    }
-    }
+      } else {
+        const existingEffect = this.effects.find(e => e.statuses.has('stalled'));
+          if (existingEffect) {await existingEffect.delete();}
+        }
   }
 
   async updateTokenReadyState(actorData) {

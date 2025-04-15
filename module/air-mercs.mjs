@@ -92,12 +92,6 @@ Hooks.once('init', function () {
       name: "AIR_MERCS.Effect.stalled",
       img: "icons/svg/skull.svg",
       changes: [
-        {
-          key: "system.curSpeed.value",
-          value: "0",
-          mode: 5,
-          priority: null
-        },
       ]
     },
     {

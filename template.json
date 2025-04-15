@@ -72,7 +72,8 @@
         "faction": "redfor/blufor/indy",
         "spot": {"value": 0},
         "notes":  {"value": ""},
-        "engines": {"value": 0}
+        "engines": {"value": 0},
+        "speed": 0
       },
       "hardpoints": {
         "acceptedHP": "generic"
