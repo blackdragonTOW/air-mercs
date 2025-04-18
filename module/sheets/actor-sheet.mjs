@@ -649,7 +649,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
           chatMessage += `<br>+0:<b> Rear Launch Aspect</b>`
           console.log(`Aspect on launch: ${weaponData.launchAspect}, total now: ${hitMod}`)
         }
-        if (targetActor.system.curSpeed.value >= 14) {
+        if (targetActor.system.curSpeed.value >= 12) {
           hitMod += 1
           chatMessage += `<br>+1:<b> Target Engines Hot</b>`
           console.log(`Target Speed: ${targetActor.system.curSpeed.value}, total now: ${hitMod}`)
@@ -689,12 +689,12 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       console.log(`Launched beyond min range: ${weaponData.launchDistance}, total now: ${hitMod}`)
     }
 
-    if (weaponData.shooterSpeed >= 14) {
-      mach = Math.floor((weaponData.shooterSpeed / 14));
+    if (weaponData.shooterSpeed >= 12) {
+      const mach = Math.floor((weaponData.shooterSpeed / 12));
       hitMod += mach
       chatMessage += `<br>+${mach}:<b> Launched at Mach ${mach}</b>`
       console.log(`Launched at mach ${mach}, total now: ${hitMod}`)
-    }
+    } 
 
     if (weaponData.hasLock) {
       if (['SARH'].includes(weaponType) && outOfGimbal) {
@@ -722,7 +722,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     }
 
     if (targetActor.attemptedManeuverOutcome == 'success') {
-      switch (targetActor.attemptedManeuver) {
+      switch (targetActor.attemptedManeuver.name) {
         case 'Break':
         case 'Viff':
           hitMod += -3
@@ -1105,6 +1105,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
         //the logic for assigning a second weapon for a second launch is very bad
         //I make no excuses other than my eyes hurt and words are starting to blur together
         //I have dishonored my family
+        console.log(shooterActor)
 
         const aspect = shooterActor.getRelBearing(targetToken, shooterToken)
         let tarAspect = ''
@@ -1123,18 +1124,18 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
             img: weapon.img,
             system: weapon.toObject().system,
             flags: {
-                "airmercs.missileData": {
-                    launchAspect: tarAspect,
-                    shotBy: shooterActor,
-                    shotByUUID: shooterUUID,
-                    shooterSpeed: shooterActor.system.curSpeed.value,
-                    shotAt: targetActor,
-                    shotAtUUID: targetUUID,
-                    shooterSkill: pilotSkill.value,
-                    hasLock: locks > 0 ? true : false,
-                    isCounterMeasured: false,
-                    launchDistance: Number(shooterActor.getDistance(targetToken, shooterToken).toPrecision(2))
-                }
+              "airmercs.missileData": {
+                launchAspect: tarAspect,
+                shotBy: shooterActor,
+                shotByUUID: shooterUUID,
+                shooterSpeed: shooterActor.system.curSpeed.value,
+                shotAt: targetActor,
+                shotAtUUID: targetUUID,
+                shooterSkill: pilotSkill.value,
+                hasLock: locks > 0 ? true : false,
+                isCounterMeasured: false,
+                launchDistance: Number(shooterActor.getDistance(targetToken, shooterToken).toPrecision(2))
+              }
             }
           };
 
