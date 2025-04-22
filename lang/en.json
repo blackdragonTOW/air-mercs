@@ -63,7 +63,7 @@
           "ecm": "ECM Rating",
           "groundComp": "Air-To-Ground Computer",
           "gun": "Gun Rating",
-          "manv": "Maneuver Rating",
+          "manv": "Turn Rating",
           "radar": "Radar Rating",
           "spot": "Spotting",
           "hpInternal": "Internal Hardpoints",

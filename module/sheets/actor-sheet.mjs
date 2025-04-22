@@ -649,7 +649,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
           chatMessage += `<br>+0:<b> Rear Launch Aspect</b>`
           console.log(`Aspect on launch: ${weaponData.launchAspect}, total now: ${hitMod}`)
         }
-        if (targetActor.system.curSpeed.value >= 12) {
+        if (targetActor.system.curSpeed.value >= 14) {
           hitMod += 1
           chatMessage += `<br>+1:<b> Target Engines Hot</b>`
           console.log(`Target Speed: ${targetActor.system.curSpeed.value}, total now: ${hitMod}`)
@@ -689,8 +689,8 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       console.log(`Launched beyond min range: ${weaponData.launchDistance}, total now: ${hitMod}`)
     }
 
-    if (weaponData.shooterSpeed >= 12) {
-      const mach = Math.floor((weaponData.shooterSpeed / 12));
+    if (weaponData.shooterSpeed >= 14) {
+      const mach = Math.floor((weaponData.shooterSpeed / 14));
       hitMod += mach
       chatMessage += `<br>+${mach}:<b> Launched at Mach ${mach}</b>`
       console.log(`Launched at mach ${mach}, total now: ${hitMod}`)
@@ -1490,7 +1490,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
             let start_message = `
                                 <h2>${targetName} attempts:<br><b>${targetManeuverString}!</b></h2>
                                 <p><b>Difficulty: </b>${targetManeuver.diff}</body>
-                                <p><b>Maneuver Rating: </b>1d10+${this.actor.system.abilities.maneuvers.total}
+                                <p><b>Maneuvers Skill Rating: </b>1d10+${this.actor.system.abilities.maneuvers.total}
                                 <button class="roll-maneuver" type="button" data-passeffect = "${targetManeuver.passEffect.movementHTML}" 
                                 data-faileffect = "${targetManeuver.failEffect.movementHTML}" 
                                 data-diff="${targetManeuver.diff}" 
