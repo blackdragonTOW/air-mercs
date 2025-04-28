@@ -1,6 +1,6 @@
 {
   "Actor": {
-    "types": ["character", "npc", "aircraft", "missile", "bomb", "rocket", "cluster", "ground_missile"],
+    "types": ["character", "npc", "aircraft", "missile"],
     "htmlFields": ["biography"],
     "templates": {
       "pilot": {
@@ -77,26 +77,6 @@
       },
       "hardpoints": {
         "acceptedHP": "generic"
-      },
-      "a2g": {
-        "guidance": "",
-        "class": "",
-        "range": 0,
-        "salvos": 0,
-        "tarLight": 0,
-        "tarMedium": 0,
-        "tarHeavy": 0,
-        "damage": "",
-        "load": 0,
-        "year": 0,
-        "qualities": {"antiship": false,
-                      "incendiary": false,
-                      "penetrator": false,
-                      "blast": false,
-                      "closestrike": false,
-                      "unjammable": false,
-                      "volley": false
-                      }
       }
     },
     "character": {
@@ -126,17 +106,11 @@
       "load": 0,
       "notes": "",
       "img": ""
-    },
-    "bomb": {
-      "templates": ["hardpoints", "base", "a2g"]
-    },
-    "rocket": {
-      "templates": ["hardpoints", "base", "a2g"]
     }
   },
 
   "Item": {
-    "types": ["effect", "maneuver", "trait", "upgrade", "quirk","gunpod", "missile", "ground_missile", "bomb", "rocket", "weapon_rack", "equipment", "cluster"],
+    "types": ["effect", "maneuver", "trait", "upgrade", "quirk","gunpod", "missile", "ground_weapon", "weapon_rack", "equipment"],
     "htmlFields": ["description"],
     "templates": {
       "base": {
@@ -151,26 +125,6 @@
       },
       "hardpoints": {
         "acceptedHP": "generic"
-      },
-      "a2g": {
-        "guidance": "",
-        "class": "",
-        "range": 0,
-        "salvos": 0,
-        "tarLight": 0,
-        "tarMedium": 0,
-        "tarHeavy": 0,
-        "damage": "",
-        "load": 0,
-        "year": 0,
-        "qualities": {"antiship": false,
-                      "incendiary": false,
-                      "penetrator": false,
-                      "blast": false,
-                      "closestrike": false,
-                      "unjammable": false,
-                      "volley": false
-                      }
       }
 
     },
@@ -214,17 +168,26 @@
       },
       "load": 0
     },
-    "ground_missile": {
-      "templates": ["hardpoints", "base", "a2g"]
-    },
-    "bomb": {
-      "templates": ["hardpoints", "base", "a2g"]
-    },
-    "rocket": {
-      "templates": ["hardpoints", "base", "a2g"]
-    },
-    "cluster": {
-      "templates": ["hardpoints", "base", "a2g"]
+    "ground_weapon": {
+      "templates": ["hardpoints", "base"],
+      "guidance": "",
+      "class": "",
+      "range": 0,
+      "salvos": 0,
+      "tarLight": 0,
+      "tarMedium": 0,
+      "tarHeavy": 0,
+      "damage": "",
+      "load": 0,
+      "year": 0,
+      "qualities": {"antiship": false,
+                    "incendiary": false,
+                    "penetrator": false,
+                    "blast": false,
+                    "closestrike": false,
+                    "unjammable": false,
+                    "volley": false
+                    }
     },
     "trait": {
       "templates": ["base"]
