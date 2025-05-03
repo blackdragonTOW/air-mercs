@@ -44,11 +44,11 @@ async function loadHandleBarTemplates()
     'systems/air-mercs/templates/item/sheet-rocket.hbs',
     'systems/air-mercs/templates/item/sheet-equipment.hbs',
   ];
-  return loadTemplates( templatePaths );
+  return foundry.applications.handlebars.loadTemplates( templatePaths );
 }
 
 //Token HUD stuff
-class MyTokenHud extends TokenHUD {
+class MyTokenHud extends foundry.applications.hud.TokenHUD {
 
 }
 
@@ -245,13 +245,13 @@ Hooks.once('init', function () {
   CONFIG.ActiveEffect.legacyTransferral = false;
 
   // Register sheet application classes
-  Actors.unregisterSheet('core', ActorSheet);
-  Actors.registerSheet('air-mercs', AirMercsActorSheet, {
+  foundry.documents.collections.Actors.unregisterSheet('core', foundry.appv1.sheets.ActorSheet);
+  foundry.documents.collections.Actors.registerSheet('air-mercs', AirMercsActorSheet, {
     makeDefault: true,
     label: 'AIR_MERCS.SheetLabels.Actor',
   });
-  Items.unregisterSheet('core', ItemSheet);
-  Items.registerSheet('air-mercs', AirMercsItemSheet, {
+  foundry.documents.collections.Items.unregisterSheet('core', foundry.appv1.sheets.ItemSheet);
+  foundry.documents.collections.Items.registerSheet('air-mercs', AirMercsItemSheet, {
     makeDefault: true,
     label: 'AIR_MERCS.SheetLabels.Item',
   });

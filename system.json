@@ -26,10 +26,10 @@
       "thumbnail": "systems/air-mercs/assets/splash.png"
     }
   ],
-  "version": "0.0.1",
+  "version": "0.0.2",
   "compatibility": {
-    "minimum": "12.328",
-    "verified": "12.331"
+    "minimum": "13.342",
+    "verified": "13.342"
   },
   "esmodules": ["module/air-mercs.mjs"],
   "styles": ["css/air-mercs.css"],

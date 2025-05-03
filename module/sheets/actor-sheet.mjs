@@ -156,7 +156,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
         context.tab = context.tabs[partId];
         // Enrich biography info for display
         // Enrichment turns text like `[[/r 1d20]]` into buttons
-        context.enrichedBiography = await TextEditor.enrichHTML(
+        context.enrichedBiography = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
           this.actor.system.biography,
           {
             // Whether to show secret blocks in the finished html
@@ -781,8 +781,8 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
                     <button class="roll-missilehitattempt" type="button">Roll to Hit</button>
                     `
     ChatMessage.create({ content: chatMessage }).then(msg => {
-      Hooks.once("renderChatMessage", (chatMessage, html) => {
-        html.find(".roll-missilehitattempt").click(() => {missilehitattempt(weapon, shooterUUID, targetUUID, modifiedHit)});
+      Hooks.once("renderChatMessageHTML", (chatMessage, html) => {
+        html.querySelector(".roll-missilehitattempt")?.addEventListener('click', () => {missilehitattempt(weapon, shooterUUID, targetUUID, modifiedHit)});
       });
     });
     async function missilehitattempt(weapon, shooterUUID, targetUUID, modifiedHit) {
@@ -802,8 +802,8 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
                           `
 
       ChatMessage.create({ content: chatMessage }).then(msg => {
-        Hooks.once("renderChatMessage", (chatMessage, html) => {
-          html.find(".roll-missiledamage").click(() => {missiledamage(weapon, shooterUUID, targetUUID)});
+        Hooks.once("renderChatMessageHTML", (chatMessage, html) => {
+          html.querySelector(".roll-missiledamage")?.addEventListener('click', () => {missiledamage(weapon, shooterUUID, targetUUID)});
         });
       });
     }
@@ -823,8 +823,8 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       }
 
       ChatMessage.create({ content: chatMessage }).then(msg => {
-        Hooks.once("renderChatMessage", (chatMessage, html) => {
-          html.find(".roll-extraDamageTable").click(() => {extraDamageTable('air-mercs.rollable-tables', 'Aircraft Damage')});
+        Hooks.once("renderChatMessageHTML", (chatMessage, html) => {
+          html.querySelector(".roll-extraDamageTable")?.addEventListener('click', () => {extraDamageTable('air-mercs.rollable-tables', 'Aircraft Damage')});
           });
         });
 
@@ -899,6 +899,8 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
   static async weaponPrepMessage(event, target) {
     const airTarget = game.user.targets.values().next().value
 
+    if (!airTarget) {return ui.notifications.warn('Select a target first!');}
+
     const targetToken = airTarget.document
     const targetUUID = targetToken.uuid
 
@@ -929,9 +931,9 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
                           <button class="roll-launchattempt" type="button">Launch Weapon (unlocked)</button>
                           `
       ChatMessage.create({ content: chatMessage }).then(msg => {
-        Hooks.once("renderChatMessage", (chatMessage, html) => {
-          html.find(".roll-lockattempt").click(() => {handleMissileLock(weapon, lockType, shooterUUID)});
-          html.find(".roll-launchattempt").click(() => {launchAttempt(shooterUUID, locks, weapon, targetUUID, pilotSkill, availableWeapons)});
+        Hooks.once("renderChatMessageHTML", (chatMessage, html) => {
+          html.querySelector(".roll-lockattempt")?.addEventListener('click', () => {handleMissileLock(weapon, lockType, shooterUUID)});
+          html.querySelector(".roll-launchattempt")?.addEventListener('click', () => {launchAttempt(shooterUUID, locks, weapon, targetUUID, pilotSkill, availableWeapons)});
         });
       });
         return;
@@ -1003,17 +1005,19 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
                         `
 
       ChatMessage.create({ content: chatMessage }).then(msg => {
-        Hooks.once("renderChatMessage", (chatMessage, html) => {
-          html.find(".roll-launchattempt").click(() => {launchAttempt(shooterUUID, locks, weapon, targetUUID, pilotSkill, availableWeapons)});
+        Hooks.once("renderChatMessageHTML", (chatMessage, html) => {
+          html.querySelector(".roll-launchattempt")?.addEventListener('click', () => {launchAttempt(shooterUUID, locks, weapon, targetUUID, pilotSkill, availableWeapons)});
         });
       });
       
     }
 
     async function launchAttempt(shooterUUID, locks, weapon, targetUUID, pilotSkill, availableWeapons) {
-
+      console.log("starting launch attempt")
       const shooterActor = await fromUuid(shooterUUID);
       const targetActor = await fromUuid(targetUUID);
+
+      
 
       if (!targetActor) {return ui.notifications.warn('No Lock Target Selected!');} 
       event.preventDefault();
@@ -1098,7 +1102,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
         const calcdistance = shortestDist  * distScalar; 
         // const leadPos = getNewPositionFromAzimuth(startX, startY, leadAngle, distance);
         const leadAngleRad =  Math.toRadians(shooterToken.rotation + 90+leadAngle)
-        const ray = Ray.fromAngle(shooterToken.x, shooterToken.y, leadAngleRad , calcdistance )
+        const ray = foundry.canvas.geometry.Ray.fromAngle(shooterToken.x, shooterToken.y, leadAngleRad , calcdistance )
         const secondWeapon = shooterActor.items.find(item => item.name === weapon.name && item.id !== weapon.id);
         const weaponIDArray = [weapon, secondWeapon]
 
@@ -1225,8 +1229,8 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
 
       ChatMessage.create({ content: chatMessage });
 
-      Hooks.once("renderChatMessage", (chatMessage, html) => {
-        html.find(".roll-gunsgunsguns").click(() => resolveAttackRoll(diceCount, rangeBand, shooterUUID, targetUUID));
+      Hooks.once("renderChatMessageHTML", (chatMessage, html) => {
+        html.querySelector(".roll-gunsgunsguns")?.addEventListener('click', () => resolveAttackRoll(diceCount, rangeBand, shooterUUID, targetUUID));
       });
     }
 
@@ -1386,8 +1390,8 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       }
 
       ChatMessage.create({ content: chatMessage }).then(msg => {
-        Hooks.once("renderChatMessage", (msg, html) => {
-          html.find(".roll-extraDamageTable").click(() => {extraDamageTable('air-mercs.rollable-tables', 'Aircraft Damage')});
+        Hooks.once("renderChatMessageHTML", (msg, html) => {
+          html.querySelector(".roll-extraDamageTable")?.addEventListener('click', () => {extraDamageTable('air-mercs.rollable-tables', 'Aircraft Damage')});
         });
       });
 
@@ -1498,8 +1502,8 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
                                 `
               ChatMessage.create({content: start_message})
 
-              Hooks.once("renderChatMessage", (chatMessage, html) => {
-                html.find(".roll-maneuver").click(async event => {
+              Hooks.once("renderChatMessageHTML", (chatMessage, html) => {
+                html.querySelector(".roll-maneuver")?.addEventListener('click', async event => {
 
                   let diff = Number(event.currentTarget.dataset.diff);
                   let maneuversValue = Number(event.currentTarget.dataset.maneuvers);
@@ -1594,7 +1598,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
    * @protected
    */
   async _onDrop(event) {
-    const data = TextEditor.getDragEventData(event);
+    const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
     const actor = this.actor;
     const allowed = Hooks.call('dropActorSheetData', actor, this, data);
     if (allowed === false) return;
@@ -1839,7 +1843,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
         dragover: this._onDragOver.bind(this),
         drop: this._onDrop.bind(this),
       };
-      return new DragDrop(d);
+      return new foundry.applications.ux.DragDrop.implementation(d);
     });
   }
 
