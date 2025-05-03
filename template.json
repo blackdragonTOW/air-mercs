@@ -106,6 +106,37 @@
       "load": 0,
       "notes": "",
       "img": ""
+    },
+    "ground_target": {
+      "nameFull": "",
+      "type": "",
+      "guidance": "",
+      "aspect": "",
+      "lock": 0,
+      "minRange": 0,
+      "maxRange": 0,
+      "year": 0,
+      "load": 0,
+      "volley": 0,
+      "targets": 0,
+      "ammo":  {
+        "value": 0,
+        "min": 0,
+        "max": 0
+      },
+      "hit": 0,
+      "damage": "",
+      "weight": "",
+      "hitPoints":  {
+        "value": 0,
+        "min": 0,
+        "max": 0
+      },
+      "size": "",
+      "tokentype": "",
+      "notes": "",
+      "attachments" : [],
+      "img": ""
     }
   },
 
