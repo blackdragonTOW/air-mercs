@@ -77,6 +77,46 @@
       },
       "hardpoints": {
         "acceptedHP": "generic"
+      },
+      "weapon_aaa": {
+        "aaa": {
+          "firecontrol": "",
+          "range": 0,
+          "hit": 0,
+          "damage": "",
+          "class": "",
+          "hitpoints":  {
+            "value": 0,
+            "min": 0,
+            "max": 0
+          },
+          "weaponsize": "",
+          "type": "",
+          "year": 0,
+          "traits": []
+        }
+      },
+      "weapon_sam": {
+        "sam": {
+          "firecontrol": "",
+          "aspect": "",
+          "lock": "",
+          "range": 0,
+          "volley": 0,
+          "targets": 0,
+          "ammo":  {
+            "value": 0,
+            "min": 0,
+            "max": 0
+          },
+          "hit": 0,
+          "damage": "",
+          "class": "",
+          "size": "",
+          "tokentype": "",
+          "year": 0,
+          "traits": []
+        }
       }
     },
     "character": {
@@ -107,31 +147,27 @@
       "notes": "",
       "img": ""
     },
+    "ground_aaa": {
+      "templates": ["weapon_aaa"]
+    },
+    "ground_sam": {
+      "templates": ["weapon_sam"]
+    },
+    "ground_combined": {
+      "templates": ["weapon_aaa", "weapon_sam"]
+    },
     "ground_target": {
       "nameFull": "",
       "type": "",
-      "guidance": "",
-      "aspect": "",
-      "lock": 0,
-      "minRange": 0,
-      "maxRange": 0,
       "year": 0,
       "load": 0,
       "volley": 0,
       "targets": 0,
-      "ammo":  {
-        "value": 0,
-        "min": 0,
-        "max": 0
-      },
-      "hit": 0,
-      "damage": "",
-      "weight": "",
       "hitPoints":  {
-        "value": 0,
-        "min": 0,
-        "max": 0
-      },
+                    "value": 0,
+                    "min": 0,
+                    "max": 0
+                    },
       "size": "",
       "tokentype": "",
       "notes": "",
