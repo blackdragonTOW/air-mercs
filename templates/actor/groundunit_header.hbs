@@ -1,0 +1,86 @@
+{{! Sheet Header }}
+<header class='sheet-header'>
+  <img
+    class='profile-img'
+    src='{{actor.img}}'
+    data-edit='img'
+    data-action='onEditImage'
+    title='{{actor.name}}'
+  />
+  <div class='header-fields'>
+    <div class='document-name'>
+      <input
+        name='name'
+        type='text'
+        value='{{actor.name}}'
+        placeholder='Callsign'
+      />
+    {{! The grid classes are defined in scss/global/_grid.scss. To use,
+      use both the "grid" and "grid-Ncol" class where "N" can be any number
+      from 1 to 12 and will create that number of columns.  }}
+    <div class='resources grid grid-6col'>
+
+      {{! "flex-group-center" is also defined in the _grid.scss file
+        and it will add a small amount of padding, a border, and will
+        center all of its child elements content and text. }}
+      <div class='resource flex-group-center'>
+        <label for='system.hitpoints.value' class='resource-label'>
+          {{localize 'AIR_MERCS.Actor.base.FIELDS.hitPoints.value.label'}}
+        </label>
+        <div class='resource-content flexrow flex-center flex-between'>
+          <input
+            type='text'
+            name='system.hitpoints.value'
+            value='{{system.hitpoints.value}}'
+            data-dtype='Number'
+          />
+          <span> / </span>
+          <input
+            type='text'
+            name='system.hitpoints.max'
+            disabled='true'
+            value='{{system.hitpoints.max}}'
+            data-dtype='Number'
+          />
+        </div>
+      </div>
+
+      <div class='resource flex-group-center'>
+        <label for='system.class' class='resource-label'>
+          {{localize 'AIR_MERCS.Actor.base.FIELDS.class'}}
+        </label>
+        <div class='resource-content flexrow flex-center flex-between'>
+          <input
+            type='text'
+            name='system.class'
+            value='{{system.class}}'
+            data-dtype='String'
+          />
+        </div>
+      </div>
+
+        {{#if system.sam}}
+          <div class='resource flex-group-center'>
+            <label for='system.sam.ammo.value' class='resource-label'>
+              {{localize 'AIR_MERCS.Actor.base.FIELDS.sam.ammo.label'}}
+            </label>
+            <div class='resource-content flexrow flex-center flex-between'>
+              <input
+                type='text'
+                name='system.sam.ammo.value'
+                value='{{system.sam.ammo.value}}'
+                data-dtype='Number'
+              />
+              <span> / </span>
+              <input
+                type='text'
+                name='system.sam.ammo.max'
+                disabled='true'
+                value='{{system.sam.ammo.max}}'
+                data-dtype='Number'
+              />
+            </div>
+        </div>{{/if}}
+    </div>
+  </div>
+</header>

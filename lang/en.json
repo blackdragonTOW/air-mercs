@@ -27,13 +27,15 @@
         "aircraft_features": "Statistics",
         "missile_features": "Statistics",
         "aircraft_speed": "Prep Phase",
-        "character_features": "Pilot Ratings"
+        "character_features": "Pilot Ratings",
+        "groundunit_sam_weapon": "Weapon: SAM",
+        "groundunit_aaa_weapon": "Weapon: AAA"
       },
       "base": {
         "FIELDS": {
           "biography": {"label": "Biography"},
           "hitPoints": {
-            "value": {"label": "Damage"},
+            "value": {"label": "Hit Points"},
             "max": {"label": "Max Damage"}
           },
           "chaff": {
@@ -51,6 +53,12 @@
           "curSpeed": {
             "value": {"label": "Speed"}
           },
+          "sam": {
+            "ammo":  {"label": "SAM Ammo"}
+          },
+          "aaa": {
+            "ammo":  {"label": "AAA Ammo"}
+          },
           "aspect": "Aspect",
           "guidance":  "Guidance",
           "lock": "Lock",
@@ -67,7 +75,8 @@
           "radar": "Radar Rating",
           "spot": "Spotting",
           "hpInternal": "Internal Hardpoints",
-          "hpExternal": "External Hardpoints"
+          "hpExternal": "External Hardpoints",
+          "class": "Class"
         }
       },
       "Character": {
@@ -84,6 +93,21 @@
           "cm": {"label": "Countermeasured:"},
           "launchrange": {"label": "Launch Dist:"},
           "locked": {"label": "Locked:"}
+        }
+      },
+      "groundunit": {
+        "FIELDS": {
+          "aspect": {"label": "Aspect:"},
+          "guidance": {"label": "Guidance:"},
+          "lock": {"label": "Lock:"},
+          "range": {"label": "Range:"},
+          "hit": {"label": "Hit:"},
+          "targets": {"label": "Max Targets:"},
+          "volley": {"label": "Max Volley:"},
+          "damage": {"label": "Damage:"},
+          "weapon_type": {"label": "Weapon Type:"},
+          "optical-backup": {"label": "Optical Backup:"},
+          "fire_control": {"label": "Fire Control:"}
         }
       },
       "NPC": {
@@ -147,7 +171,11 @@
       "character": "Character",
       "npc": "NPC",
       "missile": "Missile",
-      "aircraft": "Aircraft"
+      "aircraft": "Aircraft",
+      "unit_aaa": "Ground Unit (AAA)",
+      "unit_sam": "Ground Unit (SAM)",
+      "unit_target": "Ground Unit (Generic)",
+      "unit_combined": "Ground Unit (Mixed AA)"
     },
     "Item": {
       "gear": "Gear",

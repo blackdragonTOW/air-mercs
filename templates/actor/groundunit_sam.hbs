@@ -1,0 +1,45 @@
+<section class='tab groundunit_features groundunit_actor {{tab.cssClass}}' data-group='primary' data-tab='groundunit_features'>
+  <section class='grid grid-4col'>
+    <aside class='sidebar'>
+      {{! The grid classes are defined in scss/global/_grid.scss. To use,
+          use both the "grid" and "grid-Ncol" class where "N" can be any number
+          from 1 to 12 and will create that number of columns.  }}
+      <div class='flexcol align-left'>
+        <div><b>{{localize 'AIR_MERCS.Actor.groundunit.FIELDS.aspect.label'}} </b>{{system.sam.aspect}}</div>
+        <div><b>{{localize 'AIR_MERCS.Actor.groundunit.FIELDS.damage.label'}} </b>{{system.sam.damage}}</div>
+      </div>
+    </aside>
+
+    <aside class='sidebar'>
+      <div class='flexcol align-left'>
+        <div><b>{{localize 'AIR_MERCS.Actor.groundunit.FIELDS.lock.label'}} </b>{{system.sam.lock}}+</div>
+        <div><b>{{localize 'AIR_MERCS.Actor.groundunit.FIELDS.hit.label'}} </b>{{system.sam.hit}}+</div>
+      </div>
+    </aside>
+
+    <aside class='sidebar'>
+      <div class='flexcol align-left'>
+        <div><b>{{localize 'AIR_MERCS.Actor.groundunit.FIELDS.range.label'}} </b>{{system.sam.range}}</div>
+        <div><b>{{localize 'AIR_MERCS.Actor.groundunit.FIELDS.guidance.label'}} </b>{{system.sam.guidance}}</div>
+      </div>
+    </aside>
+
+    <aside class='sidebar'>
+      <div class='flexcol align-left'>
+        <div><b>{{localize 'AIR_MERCS.Actor.groundunit.FIELDS.targets.label'}} </b>{{system.sam.targets}}</div>
+        <div><b>{{localize 'AIR_MERCS.Actor.groundunit.FIELDS.volley.label'}} </b>{{system.sam.volley}}</div>
+      </div>
+    </aside>
+
+      <aside class="flexcol align-center" style="margin: 0 auto; width: 100px">
+        <button type="button" class="groundSAMlock-button" data-action="groundSAMlock">Lock Target!</button>
+      </aside>
+      <aside class="flexcol align-center" style="margin: 0 auto; width: 100px">
+        <button type="button" class="groundSAMResolve-button" data-action="resolvegroundSAMattack">Open Fire!</button>
+      </aside>
+      <aside class="flexcol align-center" style="margin: 0 auto; width: 100px">
+        <button type="button" class="groundunitdigin-button" data-action="groundunitdigin">Dig In</button>
+      </aside>
+  </section>
+
+</section>

@@ -88,6 +88,15 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     character_features: {
       template: 'systems/air-mercs/templates/actor/character_features.hbs',
     },
+    groundunit_header: {
+      template: 'systems/air-mercs/templates/actor/groundunit_header.hbs',
+    },
+    groundunit_aaa_weapon: {
+      template: 'systems/air-mercs/templates/actor/groundunit_aaa.hbs',
+    },
+    groundunit_sam_weapon: {
+      template: 'systems/air-mercs/templates/actor/groundunit_sam.hbs',
+    },
   };
 
   /** @override */
@@ -104,6 +113,18 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
         break;
       case 'character':
         options.parts.push('header', 'tabs','character_features', 'gear', 'effects', 'biography');
+        break;
+      case 'unit_aaa':
+        options.parts.push('groundunit_header', 'tabs', 'groundunit_aaa_weapon', 'biography');
+        break;
+      case 'unit_sam':
+        options.parts.push('groundunit_header', 'tabs', 'groundunit_sam_weapon', 'biography');
+        break;
+      case 'unit_combined':
+        options.parts.push('groundunit_header', 'tabs', 'groundunit_sam_weapon', 'groundunit_aaa_weapon', 'biography');
+        break;
+      case 'unit_target':
+        options.parts.push('groundunit_header', 'tabs', 'biography');
         break;
       case 'npc':
         options.parts.push('header', 'tabs','gear', 'effects', 'biography');
@@ -149,6 +170,9 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       case 'aircraft_speed':
       case 'aircraft_weapons':
       case 'missile_header':
+      case 'groundunit_header':
+      case 'groundunit_aaa_weapon':
+      case 'groundunit_sam_weapon':
       case 'gear':
         context.tab = context.tabs[partId];
         break;
@@ -202,6 +226,18 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       case "character":
         defaultTab = 'character_features'
         break;
+      case "unit_aaa":
+        defaultTab = 'groundunit_aaa_weapon'
+        break;
+      case "unit_sam":
+        defaultTab = 'groundunit_sam_weapon'
+        break;
+      case "unit_combined":
+        defaultTab = 'groundunit_sam_weapon'
+        break;
+      case "unit_target":
+        defaultTab = 'biography'
+        break;
     }
 
     if (!this.tabGroups[tabGroup]) this.tabGroups[tabGroup] = defaultTab;
@@ -220,6 +256,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
         case 'header':
         case 'missile_header':
         case 'aircraft_header':
+        case 'groundunit_header':
         case 'tabs':
           return tabs;
         case 'biography':
@@ -258,6 +295,15 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
           tab.id = 'effects';
           tab.label += 'Effects';
           break;
+        case 'groundunit_aaa_weapon':
+          tab.id = 'groundunit_aaa_weapon';
+          tab.label += 'groundunit_aaa_weapon';
+          break;
+        case 'groundunit_sam_weapon':
+          tab.id = 'groundunit_sam_weapon';
+          tab.label += 'groundunit_sam_weapon';
+          break;
+
       }
       if (this.tabGroups[tabGroup] === tab.id) tab.cssClass = 'active';
       tabs[partId] = tab;

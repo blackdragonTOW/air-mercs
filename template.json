@@ -1,6 +1,6 @@
 {
   "Actor": {
-    "types": ["character", "npc", "aircraft", "missile"],
+    "types": ["character", "npc", "aircraft", "missile", "unit_aaa", "unit_sam", "unit_combined", "unit_target"],
     "htmlFields": ["biography"],
     "templates": {
       "pilot": {
@@ -80,25 +80,21 @@
       },
       "weapon_aaa": {
         "aaa": {
-          "firecontrol": "",
+          "weapon_name": "",
+          "fire_control": "",
           "range": 0,
           "hit": 0,
           "damage": "",
           "class": "",
-          "hitpoints":  {
-            "value": 0,
-            "min": 0,
-            "max": 0
-          },
-          "weaponsize": "",
-          "type": "",
-          "year": 0,
-          "traits": []
+          "weapon_type": "",
+          "size_type": "",
+          "traits": {"optical-backup": false}
         }
       },
       "weapon_sam": {
         "sam": {
-          "firecontrol": "",
+          "weapon_name": "",
+          "guidance": "",
           "aspect": "",
           "lock": "",
           "range": 0,
@@ -111,12 +107,24 @@
           },
           "hit": 0,
           "damage": "",
-          "class": "",
           "size": "",
-          "tokentype": "",
-          "year": 0,
-          "traits": []
+          "token_type": "",
+          "traits": {"optical-backup": false}
         }
+      },
+      "ground_unit": {
+        "class": "",
+        "nameFull": "nameFull",
+        "hitpoints":  {
+                      "value": 0,
+                      "min": 0,
+                      "max": 0
+                      },
+        "type": "",
+        "year": "",
+        "img": "",
+        "nationality": "nation of origin",
+        "faction": "redfor/blufor/indy"
       }
     },
     "character": {
@@ -147,32 +155,17 @@
       "notes": "",
       "img": ""
     },
-    "ground_aaa": {
-      "templates": ["weapon_aaa"]
+    "unit_aaa": {
+      "templates": ["ground_unit", "weapon_aaa"]
     },
-    "ground_sam": {
-      "templates": ["weapon_sam"]
+    "unit_sam": {
+      "templates": ["ground_unit", "weapon_sam"]
     },
-    "ground_combined": {
-      "templates": ["weapon_aaa", "weapon_sam"]
+    "unit_combined": {
+      "templates": ["ground_unit", "weapon_aaa", "weapon_sam"]
     },
-    "ground_target": {
-      "nameFull": "",
-      "type": "",
-      "year": 0,
-      "load": 0,
-      "volley": 0,
-      "targets": 0,
-      "hitPoints":  {
-                    "value": 0,
-                    "min": 0,
-                    "max": 0
-                    },
-      "size": "",
-      "tokentype": "",
-      "notes": "",
-      "attachments" : [],
-      "img": ""
+    "unit_target": {
+      "templates": ["ground_unit"]
     }
   },
 
@@ -241,9 +234,9 @@
       "class": "",
       "range": 0,
       "salvos": 0,
-      "tarLight": 0,
-      "tarMedium": 0,
-      "tarHeavy": 0,
+      "tarLight": "0",
+      "tarMedium": "0",
+      "tarHeavy": "0",
       "damage": "",
       "load": 0,
       "year": 0,

@@ -87,6 +87,51 @@
     }
   },
   {
+    "name": "lite-aaa",
+    "label": "LITE AAA",
+    "system": "air-mercs",
+    "path": "packs/lite-aaa",
+    "type": "Actor",
+    "private": false,
+    "flags": {
+      "airmercs": {
+        "types": [
+          "unit_aaa"
+        ]
+      }
+    }
+  },
+  {
+  "name": "lite-sams",
+  "label": "LITE SAMs",
+  "system": "air-mercs",
+  "path": "packs/lite-sams",
+  "type": "Actor",
+  "private": false,
+  "flags": {
+    "airmercs": {
+      "types": [
+        "unit_sam"
+      ]
+    }
+  }
+  },
+  {
+    "name": "lite-targets",
+    "label": "LITE targets",
+    "system": "air-mercs",
+    "path": "packs/lite-targets",
+    "type": "Actor",
+    "private": false,
+    "flags": {
+      "airmercs": {
+        "types": [
+          "unit_target"
+        ]
+      }
+    }
+  },
+  {
     "name": "rollable-tables",
     "label": "Tables",
     "system": "air-mercs",
