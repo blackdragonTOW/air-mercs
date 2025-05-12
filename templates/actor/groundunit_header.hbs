@@ -59,28 +59,29 @@
         </div>
       </div>
 
-        {{#if system.sam}}
-          <div class='resource flex-group-center'>
-            <label for='system.sam.ammo.value' class='resource-label'>
-              {{localize 'AIR_MERCS.Actor.base.FIELDS.sam.ammo.label'}}
-            </label>
-            <div class='resource-content flexrow flex-center flex-between'>
-              <input
-                type='text'
-                name='system.sam.ammo.value'
-                value='{{system.sam.ammo.value}}'
-                data-dtype='Number'
-              />
-              <span> / </span>
-              <input
-                type='text'
-                name='system.sam.ammo.max'
-                disabled='true'
-                value='{{system.sam.ammo.max}}'
-                data-dtype='Number'
-              />
-            </div>
+      {{#if system.sam}}
+        <div class='resource flex-group-center'>
+          <label for='system.sam.ammo.value' class='resource-label'>
+            {{localize 'AIR_MERCS.Actor.base.FIELDS.sam.ammo.label'}}
+          </label>
+          <div class='resource-content flexrow flex-center flex-between'>
+            <input
+              type='text'
+              name='system.sam.ammo.value'
+              value='{{system.sam.ammo.value}}'
+              data-dtype='Number'
+            />
+            <span> / </span>
+            <input
+              type='text'
+              name='system.sam.ammo.max'
+              disabled='true'
+              value='{{system.sam.ammo.max}}'
+              data-dtype='Number'
+            />
+          </div>
         </div>{{/if}}
+      </div>
     </div>
   </div>
 </header>

@@ -136,6 +136,8 @@
       "photo": ["reference"]
     },
     "aircraft": {
+      "currentManeuver": null,
+      "lockedManeuver": null,
       "templates": ["airframe", "pilot"],
       "photo": ["reference"]
     },

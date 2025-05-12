@@ -38,6 +38,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       flarefireButton: this.dispIRCM,
       resolveMissileAttack: this.missileHit,
       removePilot: this.removePilot,
+      resolvegroundaaaattack: this.fireaaaWeapon,
     },
     // Custom property that's merged into `this.options`
     dragDrop: [{ dragSelector: '[data-drag]', dropSelector: null }],
@@ -791,7 +792,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       }
     }
 
-    if (targetActor.lowAltitude) {
+    if (targetActor.statuses.has('downlow')) {
       hitMod += -1
       chatMessage += `<br>-1:<b> Target is down low</b>`
       console.log(`Target Low, total now: ${hitMod}`)
@@ -1026,7 +1027,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
                         <b>${weapon.system.guidance} Locks on: </b>${dieTarget}+
                         `
 
-      if (targetActor.lowAltitude) {
+      if (targetActor.statuses.has('downlow')) {
         //TODO: This is a placeholder for when we add high/low alt conditions
         chatMessage += `<br>-1:<b> Target Down Low</b>`
         modifiers += -1
@@ -1219,6 +1220,155 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     }
 
   }
+
+  static async fireaaaWeapon() {
+    if (!game.user.targets.values().next().value.actor) {return ui.notifications.warn('Select a Token to be the Target');}
+
+    const shooterToken = this.actor.getActiveTokens()?.[0]?.document
+    const shooterActor = shooterToken.actor
+    const shooterUUID = shooterToken.uuid
+
+    const targetToken = game.user.targets.values().next().value.document
+    const targetActor = targetToken.actor
+    const targetUUID = targetToken.uuid
+
+    if (targetToken.actor.type != 'aircraft') {return ui.notifications.warn('AAA can only fire at aircraft');}
+
+    const distance = Number(shooterActor.getDistance(targetToken ,shooterToken)).toPrecision(2)
+
+    if (distance > shooterActor.system.aaa.range) {return ui.notifications.warn('Target is too far away!');}
+
+    let rollMod = 0
+    let chatMessage = `
+                      <h2><b>${shooterActor.name}</b> fires a sustained burst at: <b>${targetActor.name}</b></h2>
+                      `
+      if (targetActor.attemptedManeuverOutcome == 'success') {
+        rollMod += -2
+        chatMessage += `<br>-2<b>: Target Successfully Maneuvering</b>`
+        console.log("Target Is Maneuvering")
+      }
+      if (targetActor.statuses.has('stalled')) {
+        rollMod += 2
+        chatMessage += `<br>+2<b>: Target Stalled</b>`
+        console.log("Target Stalled")
+      }
+      else if (targetActor.attemptedManeuverOutcome == 'failure' && targetActor.attemptedManeuver.failEffect.defBonus != 0) {
+        rollMod += 2
+        chatMessage += `<br>+2<b>: Target Failed Maneuver</b>`
+        console.log("Target Failed Maneuver")
+      }
+      if (shooterActor.system.aaa.fire_control != 'Optical' && targetActor.system.ecm.value < 0) {
+        rollMod += -1
+        chatMessage += `<br>-1<b>: Target has ECM</b>`
+        console.log("Target has ECM")
+      }
+      if (targetActor.statuses.has('downlow')) {
+        rollMod +=-1
+        chatMessage += `<br>+1:<b> Target is down low</b>`
+        console.log('Target Low')
+      }
+
+      let modString = rollMod < 0 ? rollMod : `+${rollMod}`
+
+      chatMessage += `
+                    <p><b>Total Modifiers:</b> 1d10${modString} hitting on ${shooterActor.system.aaa.hit} 
+                    <button class="roll-aaaFire" type="button">Fire!</button>
+                    `
+
+    ChatMessage.create({ content: chatMessage }).then(msg => {
+      Hooks.once("renderChatMessageHTML", (chatMessage, html) => {
+        html.querySelector(".roll-aaaFire")?.addEventListener('click', () => {rollaaaFire(shooterUUID, targetUUID, rollMod)});
+      });
+    });
+
+    async function rollaaaFire(shooterUUID, targetUUID, rollMod) {
+      event.preventDefault
+      const shooterToken = await fromUuid(shooterUUID);
+      const shooterActor = shooterToken.actor
+      const targetToken = await fromUuid(targetUUID);
+      const targetActor = targetToken.actor
+      const modString = rollMod < 0 ? rollMod : `+${rollMod}`
+
+      let roll = await new Roll(`1d10`).evaluate({ async: true });
+        const diceResults = roll.dice[0].results.map(r => Number(r.result));
+
+        const dieTotal = Number(diceResults) + Number(rollMod)
+        let resultEvent = dieTotal >= shooterActor.system.aaa.hit ? 'Hit!' : 'Miss!'
+        if (diceResults == 1) {resultEvent = 'Automatic Miss!'};
+        if (diceResults == 10) {resultEvent = 'Automatic Hit!'};
+
+        const chatMessage = `<h2><b>${shooterActor.name}</b> fires at <b>${targetActor.name}</b>!</h2>
+                            <p style="text-align:center"><b>Hit Roll: </b>1d10${modString}<br><b>Weapon hits on: </b>${shooterActor.system.aaa.hit}+<p>
+                            <h3><p style="text-align:center"><b>Result: ${diceResults}${modString} = ${dieTotal}<br>${resultEvent}</p></b></h3>
+                            <button class="roll-aaadamage" type="button">Roll Damage</button>
+                            `
+
+        ChatMessage.create({ content: chatMessage }).then(msg => {
+          Hooks.once("renderChatMessageHTML", (chatMessage, html) => {
+            html.querySelector(".roll-aaadamage")?.addEventListener('click', () => {aaadamage(shooterUUID, targetUUID)});
+          });
+        });
+      }
+
+    async function aaadamage(shooterUUID, targetUUID) {
+      event.preventDefault
+      const shooterToken = await fromUuid(shooterUUID);
+      const shooterActor = shooterToken.actor
+      const targetToken = await fromUuid(targetUUID);
+      const targetActor = targetToken.actor
+
+      let roll = await new Roll(`${shooterActor.system.aaa.damage}`).evaluate({ async: true });
+      const diceResults = roll.dice[0].results.map(r => Number(r.result));
+      const totalDamage = diceResults.reduce((sum, value) => sum + value, 0);
+      const chatMessage = `<h2><b>${shooterActor.name}</b> strikes the target!</h2>
+                          <p style="text-align:center"><b>Damage Roll: </b>${shooterActor.system.aaa.damage}<p>
+                          <h3><p style="text-align:center"><b>${shooterActor.system.aaa.damage} Result: ${diceResults} <br>${totalDamage} Damage!</p></b></h3>
+                          <button class="roll-extraDamageTable" type="button">Additional Damage Table</button>
+                          `
+
+      if (game.user.isGM) {
+        await targetActor.update({system: {hitPoints: {value: (targetActor.system.hitPoints.value - totalDamage)}}});
+      }
+
+      ChatMessage.create({ content: chatMessage }).then(msg => {
+        Hooks.once("renderChatMessageHTML", (chatMessage, html) => {
+          html.querySelector(".roll-extraDamageTable")?.addEventListener('click', () => {extraDamageTable('air-mercs.rollable-tables', 'Aircraft Damage')});
+          });
+        });
+
+        async function extraDamageTable(compendiumName, tableName) {
+          // Get the compendium
+          const pack = game.packs.get(compendiumName);
+          if (!pack) {
+              console.error(`Compendium '${compendiumName}' not found.`);
+              return;
+          }
+      
+          // Load all index data (so we can search by name)
+          await pack.getIndex();
+          
+          // Find the table entry
+          const tableEntry = pack.index.find(e => e.name === tableName);
+          if (!tableEntry) {
+              console.error(`Table '${tableName}' not found in compendium '${compendiumName}'.`);
+              return;
+          }
+      
+          // Get the full RollTable document
+          const table = await pack.getDocument(tableEntry._id);
+          if (!table) {
+              console.error(`Failed to retrieve table '${tableName}'.`);
+              return;
+          }
+      
+          // Roll on the table and return the result
+          return await table.draw();
+      }
+    }
+  }
+
+
+
 
   static burstSelect() {
     if (!this.actor.getActiveTokens()?.[0]?.document.actor) {return ui.notifications.warn('Select a Token to be the Shooter');}
