@@ -6,9 +6,7 @@ const { api, sheets } = foundry.applications;
  * Extend the basic ItemSheet with some very simple modifications
  * @extends {ItemSheetV2}
  */
-export class AirMercsItemSheet extends api.HandlebarsApplicationMixin(
-  sheets.ItemSheetV2
-) {
+export class AirMercsItemSheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
   constructor(options = {}) {
     super(options);
     this.#dragDrop = this.#createDragDropHandlers();

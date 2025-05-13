@@ -34,6 +34,8 @@ globalThis.airMercs = {
 
 };
 
+
+
 async function loadHandleBarTemplates()
 {
   // register templates parts
@@ -466,6 +468,19 @@ Hooks.once("setup", () => {
 
   });
 });
+
+Hooks.on("renderChatMessageHTML", (msg, html) => {
+  html.querySelector(".roll-extraDamageTable")?.addEventListener('click', () => {AirMercsActorSheet.extraDamageTable('air-mercs.rollable-tables', 'Aircraft Damage')});
+  html.querySelector(".roll-missilehitattempt")?.addEventListener('click', () => {AirMercsActorSheet.missilehitattempt(msg.flags.airmercs.weapon, msg.flags.airmercs.shooterUUID, msg.flags.airmercs.targetUUID, msg.flags.airmercs.modifiedHit)});
+  html.querySelector(".roll-lockattempt")?.addEventListener('click', () => {AirMercsActorSheet.handleMissileLock(msg.flags.airmercs.weapon, msg.flags.airmercs.lockType, msg.flags.airmercs.shooterUUID)});
+  html.querySelector(".roll-launchattempt")?.addEventListener('click', () => {AirMercsActorSheet.launchAttempt(msg.flags.airmercs.shooterUUID, msg.flags.airmercs.locks, msg.flags.airmercs.weapon, msg.flags.airmercs.targetUUID, msg.flags.airmercs.pilotSkill, msg.flags.airmercs.availableWeapons)});
+  html.querySelector(".roll-aaaFire")?.addEventListener('click', () => {AirMercsActorSheet.rollaaaFire(msg.flags.airmercs.shooterUUID, msg.flags.airmercs.targetUUID, msg.flags.airmercs.rollMod)});
+  html.querySelector(".roll-aaadamage")?.addEventListener('click', () => {AirMercsActorSheet.aaadamage(msg.flags.airmercs.shooterUUID, msg.flags.airmercs.targetUUID)});
+  html.querySelector(".roll-gunsgunsguns")?.addEventListener('click', () => {AirMercsActorSheet.resolveAttackRoll(msg.flags.airmercs.diceCount, msg.flags.airmercs.rangeBand, msg.flags.airmercs.shooterUUID, msg.flags.airmercs.targetUUID)});
+  html.querySelector(".roll-missiledamage")?.addEventListener('click', () => {AirMercsActorSheet.missiledamage(msg.flags.airmercs.weapon, msg.flags.airmercs.shooterUUID, msg.flags.airmercs.targetUUID)});
+});
+
+
 
 export async function toggleReadyOverlay(targetUUID) { 
   const targetActor = await fromUuid(targetUUID);

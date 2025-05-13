@@ -639,7 +639,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
 
     shooterActor.update({system: {[cmType]: {value: cmCount - 1}}});
 
-    const chatMessage = `<h2><b>${shooterActor.name}</b> dispenses ${cmType} countermeasures against <b>${target.actor.name}</b></h2>`
+    const chatMessage = `<h2><b>${shooterActor.name}</b> launches ${cmType} countermeasures against <b>${target.actor.name}</b></h2>`
     ChatMessage.create({ content: chatMessage });
   }
 
@@ -827,86 +827,104 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
                     <br><b>Damage: </b>${weapon.system.damage} 
                     <button class="roll-missilehitattempt" type="button">Roll to Hit</button>
                     `
-    ChatMessage.create({ content: chatMessage }).then(msg => {
-      Hooks.once("renderChatMessageHTML", (chatMessage, html) => {
-        html.querySelector(".roll-missilehitattempt")?.addEventListener('click', () => {missilehitattempt(weapon, shooterUUID, targetUUID, modifiedHit)});
-      });
+    ChatMessage.create({ 
+      content: chatMessage,
+      flags: {
+          airmercs: {
+            weapon: weapon,
+            shooterUUID: shooterUUID,
+            targetUUID: targetUUID,
+            modifiedHit: modifiedHit
+          }
+        }
     });
-    async function missilehitattempt(weapon, shooterUUID, targetUUID, modifiedHit) {
-      event.preventDefault();
-      let roll = await new Roll(`1d10`).evaluate({ async: true });
-      const diceResults = roll.dice[0].results.map(r => Number(r.result));
-
-      const dieTotal = Number(diceResults) + Number(modifiedHit)
-      let resultEvent = dieTotal >= weapon.system.hit ? 'Hit!' : 'Miss!'
-      if (diceResults == 1) {resultEvent = 'Automatic Miss!'};
-      if (diceResults == 10) {resultEvent = 'Automatic Hit!'};
-
-      const chatMessage = `<h2><b>${weapon.name}</b> flies towards <b>${targetActor.name}</b>!</h2>
-                          <p style="text-align:center"><b>Hit Roll: </b>1d10${modifiedHit}<br><b>Weapon hits on: </b>${weapon.system.hit}+<p>
-                          <h3><p style="text-align:center"><b>Result: ${diceResults}${modifiedHit} = ${dieTotal}<br>${resultEvent}</p></b></h3>
-                          <button class="roll-missiledamage" type="button">Roll Damage</button>
-                          `
-
-      ChatMessage.create({ content: chatMessage }).then(msg => {
-        Hooks.once("renderChatMessageHTML", (chatMessage, html) => {
-          html.querySelector(".roll-missiledamage")?.addEventListener('click', () => {missiledamage(weapon, shooterUUID, targetUUID)});
-        });
-      });
-    }
-    async function missiledamage(weapon, shooterUUID, targetUUID) {
-      let roll = await new Roll(`${weapon.system.damage}`).evaluate({ async: true });
-      const diceResults = roll.dice[0].results.map(r => Number(r.result));
-      const totalDamage = diceResults.reduce((sum, value) => sum + value, 0);
-      const chatMessage = `<h2><b>${weapon.name}</b> detonates!</h2>
-                          <p style="text-align:center"><b>Damage Roll: </b>${weapon.system.damage}<p>
-                          <h3><p style="text-align:center"><b>${weapon.system.damage} Result: ${diceResults} <br>${totalDamage} Damage!</p></b></h3>
-                          <button class="roll-extraDamageTable" type="button">Additional Damage Table</button>
-                          `
-      await game.socket.emit("system.air-mercs", {action: "updateHP", targetUUID, damage: totalDamage});
-
-      if (game.user.isGM) {
-        await targetActor.update({system: {hitPoints: {value: (targetActor.system.hitPoints.value - totalDamage)}}});
-      }
-
-      ChatMessage.create({ content: chatMessage }).then(msg => {
-        Hooks.once("renderChatMessageHTML", (chatMessage, html) => {
-          html.querySelector(".roll-extraDamageTable")?.addEventListener('click', () => {extraDamageTable('air-mercs.rollable-tables', 'Aircraft Damage')});
-          });
-        });
-
-        async function extraDamageTable(compendiumName, tableName) {
-          // Get the compendium
-          const pack = game.packs.get(compendiumName);
-          if (!pack) {
-              console.error(`Compendium '${compendiumName}' not found.`);
-              return;
-          }
-      
-          // Load all index data (so we can search by name)
-          await pack.getIndex();
-          
-          // Find the table entry
-          const tableEntry = pack.index.find(e => e.name === tableName);
-          if (!tableEntry) {
-              console.error(`Table '${tableName}' not found in compendium '${compendiumName}'.`);
-              return;
-          }
-      
-          // Get the full RollTable document
-          const table = await pack.getDocument(tableEntry._id);
-          if (!table) {
-              console.error(`Failed to retrieve table '${tableName}'.`);
-              return;
-          }
-      
-          // Roll on the table and return the result
-          return await table.draw();
-      }
-    }
   }
 
+  static async missilehitattempt(weapon, shooterUUID, targetUUID, modifiedHit) {
+    event.preventDefault();
+    let roll = await new Roll(`1d10`).evaluate({ async: true });
+    const diceResults = roll.dice[0].results.map(r => Number(r.result));
 
+    const shooterToken = await fromUuid(weapon.flags.airmercs.missileData.shotByUUID);
+    const shooterActor = shooterToken.actor
+    const targetToken = await fromUuid(weapon.flags.airmercs.missileData.shotAtUUID);
+    const targetActor = targetToken.actor
+
+    const dieTotal = Number(diceResults) + Number(modifiedHit)
+    let resultEvent = dieTotal >= weapon.system.hit ? 'Hit!' : 'Miss!'
+    if (diceResults == 1) {resultEvent = 'Automatic Miss!'};
+    if (diceResults == 10) {resultEvent = 'Automatic Hit!'};
+
+    const chatMessage = `<h2><b>${weapon.name}</b> flies towards <b>${targetActor.name}</b>!</h2>
+                        <p style="text-align:center"><b>Hit Roll: </b>1d10${modifiedHit}<br><b>Weapon hits on: </b>${weapon.system.hit}+<p>
+                        <h3><p style="text-align:center"><b>Result: ${diceResults}${modifiedHit} = ${dieTotal}<br>${resultEvent}</p></b></h3>
+                        <button class="roll-missiledamage" type="button">Roll Damage</button>
+                        `
+
+    ChatMessage.create({ 
+      content: chatMessage,
+      flags: {
+          airmercs: {
+            weapon: weapon,
+            shooterUUID, shooterUUID,
+            targetUUID: targetUUID
+          }
+        }
+    });
+  }
+
+  static async missiledamage(weapon, shooterUUID, targetUUID) {
+    const shooterToken = await fromUuid(weapon.flags.airmercs.missileData.shotByUUID);
+    const shooterActor = shooterToken.actor
+    const targetToken = await fromUuid(weapon.flags.airmercs.missileData.shotAtUUID);
+    const targetActor = targetToken.actor
+
+    let roll = await new Roll(`${weapon.system.damage}`).evaluate({ async: true });
+    
+    const diceResults = roll.dice[0].results.map(r => Number(r.result));
+    const totalDamage = diceResults.reduce((sum, value) => sum + value, 0);
+    const chatMessage = `<h2><b>${weapon.name}</b> detonates!</h2>
+                        <p style="text-align:center"><b>Damage Roll: </b>${weapon.system.damage}<p>
+                        <h3><p style="text-align:center"><b>${weapon.system.damage} Result: ${diceResults} <br>${totalDamage} Damage!</p></b></h3>
+                        <button class="roll-extraDamageTable" type="button">Additional Damage Table</button>
+                        `
+    await game.socket.emit("system.air-mercs", {action: "updateHP", targetUUID, damage: totalDamage});
+
+    if (game.user.isGM) {
+      await targetActor.update({system: {hitPoints: {value: (targetActor.system.hitPoints.value - totalDamage)}}});
+    }
+
+    ChatMessage.create({content: chatMessage});
+  }
+
+  static async extraDamageTable(compendiumName, tableName) {
+    // Get the compendium
+    const pack = game.packs.get(compendiumName);
+    if (!pack) {
+        console.error(`Compendium '${compendiumName}' not found.`);
+        return;
+    }
+
+    // Load all index data (so we can search by name)
+    await pack.getIndex();
+    
+    // Find the table entry
+    const tableEntry = pack.index.find(e => e.name === tableName);
+    if (!tableEntry) {
+        console.error(`Table '${tableName}' not found in compendium '${compendiumName}'.`);
+        return;
+    }
+
+    // Get the full RollTable document
+    const table = await pack.getDocument(tableEntry._id);
+    if (!table) {
+        console.error(`Failed to retrieve table '${tableName}'.`);
+        return;
+    }
+
+    // Roll on the table and return the result
+    return await table.draw();
+  }
 
   static async missileDelete() {
     //I know some coder somewhere is going to be really upset by this
@@ -945,19 +963,15 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
 
   static async weaponPrepMessage(event, target) {
     const airTarget = game.user.targets.values().next().value
-
     if (!airTarget) {return ui.notifications.warn('Select a target first!');}
 
     const targetToken = airTarget.document
     const targetUUID = targetToken.uuid
-
     const shooterActorUUID = this.actor?.uuid
     const shooterUUID = canvas.tokens.controlled[0].document.uuid
-
     if (!shooterUUID) {return ui.notifications.warn('Select your token before doing this!');}
 
     let shooter = await fromUuid(shooterActorUUID);
-
     let weapon = this._getTargetItem(target)
 
     switch (weapon.type) {
@@ -977,94 +991,32 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
                           <button class="roll-lockattempt" type="button" data-lockvalue="${lockon}">Attempt Lock-on</button>
                           <button class="roll-launchattempt" type="button">Launch Weapon (unlocked)</button>
                           `
-      ChatMessage.create({ content: chatMessage }).then(msg => {
-        Hooks.once("renderChatMessageHTML", (chatMessage, html) => {
-          html.querySelector(".roll-lockattempt")?.addEventListener('click', () => {handleMissileLock(weapon, lockType, shooterUUID)});
-          html.querySelector(".roll-launchattempt")?.addEventListener('click', () => {launchAttempt(shooterUUID, locks, weapon, targetUUID, pilotSkill, availableWeapons)});
-        });
+      ChatMessage.create({ 
+        content: chatMessage,
+        flags: {
+          airmercs: {
+            weapon: weapon,
+            lockType: lockType,
+            shooterUUID: shooterUUID,
+            locks: locks,
+            targetUUID: targetUUID,
+            pilotSkill: pilotSkill,
+            availableWeapons: availableWeapons
+          }
+        }
       });
         return;
       case 'actor':
         return;
       }
+  }
 
-    async function handleMissileLock(weapon, lockType, shooterUUID) {
-
-      const shooterToken = await fromUuid(shooterUUID);
-      const shooterActor = shooterToken.actor
-
-      event.preventDefault();
-      if (!game.user.targets.values().next().value) {return ui.notifications.warn('No Lock Target Selected!');} 
-      const targetActor = game.user.targets.values().next().value.actor
-      const targetToken = game.user.targets.values().next().value.document
-      const targetUUID = targetToken.uuid
-      const availableWeapons = shooterActor.items.reduce((count, item) => count + (item.name === weapon.name ? 1 : 0), 0)
-
-      let diceCount = 1
-      if (availableWeapons > 1 && lockType != 'radar') {
-        diceCount = 2 //IR missiles lock seperately
-      }
-      
-      if (shooterActor == targetActor) {return ui.notifications.warn('Attempting to Fire at Self');}    
-      if (shooterActor.system.radar.value == 0) {ChatMessage.create({ content: `${this.actor.name} has no Air-to-Air Radar and can't lock-on!` });} 
-
-      //Aspect checks
-      let targetAspect = shooterActor.getRelBearing(targetToken, shooterToken)
-      if (weapon.aspect === 'rear-180') {
-        if (!(targetAspect >= 90 && targetAspect <= 270)) {return ui.notifications.warn('This Missile requires a Rear 180 aspect!');};
-      };
-      if (weapon.aspect === 'rear-60') {
-        if (!(targetAspect >= 150 && targetAspect <= 210)) {return ui.notifications.warn('This Missile requires a Rear 60 aspect!');};
-      };
-  
-      let dieTarget = lockType === 'radar' ? shooterActor.system.radar.value : weapon.system.lock
-      let modifiers = 0
-      const pilotSkill = lockType === 'radar' ? shooterActor.system.abilities.radar_missiles : shooterActor.system.abilities.ir_missiles
-      const tarECM = targetActor.system.ecm.value
-
-      let chatMessage = `
-                        <h2><b>${shooterActor.name}</b> attempts to lock onto <b>${targetActor.name}</b>!</h2>
-                        <b>${weapon.system.guidance} Locks on: </b>${dieTarget}+
-                        `
-
-      if (targetActor.statuses.has('downlow')) {
-        //TODO: This is a placeholder for when we add high/low alt conditions
-        chatMessage += `<br>-1:<b> Target Down Low</b>`
-        modifiers += -1
-      }
-      if (lockType === 'radar') {
-        //TODO: This is a placeholder for when we add high/low alt conditions
-        chatMessage += `<br>${tarECM}:<b> Target's ECM</b>`
-        modifiers += tarECM
-      }
-      let modString = modifiers < 0 ? modifiers : `+${modifiers}`
-
-      let roll = await new Roll(`${diceCount}d10+${modifiers}`).evaluate({ async: true });
-      let diceResults = roll.dice[0].results.map(r => Number(r.result));
-      const locks = diceResults.filter(die => die >= dieTarget).length;
-      let lockString = lockType === 'radar' ? `Radar locked on!` : `${locks} IR Locks`
-      locks == 0 ? lockString = 'Unable to Lock Target!' : ``
-
-      chatMessage +=    `
-                        <br><br><b>${diceCount}d10${modString}: </b> ${diceResults.join(", ")}
-                        <br><h2><b>${lockString}</b></h2>
-                        <button class="roll-launchattempt" type="button" data-lockcount="${locks}">Launch Weapon</button>
-                        `
-
-      ChatMessage.create({ content: chatMessage }).then(msg => {
-        Hooks.once("renderChatMessageHTML", (chatMessage, html) => {
-          html.querySelector(".roll-launchattempt")?.addEventListener('click', () => {launchAttempt(shooterUUID, locks, weapon, targetUUID, pilotSkill, availableWeapons)});
-        });
-      });
-      
-    }
-
-    async function launchAttempt(shooterUUID, locks, weapon, targetUUID, pilotSkill, availableWeapons) {
+  static async launchAttempt(shooterUUID, locks, weapon, targetUUID, pilotSkill, availableWeapons) {
       console.log("starting launch attempt")
-      const shooterActor = await fromUuid(shooterUUID);
-      const targetActor = await fromUuid(targetUUID);
-
-      
+      const shooterToken = await fromUuid(shooterUUID);
+      const targetToken = await fromUuid(targetUUID);
+      const shooterActor = shooterToken.actor;
+      const targetActor = targetToken.actor;
 
       if (!targetActor) {return ui.notifications.warn('No Lock Target Selected!');} 
       event.preventDefault();
@@ -1150,13 +1102,17 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
         // const leadPos = getNewPositionFromAzimuth(startX, startY, leadAngle, distance);
         const leadAngleRad =  Math.toRadians(shooterToken.rotation + 90+leadAngle)
         const ray = foundry.canvas.geometry.Ray.fromAngle(shooterToken.x, shooterToken.y, leadAngleRad , calcdistance )
-        const secondWeapon = shooterActor.items.find(item => item.name === weapon.name && item.id !== weapon.id);
-        const weaponIDArray = [weapon, secondWeapon]
+        const firstWeapon = shooterActor.items.find(item => item.name === weapon.name && item.id === weapon._id);
+        const secondWeapon = shooterActor.items.find(item => item.name === weapon.name && item.id !== weapon._id);
+        const weaponIDArray = [firstWeapon, secondWeapon]
+
+        console.log("firstweapon", firstWeapon)
+        console.log("secondWeapon", secondWeapon)
+        console.log("Weapon", weapon)
 
         //the logic for assigning a second weapon for a second launch is very bad
         //I make no excuses other than my eyes hurt and words are starting to blur together
         //I have dishonored my family
-        console.log(shooterActor)
 
         const aspect = shooterActor.getRelBearing(targetToken, shooterToken)
         let tarAspect = ''
@@ -1167,13 +1123,12 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
           else {tarAspect = 'Front'}
         for (let i = LaunchCount; i > 0; i--) {
           let activeWeapon = weaponIDArray[i - 1]
-          
           //Create an actor so the token has a sheet where we click buttons to resolve the token
           let missileActorData = {
             name: `${weapon.name}`,
             type: "missile",
             img: weapon.img,
-            system: weapon.toObject().system,
+            system: weapon.system,
             flags: {
               "airmercs.missileData": {
                 launchAspect: tarAspect,
@@ -1182,7 +1137,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
                 shooterSpeed: shooterActor.system.curSpeed.value,
                 shotAt: targetActor,
                 shotAtUUID: targetUUID,
-                shooterSkill: pilotSkill.value,
+                shooterSkill: pilotSkill.total,
                 hasLock: locks > 0 ? true : false,
                 isCounterMeasured: false,
                 launchDistance: Number(shooterActor.getDistance(targetToken, shooterToken).toPrecision(2))
@@ -1213,13 +1168,93 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
           if (weapon.system.guidance == 'IR') {
             locks-- //Only IR missiles lock individually, other systems only need one lock
           }
-          await shooter.deleteEmbeddedDocuments("Item", [activeWeapon.id]);
+          await shooterActor.deleteEmbeddedDocuments("Item", [activeWeapon.id]);
           await scene.createEmbeddedDocuments("Token", [tokenData]);
         }
       }
     }
 
+  static async handleMissileLock(weapon, lockType, shooterUUID) {
+    const shooterToken = await fromUuid(shooterUUID);
+    const shooterActor = shooterToken.actor
+
+    console.log("shooter", shooterActor)
+    console.log("lockType", lockType)
+
+    event.preventDefault();
+    if (!game.user.targets.values().next().value) {return ui.notifications.warn('No Lock Target Selected!');} 
+    const targetActor = game.user.targets.values().next().value.actor
+    const targetToken = game.user.targets.values().next().value.document
+    const targetUUID = targetToken.uuid
+    const availableWeapons = shooterActor.items.reduce((count, item) => count + (item.name === weapon.name ? 1 : 0), 0)
+
+    let diceCount = 1
+    if (availableWeapons > 1 && lockType != 'radar') {
+      diceCount = 2 //IR missiles lock seperately
+    }
+    
+    if (shooterActor == targetActor) {return ui.notifications.warn('Attempting to Fire at Self');}    
+    if (shooterActor.system.radar.value == 0) {ChatMessage.create({ content: `${this.actor.name} has no Air-to-Air Radar and can't lock-on!` });} 
+
+    //Aspect checks
+    let targetAspect = shooterActor.getRelBearing(targetToken, shooterToken)
+    if (weapon.aspect === 'rear-180') {
+      if (!(targetAspect >= 90 && targetAspect <= 270)) {return ui.notifications.warn('This Missile requires a Rear 180 aspect!');};
+    };
+    if (weapon.aspect === 'rear-60') {
+      if (!(targetAspect >= 150 && targetAspect <= 210)) {return ui.notifications.warn('This Missile requires a Rear 60 aspect!');};
+    };
+
+    let dieTarget = lockType === 'radar' ? shooterActor.system.radar.value : weapon.system.lock
+    let modifiers = 0
+    const pilotSkill = lockType === 'radar' ? shooterActor.system.abilities.radar_missiles : shooterActor.system.abilities.ir_missiles
+    const tarECM = targetActor.system.ecm.value
+
+    let chatMessage = `
+                      <h2><b>${shooterActor.name}</b> attempts to lock onto <b>${targetActor.name}</b>!</h2>
+                      <b>${weapon.system.guidance} Locks on: </b>${dieTarget}+
+                      `
+
+    if (targetActor.statuses.has('downlow')) {
+      //TODO: This is a placeholder for when we add high/low alt conditions
+      chatMessage += `<br>-1:<b> Target Down Low</b>`
+      modifiers += -1
+    }
+    if (lockType === 'radar') {
+      //TODO: This is a placeholder for when we add high/low alt conditions
+      chatMessage += `<br>${tarECM}:<b> Target's ECM</b>`
+      modifiers += tarECM
+    }
+    let modString = modifiers < 0 ? modifiers : `+${modifiers}`
+
+    let roll = await new Roll(`${diceCount}d10+${modifiers}`).evaluate({ async: true });
+    let diceResults = roll.dice[0].results.map(r => Number(r.result));
+    const locks = diceResults.filter(die => die >= dieTarget).length;
+    let lockString = lockType === 'radar' ? `Radar locked on!` : `${locks} IR Locks`
+    locks == 0 ? lockString = 'Unable to Lock Target!' : ``
+
+    chatMessage +=    `
+                      <br><br><b>${diceCount}d10${modString}: </b> ${diceResults.join(", ")}
+                      <br><h2><b>${lockString}</b></h2>
+                      <button class="roll-launchattempt" type="button" data-lockcount="${locks}">Launch Weapon</button>
+                      `
+
+    ChatMessage.create({ 
+        content: chatMessage,
+        flags: {
+          airmercs: {
+            weapon: weapon,
+            lockType: lockType,
+            shooterUUID: shooterUUID,
+            locks: locks,
+            targetUUID: targetUUID,
+            pilotSkill: pilotSkill,
+            availableWeapons: availableWeapons
+          }
+        }
+      });
   }
+
 
   static async fireaaaWeapon() {
     if (!game.user.targets.values().next().value.actor) {return ui.notifications.warn('Select a Token to be the Target');}
@@ -1275,102 +1310,75 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
                     <button class="roll-aaaFire" type="button">Fire!</button>
                     `
 
-    ChatMessage.create({ content: chatMessage }).then(msg => {
-      Hooks.once("renderChatMessageHTML", (chatMessage, html) => {
-        html.querySelector(".roll-aaaFire")?.addEventListener('click', () => {rollaaaFire(shooterUUID, targetUUID, rollMod)});
+    ChatMessage.create({ 
+        content: chatMessage,
+        flags: {
+          airmercs: {
+            shooterUUID: shooterUUID,
+            targetUUID: targetUUID,
+            rollMod: rollMod
+          }
+        }
       });
-    });
+  }
 
-    async function rollaaaFire(shooterUUID, targetUUID, rollMod) {
-      event.preventDefault
-      const shooterToken = await fromUuid(shooterUUID);
-      const shooterActor = shooterToken.actor
-      const targetToken = await fromUuid(targetUUID);
-      const targetActor = targetToken.actor
-      const modString = rollMod < 0 ? rollMod : `+${rollMod}`
+  static async rollaaaFire(shooterUUID, targetUUID, rollMod) {
+    event.preventDefault
+    const shooterToken = await fromUuid(shooterUUID);
+    const shooterActor = shooterToken.actor
+    const targetToken = await fromUuid(targetUUID);
+    const targetActor = targetToken.actor
+    const modString = rollMod < 0 ? rollMod : `+${rollMod}`
 
-      let roll = await new Roll(`1d10`).evaluate({ async: true });
-        const diceResults = roll.dice[0].results.map(r => Number(r.result));
-
-        const dieTotal = Number(diceResults) + Number(rollMod)
-        let resultEvent = dieTotal >= shooterActor.system.aaa.hit ? 'Hit!' : 'Miss!'
-        if (diceResults == 1) {resultEvent = 'Automatic Miss!'};
-        if (diceResults == 10) {resultEvent = 'Automatic Hit!'};
-
-        const chatMessage = `<h2><b>${shooterActor.name}</b> fires at <b>${targetActor.name}</b>!</h2>
-                            <p style="text-align:center"><b>Hit Roll: </b>1d10${modString}<br><b>Weapon hits on: </b>${shooterActor.system.aaa.hit}+<p>
-                            <h3><p style="text-align:center"><b>Result: ${diceResults}${modString} = ${dieTotal}<br>${resultEvent}</p></b></h3>
-                            <button class="roll-aaadamage" type="button">Roll Damage</button>
-                            `
-
-        ChatMessage.create({ content: chatMessage }).then(msg => {
-          Hooks.once("renderChatMessageHTML", (chatMessage, html) => {
-            html.querySelector(".roll-aaadamage")?.addEventListener('click', () => {aaadamage(shooterUUID, targetUUID)});
-          });
-        });
-      }
-
-    async function aaadamage(shooterUUID, targetUUID) {
-      event.preventDefault
-      const shooterToken = await fromUuid(shooterUUID);
-      const shooterActor = shooterToken.actor
-      const targetToken = await fromUuid(targetUUID);
-      const targetActor = targetToken.actor
-
-      let roll = await new Roll(`${shooterActor.system.aaa.damage}`).evaluate({ async: true });
+    let roll = await new Roll(`1d10`).evaluate({ async: true });
       const diceResults = roll.dice[0].results.map(r => Number(r.result));
-      const totalDamage = diceResults.reduce((sum, value) => sum + value, 0);
-      const chatMessage = `<h2><b>${shooterActor.name}</b> strikes the target!</h2>
-                          <p style="text-align:center"><b>Damage Roll: </b>${shooterActor.system.aaa.damage}<p>
-                          <h3><p style="text-align:center"><b>${shooterActor.system.aaa.damage} Result: ${diceResults} <br>${totalDamage} Damage!</p></b></h3>
-                          <button class="roll-extraDamageTable" type="button">Additional Damage Table</button>
+
+      const dieTotal = Number(diceResults) + Number(rollMod)
+      let resultEvent = dieTotal >= shooterActor.system.aaa.hit ? 'Hit!' : 'Miss!'
+      if (diceResults == 1) {resultEvent = 'Automatic Miss!'};
+      if (diceResults == 10) {resultEvent = 'Automatic Hit!'};
+
+      const chatMessage = `<h2><b>${shooterActor.name}</b> fires at <b>${targetActor.name}</b>!</h2>
+                          <p style="text-align:center"><b>Hit Roll: </b>1d10${modString}<br><b>Weapon hits on: </b>${shooterActor.system.aaa.hit}+<p>
+                          <h3><p style="text-align:center"><b>Result: ${diceResults}${modString} = ${dieTotal}<br>${resultEvent}</p></b></h3>
+                          <button class="roll-aaadamage" type="button">Roll Damage</button>
                           `
-
-      if (game.user.isGM) {
-        await targetActor.update({system: {hitPoints: {value: (targetActor.system.hitPoints.value - totalDamage)}}});
-      }
-
-      ChatMessage.create({ content: chatMessage }).then(msg => {
-        Hooks.once("renderChatMessageHTML", (chatMessage, html) => {
-          html.querySelector(".roll-extraDamageTable")?.addEventListener('click', () => {extraDamageTable('air-mercs.rollable-tables', 'Aircraft Damage')});
-          });
-        });
-
-        async function extraDamageTable(compendiumName, tableName) {
-          // Get the compendium
-          const pack = game.packs.get(compendiumName);
-          if (!pack) {
-              console.error(`Compendium '${compendiumName}' not found.`);
-              return;
+      ChatMessage.create({ 
+        content: chatMessage,
+        flags: {
+          airmercs: {
+            shooterUUID: shooterUUID,
+            targetUUID: targetUUID
           }
-      
-          // Load all index data (so we can search by name)
-          await pack.getIndex();
-          
-          // Find the table entry
-          const tableEntry = pack.index.find(e => e.name === tableName);
-          if (!tableEntry) {
-              console.error(`Table '${tableName}' not found in compendium '${compendiumName}'.`);
-              return;
-          }
-      
-          // Get the full RollTable document
-          const table = await pack.getDocument(tableEntry._id);
-          if (!table) {
-              console.error(`Failed to retrieve table '${tableName}'.`);
-              return;
-          }
-      
-          // Roll on the table and return the result
-          return await table.draw();
-      }
+        }
+      });
     }
+
+  static async aaadamage(shooterUUID, targetUUID) {
+    event.preventDefault
+    const shooterToken = await fromUuid(shooterUUID);
+    const shooterActor = shooterToken.actor
+    const targetToken = await fromUuid(targetUUID);
+    const targetActor = targetToken.actor
+
+    let roll = await new Roll(`${shooterActor.system.aaa.damage}`).evaluate({ async: true });
+    const diceResults = roll.dice[0].results.map(r => Number(r.result));
+    const totalDamage = diceResults.reduce((sum, value) => sum + value, 0);
+    const chatMessage = `<h2><b>${shooterActor.name}</b> strikes the target!</h2>
+                        <p style="text-align:center"><b>Damage Roll: </b>${shooterActor.system.aaa.damage}<p>
+                        <h3><p style="text-align:center"><b>${shooterActor.system.aaa.damage} Result: ${diceResults} <br>${totalDamage} Damage!</p></b></h3>
+                        <button class="roll-extraDamageTable" type="button">Additional Damage Table</button>
+                        `
+
+    if (game.user.isGM) {
+      await targetActor.update({system: {hitPoints: {value: (targetActor.system.hitPoints.value - totalDamage)}}});
+    }
+
+    ChatMessage.create({content: chatMessage});
   }
 
 
-
-
-  static burstSelect() {
+  static async burstSelect() {
     if (!this.actor.getActiveTokens()?.[0]?.document.actor) {return ui.notifications.warn('Select a Token to be the Shooter');}
     if (!game.user.targets.values().next().value.actor) {return ui.notifications.warn('Select a Token to be the Target');}
 
@@ -1423,10 +1431,16 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       const rangeBand = results[1];
       const chatMessage = results[2];
 
-      ChatMessage.create({ content: chatMessage });
-
-      Hooks.once("renderChatMessageHTML", (chatMessage, html) => {
-        html.querySelector(".roll-gunsgunsguns")?.addEventListener('click', () => resolveAttackRoll(diceCount, rangeBand, shooterUUID, targetUUID));
+      ChatMessage.create({ 
+        content: chatMessage, 
+        flags: {
+          airmercs: {
+            diceCount: diceCount, 
+            rangeBand: rangeBand, 
+            shooterUUID: shooterUUID, 
+            targetUUID: targetUUID
+          }
+        }
       });
     }
 
@@ -1561,67 +1575,35 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     } 
 
     /** Processes dice roll and sends results */
-    async function resolveAttackRoll(diceCount, rangeBand, shooterUUID, targetUUID) {
-      const shooterToken = await fromUuid(shooterUUID);
-      const targetToken = await fromUuid(targetUUID);
-
-      const shooterActor = shooterToken.actor
-      const targetActor = targetToken.actor
-
-      let roll = await new Roll(`${diceCount}d6`).evaluate({ async: true });
-      let diceResults = roll.dice[0].results.map(r => Number(r.result));
-      let hits = diceResults.filter(die => die >= rangeBand).length;
-
-      let chatMessage = `
-                        <h2><b>${shooterActor.name}</b> opens fire!</h2>
-                        <b>${diceCount}d6 Rolls: </b> ${diceResults.join(", ")}
-                        <br><b>Hitting on:</b> ${rangeBand}+
-                        <br><h3><b> Total Damage: </b> ${hits}</h3>
-                        <button class="roll-extraDamageTable" type="button">Additional Damage Table</button>
-                        `                 
-      await game.socket.emit("system.air-mercs", {action: "updateHP", targetUUID, damage: hits});
-      
-      if (game.user.isGM) {
-        await targetActor.update({system: {hitPoints: {value: (targetActor.system.hitPoints.value - hits)}}});
-      }
-
-      ChatMessage.create({ content: chatMessage }).then(msg => {
-        Hooks.once("renderChatMessageHTML", (msg, html) => {
-          html.querySelector(".roll-extraDamageTable")?.addEventListener('click', () => {extraDamageTable('air-mercs.rollable-tables', 'Aircraft Damage')});
-        });
-      });
-
-      async function extraDamageTable(compendiumName, tableName) {
-        // Get the compendium
-        const pack = game.packs.get(compendiumName);
-        if (!pack) {
-            console.error(`Compendium '${compendiumName}' not found.`);
-            return;
-        }
-    
-        // Load all index data (so we can search by name)
-        await pack.getIndex();
-        
-        // Find the table entry
-        const tableEntry = pack.index.find(e => e.name === tableName);
-        if (!tableEntry) {
-            console.error(`Table '${tableName}' not found in compendium '${compendiumName}'.`);
-            return;
-        }
-    
-        // Get the full RollTable document
-        const table = await pack.getDocument(tableEntry._id);
-        if (!table) {
-            console.error(`Failed to retrieve table '${tableName}'.`);
-            return;
-        }
-    
-        // Roll on the table and return the result
-        return await table.draw();
-    }
-
-    }
   }
+
+  static async resolveAttackRoll(diceCount, rangeBand, shooterUUID, targetUUID) {
+    const shooterToken = await fromUuid(shooterUUID);
+    const targetToken = await fromUuid(targetUUID);
+
+    const shooterActor = shooterToken.actor
+    const targetActor = targetToken.actor
+
+    let roll = await new Roll(`${diceCount}d6`).evaluate({ async: true });
+    let diceResults = roll.dice[0].results.map(r => Number(r.result));
+    let hits = diceResults.filter(die => die >= rangeBand).length;
+
+    let chatMessage = `
+                      <h2><b>${shooterActor.name}</b> opens fire!</h2>
+                      <b>${diceCount}d6 Rolls: </b> ${diceResults.join(", ")}
+                      <br><b>Hitting on:</b> ${rangeBand}+
+                      <br><h3><b> Total Damage: </b> ${hits}</h3>
+                      <button class="roll-extraDamageTable" type="button">Additional Damage Table</button>
+                      `                 
+    await game.socket.emit("system.air-mercs", {action: "updateHP", targetUUID, damage: hits});
+    
+    if (game.user.isGM) {
+      await targetActor.update({system: {hitPoints: {value: (targetActor.system.hitPoints.value - hits)}}});
+    }
+
+    ChatMessage.create({ content: chatMessage });
+  }
+
 
   static prepPhaseReadyStoreData() {
     if (this.actor.getFlag('air-mercs', 'prepPhaseReady') == true) {
