@@ -35,7 +35,7 @@
             type='text'
             disabled='true'
             name='system.guidance'
-            value='{{system.guidance}}'
+            value='{{#if system.sam}}{{system.sam.guidance}}{{else}}{{system.guidance}}{{/if}}'
             data-dtype='String'
           />
         </div>
@@ -50,7 +50,7 @@
             disabled='true'
             type='text'
             name='system.aspect'
-            value='{{system.aspect}}'
+            value='{{#if system.sam}}{{system.sam.aspect}}{{else}}{{system.aspect}}{{/if}}'
             data-dtype='String'
           />
         </div>
@@ -68,7 +68,7 @@
             disabled='true'
             type='text'
             name='system.lock'
-            value='{{system.lock}}+'
+            value='{{#if system.sam}}{{system.sam.lock}}+{{else}}{{system.lock}}+{{/if}}'
             data-dtype='String'
           />
         </div>
@@ -98,7 +98,7 @@
             disabled='true'
             type='text'
             name='system.maxRange'
-            value='{{system.maxRange}}'
+            value='{{#if system.sam}}{{system.sam.range}}{{else}}{{system.maxRange}}{{/if}}'
             data-dtype='Number'
           />
         </div>
@@ -116,7 +116,7 @@
             disabled='true'
             type='text'
             name='system.hit'
-            value='{{system.hit}}+'
+            value='{{#if system.sam}}{{system.sam.hit}}+{{else}}{{system.hit}}+{{/if}}'
             data-dtype='Number'
           />
         </div>
@@ -134,7 +134,7 @@
             disabled='true'
             type='text'
             name='system.damage'
-            value='{{system.damage}}'
+            value='{{#if system.sam}}{{system.sam.damage}}+{{else}}{{system.damage}}+{{/if}}'
             data-dtype='String'
           />
         </div>

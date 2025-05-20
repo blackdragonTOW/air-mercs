@@ -39,6 +39,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       resolveMissileAttack: this.missileHit,
       removePilot: this.removePilot,
       resolvegroundaaaattack: this.fireaaaWeapon,
+      
     },
     // Custom property that's merged into `this.options`
     dragDrop: [{ dragSelector: '[data-drag]', dropSelector: null }],
@@ -609,7 +610,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
   }
 
   async dispCountermeasures(type) {
-    console.log("this is: ", this)
     const shooterActor = this.actor
     const shooterToken = this.actor.getActiveTokens()?.[0]?.document
     const target = game.user.targets.values().next().value
@@ -639,18 +639,16 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
 
     shooterActor.update({system: {[cmType]: {value: cmCount - 1}}});
 
-    const chatMessage = `<h2><b>${shooterActor.name}</b> launches ${cmType} countermeasures against <b>${target.actor.name}</b></h2>`
+    const chatMessage = `</h3><b>${shooterActor.name}</b> launches ${cmType} countermeasures against <b>${target.actor.name}</b></h3>`
     ChatMessage.create({ content: chatMessage });
   }
 
   static async removePilot() {
-    this.actor.update({system: {curPilot: null}})
+    await this.actor.update({system: {curPilot: null}})
   }
 
   static async missileHit() {
     const weapon = this.actor
-    const weaponType = weapon.system.guidance
-
     const shooterToken = await fromUuid(weapon.flags.airmercs.missileData.shotByUUID);
     const shooterActor = shooterToken.actor
     const shooterUUID = shooterToken.uuid
@@ -660,22 +658,38 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
 
     const weaponData = weapon.flags.airmercs.missileData
 
+    let weaponType = null
+    let hitTarget = null
+    let weaponDamage = null
     let pilotSkill = 0; // Default value in case weaponType doesn't match
 
-    if (weaponType === 'IR') {
+    switch(shooterActor.type) {
+      case('aircraft'):
+        weaponType = weapon.system.guidance
+        if (weaponType === 'IR') {
         pilotSkill = shooterActor.system.abilities.ir_missiles.total;
-    } else if (['ARH', 'SARH', 'CRG'].includes(weaponType)) {
-        pilotSkill = shooterActor.system.abilities.radar_missiles.total;
+        } else if (['ARH', 'SARH', 'CRG'].includes(weaponType)) {
+            pilotSkill = shooterActor.system.abilities.radar_missiles.total;
+        }
+        hitTarget = weapon.system.hit
+        weaponDamage = weapon.system.damage  
+        break;
+      case('unit_sam'):
+        weaponType = weapon.system.sam.guidance
+        hitTarget = weapon.system.sam.hit
+        weaponDamage = weapon.system.sam.damage
+        break;
     }
+    
     const relBearing = shooterActor.getRelBearing(shooterToken, targetToken)
     const outOfGimbal = !(relBearing <= 30 || relBearing >= 330) // If the radar can still be pointed at the target at the time of impact, only matters for SARH weapons
     let hitMod = 0
-    let chatMessage =  `
-                        <h2><b>${weapon.name}</b> flies towards <b>${targetActor.name}</b>!</h2>
-                        `
+    let chatMessage = `
+                      <b>${weapon.name}</b> flies towards <b>${targetActor.name}</b>!<br>
+                      `
 
     hitMod += pilotSkill;
-    pilotSkill < 0 ? chatMessage += `${pilotSkill}:<b> Pilot Weapon Rating</b>` : chatMessage += `+${pilotSkill}:<b> Pilot Weapon Rating</b>`
+    pilotSkill < 0 ? chatMessage += `${pilotSkill}:<b> Weapon Skill</b>` : chatMessage += `+${pilotSkill}:<b> Weapon Skill</b>`
     console.log(`Pilot skill: ${pilotSkill}, total now: ${hitMod}`)
 
     switch (weaponType) {
@@ -823,8 +837,8 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     const modifiedHit = hitMod < 0 ? `${hitMod}` : `+${hitMod}`
 
     chatMessage += `<br><br><b>Hit Roll: </b>1d10${modifiedHit}
-                    <br><b>Weapon hits on: </b>${weapon.system.hit}+
-                    <br><b>Damage: </b>${weapon.system.damage} 
+                    <br><b>Weapon hits on: </b>${hitTarget}+
+                    <br><b>Damage: </b>${weaponDamage} 
                     <button class="roll-missilehitattempt" type="button">Roll to Hit</button>
                     `
     ChatMessage.create({ 
@@ -855,9 +869,23 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     if (diceResults == 1) {resultEvent = 'Automatic Miss!'};
     if (diceResults == 10) {resultEvent = 'Automatic Hit!'};
 
-    const chatMessage = `<h2><b>${weapon.name}</b> flies towards <b>${targetActor.name}</b>!</h2>
-                        <p style="text-align:center"><b>Hit Roll: </b>1d10${modifiedHit}<br><b>Weapon hits on: </b>${weapon.system.hit}+<p>
-                        <h3><p style="text-align:center"><b>Result: ${diceResults}${modifiedHit} = ${dieTotal}<br>${resultEvent}</p></b></h3>
+    let hitTarget = null
+    let weaponDamage = null
+
+    switch(shooterActor.type){
+      case('aircraft'):
+        hitTarget = weapon.system.hit
+        weaponDamage = null      
+        break;
+      case('unit_sam'):
+        hitTarget = weapon.system.sam.hit
+        weaponDamage = null
+        break;
+    }
+
+    const chatMessage = `<b>${weapon.name}</b> flies towards <b>${targetActor.name}</b>!<br>
+                        <p style="text-align:center"><b>Hit Roll: </b>1d10${modifiedHit}<br><b>Weapon hits on: </b>${hitTarget}+<p>
+                        <p style="text-align:center"><b>Result: ${diceResults}${modifiedHit} = ${dieTotal}<br>${resultEvent}</p></b>
                         <button class="roll-missiledamage" type="button">Roll Damage</button>
                         `
 
@@ -878,14 +906,23 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     const shooterActor = shooterToken.actor
     const targetToken = await fromUuid(weapon.flags.airmercs.missileData.shotAtUUID);
     const targetActor = targetToken.actor
+    let missileDamage = null
+    switch(shooterActor.type){
+      case('aircraft'):
+        missileDamage = weapon.system.damage      
+        break;
+      case('unit_sam'):
+        missileDamage = weapon.system.sam.damage
+        break;
+    }
 
-    let roll = await new Roll(`${weapon.system.damage}`).evaluate({ async: true });
+    let roll = await new Roll(`${missileDamage}`).evaluate({ async: true });
     
     const diceResults = roll.dice[0].results.map(r => Number(r.result));
     const totalDamage = diceResults.reduce((sum, value) => sum + value, 0);
-    const chatMessage = `<h2><b>${weapon.name}</b> detonates!</h2>
-                        <p style="text-align:center"><b>Damage Roll: </b>${weapon.system.damage}<p>
-                        <h3><p style="text-align:center"><b>${weapon.system.damage} Result: ${diceResults} <br>${totalDamage} Damage!</p></b></h3>
+    const chatMessage = `</h3><b>${weapon.name}</b> detonates!</h3>
+                        <p style="text-align:center"><b>Damage Roll: </b>${missileDamage}<p>
+                        <p style="text-align:center"><b>${missileDamage} Result: ${diceResults} <br>${totalDamage} Damage!</p></b>
                         <button class="roll-extraDamageTable" type="button">Additional Damage Table</button>
                         `
     await game.socket.emit("system.air-mercs", {action: "updateHP", targetUUID, damage: totalDamage});
@@ -962,6 +999,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
   }
 
   static async weaponPrepMessage(event, target) {
+
     const airTarget = game.user.targets.values().next().value
     if (!airTarget) {return ui.notifications.warn('Select a target first!');}
 
@@ -972,43 +1010,72 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     if (!shooterUUID) {return ui.notifications.warn('Select your token before doing this!');}
 
     let shooter = await fromUuid(shooterActorUUID);
-    let weapon = this._getTargetItem(target)
+    let weapon = null
+    switch (shooter.type) {
+      case 'aircraft':
+        weapon = this._getTargetItem(target)
+        break;
+      case 'unit_sam':
+        weapon = shooter
+        break;
+    }
+    
+    let lockon = null
+    let lockType = null
+    let locks = null
+    let pilotSkill = null
+    let availableWeapons = null
+    let chatMessage = null
 
     switch (weapon.type) {
       case 'missile':
-      const lockon = weapon.system.lock === 'radar'? shooter.system.radar.value : weapon.system.lock;
-      const lockType = weapon.system.lock
-      const locks = 0
-      const pilotSkill = weapon.system.lock === 'radar'? shooter.system.abilities.radar_missiles : shooter.system.abilities.ir_missiles
-      const availableWeapons = shooter.items.reduce((count, item) => count + (item.name === weapon.name ? 1 : 0), 0)
-      const chatMessage = `
-                          <h2><b>${shooter.name}</b> preps a <b>${weapon.name}</b>!</h2>
-                          <b>${weapon.system.guidance} Lock: </b>${lockon}+
-                          <br><b>Aspect: </b>${weapon.system.aspect}
-                          <br><b>Range: </b>${weapon.system.minRange} - ${weapon.system.maxRange} 
-                          <br><b>Hit: </b>${weapon.system.hit}+
-                          <br><b>Damage: </b>${weapon.system.damage} 
-                          <button class="roll-lockattempt" type="button" data-lockvalue="${lockon}">Attempt Lock-on</button>
-                          <button class="roll-launchattempt" type="button">Launch Weapon (unlocked)</button>
-                          `
-      ChatMessage.create({ 
-        content: chatMessage,
-        flags: {
-          airmercs: {
-            weapon: weapon,
-            lockType: lockType,
-            shooterUUID: shooterUUID,
-            locks: locks,
-            targetUUID: targetUUID,
-            pilotSkill: pilotSkill,
-            availableWeapons: availableWeapons
-          }
-        }
-      });
-        return;
-      case 'actor':
-        return;
+        lockon = weapon.system.lock === 'radar'? shooter.system.radar.value : weapon.system.lock;
+        lockType = weapon.system.lock
+        locks = 0
+        pilotSkill = weapon.system.lock === 'radar'? shooter.system.abilities.radar_missiles : shooter.system.abilities.ir_missiles
+        availableWeapons = shooter.items.reduce((count, item) => count + (item.name === weapon.name ? 1 : 0), 0)
+        chatMessage = `
+                      </h3><b>${shooter.name}</b> preps a <b>${weapon.name}</b>!</h3>
+                      <b>${weapon.system.guidance} Lock: </b>${lockon}+
+                      <br><b>Aspect: </b>${weapon.system.aspect}
+                      <br><b>Range: </b>${weapon.system.minRange} - ${weapon.system.maxRange} 
+                      <br><b>Hit: </b>${weapon.system.hit}+
+                      <br><b>Damage: </b>${weapon.system.damage} 
+                      <button class="roll-lockattempt" type="button" data-lockvalue="${lockon}">Attempt Lock-on</button>
+                      <button class="roll-launchattempt" type="button">Launch Weapon (unlocked)</button>
+                      `
+        break;
+      case 'unit_sam':
+        lockon = Number(weapon.system.sam.lock) //this is because I am stupid
+        lockType = weapon.system.sam.guidance
+        locks = 0
+        pilotSkill = 0 //will investigate veterancy for ground units at a later date
+        availableWeapons = null
+        chatMessage = `
+                      <b>${shooter.name}</b> takes aim at <b>${targetToken.actor.name}</b>!<br>
+                      <b>Lock Target: </b>${lockon}+
+                      <br><b>Aspect: </b>${weapon.system.sam.aspect}
+                      <br><b>Range: </b>${weapon.system.sam.range}
+                      <br><b>Hit: </b>${weapon.system.sam.hit}+
+                      <br><b>Damage: </b>${weapon.system.sam.damage} 
+                      <button class="roll-lockattempt" type="button" data-lockvalue="${lockon}">Attempt Lock-on</button>
+                      `
+        break;
       }
+    ChatMessage.create({ 
+      content: chatMessage,
+      flags: {
+        airmercs: {
+          weapon: weapon,
+          lockType: lockType,
+          shooterUUID: shooterUUID,
+          locks: locks,
+          targetUUID: targetUUID,
+          pilotSkill: pilotSkill,
+          availableWeapons: availableWeapons
+        }
+      }
+    });
   }
 
   static async launchAttempt(shooterUUID, locks, weapon, targetUUID, pilotSkill, availableWeapons) {
@@ -1018,12 +1085,23 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       const shooterActor = shooterToken.actor;
       const targetActor = targetToken.actor;
 
+      let guidanceType = null
+
+      switch(shooterActor.type) {
+        case('aircraft'):
+          guidanceType = weapon.system.guidance
+          break;
+        case('unit_sam'):
+          guidanceType = weapon.system.sam.guidance
+          break;
+      }
+
       if (!targetActor) {return ui.notifications.warn('No Lock Target Selected!');} 
       event.preventDefault();
-      console.log("Attempting to launch with", locks, "locks")
+
       new Dialog({
         title: "Confirm Action",
-        content: `<p>Launching <b>${weapon.name}</b> at <b>${targetActor.name}</b> with: <b>${locks}</b> ${weapon.system.guidance} locks and <b>${availableWeapons}</b> weapons available.<p>How many will you use?`,
+        content: `<p>Launching <b>${weapon.name}</b> at <b>${targetActor.name}</b> with: <b>${locks}</b> ${guidanceType} locks and <b>${availableWeapons}</b> weapon(s) available.<p>How many will you use?`,
         buttons: {
           One: {
             label: "One",
@@ -1114,6 +1192,19 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
         //I make no excuses other than my eyes hurt and words are starting to blur together
         //I have dishonored my family
 
+        let shooterSpeed = null
+        switch (shooterActor.type) {
+          case('aircraft'):
+            shooterSpeed = shooterActor.system.curSpeed.value
+            break;
+          case('unit_sam'):
+            shooterSpeed = 0
+              if (game.user.isGM) {
+                await shooterActor.update({system: {sam: {ammo: {value: (shooterActor.system.sam.ammo.value - 1)}}}});
+              }
+            break;
+        }
+
         const aspect = shooterActor.getRelBearing(targetToken, shooterToken)
         let tarAspect = ''
           if ((aspect <= 130 && aspect >= 90) || (aspect <= 270 && aspect >= 210))
@@ -1134,7 +1225,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
                 launchAspect: tarAspect,
                 shotBy: shooterActor,
                 shotByUUID: shooterUUID,
-                shooterSpeed: shooterActor.system.curSpeed.value,
+                shooterSpeed: shooterSpeed,
                 shotAt: targetActor,
                 shotAtUUID: targetUUID,
                 shooterSkill: pilotSkill.total,
@@ -1151,8 +1242,9 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
               console.error("Failed to create missile actor");
               continue;
           }
-
-          let filename = weapon.img.split("/").pop()
+          let filename = null
+          if (shooterActor.type == 'aircraft') {filename = weapon.img.split("/").pop()}
+            else {filename = 'aim9x.png'}
           let tokenData = {
             name: weapon.name,
             texture: { src: `systems/air-mercs/assets/missiles/tokens/${filename}` },
@@ -1168,7 +1260,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
           if (weapon.system.guidance == 'IR') {
             locks-- //Only IR missiles lock individually, other systems only need one lock
           }
-          await shooterActor.deleteEmbeddedDocuments("Item", [activeWeapon.id]);
+          if (shooterActor.type == 'aircraft') {await shooterActor.deleteEmbeddedDocuments("Item", [activeWeapon.id]);}
           await scene.createEmbeddedDocuments("Token", [tokenData]);
         }
       }
@@ -1178,23 +1270,50 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     const shooterToken = await fromUuid(shooterUUID);
     const shooterActor = shooterToken.actor
 
-    console.log("shooter", shooterActor)
+    console.log("shooterToken ", shooterToken)
+    console.log("shooterActor", shooterActor)
+    console.log("shooterUUID", shooterUUID)
+    console.log("weapon", weapon)
     console.log("lockType", lockType)
+
 
     event.preventDefault();
     if (!game.user.targets.values().next().value) {return ui.notifications.warn('No Lock Target Selected!');} 
     const targetActor = game.user.targets.values().next().value.actor
     const targetToken = game.user.targets.values().next().value.document
     const targetUUID = targetToken.uuid
-    const availableWeapons = shooterActor.items.reduce((count, item) => count + (item.name === weapon.name ? 1 : 0), 0)
 
-    let diceCount = 1
-    if (availableWeapons > 1 && lockType != 'radar') {
-      diceCount = 2 //IR missiles lock seperately
+    console.log("targetActor", targetActor)
+    console.log("targetToken", targetToken)
+    console.log("targetUUID", targetUUID)
+
+    let availableWeapons = null
+    let diceCount = null
+    let pilotSkill = null
+    let dieTarget = null
+    let guidanceType = null
+
+    switch (shooterActor.type) {
+      case('aircraft'):
+        if (shooterActor.system.radar.value == 0) {ChatMessage.create({ content: `${this.actor.name} has no Air-to-Air Radar and can't lock-on!` });} 
+        availableWeapons = shooterActor.items.reduce((count, item) => count + (item.name === weapon.name ? 1 : 0), 0)
+        diceCount = 1
+        if (availableWeapons > 1 && lockType != 'radar') {
+          diceCount = 2 //IR missiles lock seperately
+        }
+        pilotSkill = lockType === 'radar' ? shooterActor.system.abilities.radar_missiles : shooterActor.system.abilities.ir_missiles
+        guidanceType = weapon.system.guidance
+        dieTarget = lockType === 'radar' ? shooterActor.system.radar.value : weapon.system.lock
+        break;
+      case('unit_sam'):
+        availableWeapons = shooterActor.system.sam.volley
+        diceCount = 1
+        pilotSkill = 0 //veterancy in the future maybe
+        guidanceType = weapon.system.sam.guidance
+        dieTarget = weapon.system.sam.lock
     }
     
     if (shooterActor == targetActor) {return ui.notifications.warn('Attempting to Fire at Self');}    
-    if (shooterActor.system.radar.value == 0) {ChatMessage.create({ content: `${this.actor.name} has no Air-to-Air Radar and can't lock-on!` });} 
 
     //Aspect checks
     let targetAspect = shooterActor.getRelBearing(targetToken, shooterToken)
@@ -1205,14 +1324,12 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       if (!(targetAspect >= 150 && targetAspect <= 210)) {return ui.notifications.warn('This Missile requires a Rear 60 aspect!');};
     };
 
-    let dieTarget = lockType === 'radar' ? shooterActor.system.radar.value : weapon.system.lock
     let modifiers = 0
-    const pilotSkill = lockType === 'radar' ? shooterActor.system.abilities.radar_missiles : shooterActor.system.abilities.ir_missiles
     const tarECM = targetActor.system.ecm.value
 
     let chatMessage = `
-                      <h2><b>${shooterActor.name}</b> attempts to lock onto <b>${targetActor.name}</b>!</h2>
-                      <b>${weapon.system.guidance} Locks on: </b>${dieTarget}+
+                      <b>${shooterActor.name}</b> attempts to lock onto <b>${targetActor.name}</b>!<br>
+                      <b>${guidanceType} Locks on: </b>${dieTarget}+
                       `
 
     if (targetActor.statuses.has('downlow')) {
@@ -1233,11 +1350,11 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     let lockString = lockType === 'radar' ? `Radar locked on!` : `${locks} IR Locks`
     locks == 0 ? lockString = 'Unable to Lock Target!' : ``
 
-    chatMessage +=    `
-                      <br><br><b>${diceCount}d10${modString}: </b> ${diceResults.join(", ")}
-                      <br><h2><b>${lockString}</b></h2>
-                      <button class="roll-launchattempt" type="button" data-lockcount="${locks}">Launch Weapon</button>
-                      `
+    chatMessage +=  `
+                    <br><br><b>${diceCount}d10${modString}: </b> ${diceResults.join(", ")}
+                    <br></h3><b>${lockString}</b></h3>
+                    <button class="roll-launchattempt" type="button" data-lockcount="${locks}">Launch Weapon</button>
+                    `
 
     ChatMessage.create({ 
         content: chatMessage,
@@ -1254,7 +1371,6 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
         }
       });
   }
-
 
   static async fireaaaWeapon() {
     if (!game.user.targets.values().next().value.actor) {return ui.notifications.warn('Select a Token to be the Target');}
@@ -1275,7 +1391,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
 
     let rollMod = 0
     let chatMessage = `
-                      <h2><b>${shooterActor.name}</b> fires a sustained burst at: <b>${targetActor.name}</b></h2>
+                      </h3><b>${shooterActor.name}</b> takes aim at: <b>${targetToken.name}</b></h3>
                       `
       if (targetActor.attemptedManeuverOutcome == 'success') {
         rollMod += -2
@@ -1302,11 +1418,14 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
         chatMessage += `<br>+1:<b> Target is down low</b>`
         console.log('Target Low')
       }
-
+      if (!targetActor.statuses.has('downlow') && shooterActor.system.aaa.weapon_type == 'hmg') {
+        chatMessage += `<br><div style="text-align:center;"><span style="color:#ff0000;"><b>Warning: HMGs can only fire at low targets!!!</b></span></div>`
+        console.log('Target Low')
+      }
       let modString = rollMod < 0 ? rollMod : `+${rollMod}`
 
       chatMessage += `
-                    <p><b>Total Modifiers:</b> 1d10${modString} hitting on ${shooterActor.system.aaa.hit} 
+                    <p><b>Roll:</b> 1d10${modString}<br><b>Roll Target:</b> ${shooterActor.system.aaa.hit}+
                     <button class="roll-aaaFire" type="button">Fire!</button>
                     `
 
@@ -1338,9 +1457,9 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       if (diceResults == 1) {resultEvent = 'Automatic Miss!'};
       if (diceResults == 10) {resultEvent = 'Automatic Hit!'};
 
-      const chatMessage = `<h2><b>${shooterActor.name}</b> fires at <b>${targetActor.name}</b>!</h2>
-                          <p style="text-align:center"><b>Hit Roll: </b>1d10${modString}<br><b>Weapon hits on: </b>${shooterActor.system.aaa.hit}+<p>
-                          <h3><p style="text-align:center"><b>Result: ${diceResults}${modString} = ${dieTotal}<br>${resultEvent}</p></b></h3>
+      const chatMessage = `</h3><b>${shooterActor.name}</b> fires at <b>${targetActor.name}</b>!</h3>
+                          <p style="text-align:center"><b>Hit Roll: </b>1d10${modString} <br><b>Hits on: </b>${shooterActor.system.aaa.hit}+<p>
+                          <p style="text-align:center"><b>Result: ${diceResults}${modString} = ${dieTotal}<br>${resultEvent}</p></b><br>
                           <button class="roll-aaadamage" type="button">Roll Damage</button>
                           `
       ChatMessage.create({ 
@@ -1364,9 +1483,9 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     let roll = await new Roll(`${shooterActor.system.aaa.damage}`).evaluate({ async: true });
     const diceResults = roll.dice[0].results.map(r => Number(r.result));
     const totalDamage = diceResults.reduce((sum, value) => sum + value, 0);
-    const chatMessage = `<h2><b>${shooterActor.name}</b> strikes the target!</h2>
+    const chatMessage = `</h3><b>${shooterActor.name}</b> strikes the target!</h3>
                         <p style="text-align:center"><b>Damage Roll: </b>${shooterActor.system.aaa.damage}<p>
-                        <h3><p style="text-align:center"><b>${shooterActor.system.aaa.damage} Result: ${diceResults} <br>${totalDamage} Damage!</p></b></h3>
+                        <p style="text-align:center"><b>${shooterActor.system.aaa.damage} Result: ${diceResults} <br>${totalDamage} Damage!</p></b><br>
                         <button class="roll-extraDamageTable" type="button">Additional Damage Table</button>
                         `
 
@@ -1482,7 +1601,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
       else if (distance <= 9) {rangeBand = 6; distanceName = 'Long'}
       
       let chatMessage = `
-                        <h2><b>${shooterActor.name}</b> fires a ${burst} burst at: <b>${targetActor.name}</b> from ${distanceName} range!</h2>
+                        </h3><b>${shooterActor.name}</b> fires a ${burst} burst at: <b>${targetActor.name}</b> from ${distanceName} range!</h3>
                         `
   
       //Value of onboard Gun
@@ -1589,10 +1708,10 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
     let hits = diceResults.filter(die => die >= rangeBand).length;
 
     let chatMessage = `
-                      <h2><b>${shooterActor.name}</b> opens fire!</h2>
+                      </h3><b>${shooterActor.name}</b> opens fire!</h3>
                       <b>${diceCount}d6 Rolls: </b> ${diceResults.join(", ")}
                       <br><b>Hitting on:</b> ${rangeBand}+
-                      <br><h3><b> Total Damage: </b> ${hits}</h3>
+                      <br><b> Total Damage: </b> ${hits}<br>
                       <button class="roll-extraDamageTable" type="button">Additional Damage Table</button>
                       `                 
     await game.socket.emit("system.air-mercs", {action: "updateHP", targetUUID, damage: hits});
@@ -1631,7 +1750,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
               }
             });
             let targetName = this.actor.name;
-            let start_message = `<h2><strong>${targetName} is ready!</strong></h2>`
+            let start_message = `</h3><strong>${targetName} is ready!</strong></h3>`
               ChatMessage.create({content: start_message})
           }
         },
@@ -1670,7 +1789,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
             //FIX LATER: If player chooses No Maneuver as their first maneuver of the session we will read an incorrect value
 
             let start_message = `
-                                <h2>${targetName} attempts:<br><b>${targetManeuverString}!</b></h2>
+                                </h3>${targetName} attempts:<br><b>${targetManeuverString}!</b></h3>
                                 <p><b>Difficulty: </b>${targetManeuver.diff}</body>
                                 <p><b>Maneuvers Skill Rating: </b>1d10+${this.actor.system.abilities.maneuvers.total}
                                 <button class="roll-maneuver" type="button" data-passeffect = "${targetManeuver.passEffect.movementHTML}" 
@@ -1696,7 +1815,7 @@ export class AirMercsActorSheet extends api.HandlebarsApplicationMixin(sheets.Ac
                   let outcomeInstruction = (success == "success" ? maneuverPass : maneuverFail)
 
                   let resultMessage = `
-                                      <h2>Maneuver Result: <span style="text-transform:uppercase;"><b>${success}</b></span></h2>
+                                      </h3>Maneuver Result: <span style="text-transform:uppercase;"><b>${success}</b></span></h3>
                                       <b>Roll: </b> ${rollResult}
                                       <br><b>Total: ${total}</b>
                                       <p>${outcomeInstruction}</p>
