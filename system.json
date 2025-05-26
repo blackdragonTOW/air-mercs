@@ -132,6 +132,21 @@
     }
   },
   {
+    "name": "lite-atg-weapons",
+    "label": "LITE AtG Weapons",
+    "system": "air-mercs",
+    "path": "packs/lite-atg-weapons",
+    "type": "Item",
+    "private": false,
+    "flags": {
+      "airmercs": {
+        "types": [
+          "ground_weapon"
+        ]
+      }
+    }
+  },
+  {
     "name": "rollable-tables",
     "label": "Tables",
     "system": "air-mercs",

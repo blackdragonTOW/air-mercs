@@ -24,11 +24,13 @@
         {{#if (eq item.type 'rack')}} 
           {{> 'systems/air-mercs/templates/item/sheet-rack.hbs'}} 
         {{/if}}
-        {{#if (eq item.type 'bomb')}} 
-          {{> 'systems/air-mercs/templates/item/sheet-bomb.hbs'}} 
-        {{/if}}
-        {{#if (eq item.type 'rocket')}} 
-          {{> 'systems/air-mercs/templates/item/sheet-rocket.hbs'}} 
+        {{#if (eq item.type 'ground_weapon')}} 
+          {{#if (eq item.system.class 'bomb')}} 
+            {{> 'systems/air-mercs/templates/item/sheet-bomb.hbs'}} 
+          {{/if}}
+          {{#if (eq item.system.class 'rocket')}} 
+            {{> 'systems/air-mercs/templates/item/sheet-rocket.hbs'}} 
+          {{/if}}
         {{/if}}
         {{#if (eq item.type 'equipment')}} 
           {{> 'systems/air-mercs/templates/item/sheet-equipment.hbs'}} 

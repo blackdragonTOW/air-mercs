@@ -1,0 +1,32 @@
+<div class='item flexrow' data-item-id='{{id}}' data-drag='true' data-document-class='Item' data-action='weaponPrep'>
+
+
+    <div class='item-image item-sheet-image'>
+        <img src='systems/air-mercs/assets/missiles/{{system.img}}.png' width='130' height='100%'/>
+    </div>
+
+    <div class='missile-name'>
+        <b>{{system.name}}</b>
+    </div>
+
+    <div class="center-content">
+        <div class="flexrow">
+            <div class="row-atgguidance"><b>{{#if (eq system.guidance 'unguided')}}{{system.guidance}}{{else}}{{system.guidance}} Guided{{/if}}</b></div>
+            <div class="row-range"><b>Range: </b>{{system.range}}</div>
+            <div class="row-damage"><b>Damage: </b>{{system.damage}}</div>
+            <div class="row-load"><b>Load: </b>{{system.load}}</div>
+        </div>
+        <div class="flexrow">
+            <div class="row-light"><b>Light: </b>{{#if (eq system.tarLight 0)}}-{{else}}{{system.tarLight}}{{/if}}</div>
+            <div class="row-medium"><b>Medium: </b>{{#if (eq system.tarMedium 0)}}-{{else}}{{system.tarMedium}}{{/if}}</div> 
+            <div class="row-heavy"><b>Heavy: </b>{{#if (eq system.tarHeavy 0)}}-{{else}}{{system.tarHeavy}}{{/if}}</div>
+            <div class="row-salvos"><b>Salvos: </b>{{system.salvos}}</div>
+        </div>
+        <div class="flexrow">
+            <div class="row-traits"><b>Traits: </b>{{listTrueQualities system.qualities}}</div>
+        </div>
+    </div>
+    <div class='weapon-button-select flex0'>
+        <button type='button' class='jettison-button' data-action='jettisonButton'><b>JETT</b></button>
+    </div>
+</div>

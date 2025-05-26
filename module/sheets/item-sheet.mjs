@@ -59,6 +59,12 @@ export class AirMercsItemSheet extends api.HandlebarsApplicationMixin(sheets.Ite
     missile: {
       template: 'systems/air-mercs/templates/item/sheet-missile.hbs',
     },
+    rocket: {
+      template: 'systems/air-mercs/templates/item/sheet-rocket.hbs',
+    },
+    bomb: {
+      template: 'systems/air-mercs/templates/item/sheet-bomb.hbs',
+    },
   };
 
   /** @override */

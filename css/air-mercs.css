@@ -513,7 +513,7 @@
 }
 
 .air-mercs .missile-name {
-  color:#000000;
+  color:#ffffff;
   font-size: 14px;
   width: 125px;
   text-transform: capitalize;
@@ -537,7 +537,7 @@
 }
 
 .air-mercs .row-lock {
-  width: 100px;
+  width: 90px;
   text-transform: capitalize;
   margin-right: 5px;
   flex: 0 0 auto;  
@@ -545,6 +545,13 @@
 
 .air-mercs .row-guidance {
   width: 100px;
+  text-transform: capitalize;
+  margin-right: 5px;
+  flex: 0 0 auto;
+}
+
+.air-mercs .row-atgguidance {
+  width: 90px;
   text-transform: capitalize;
   margin-right: 5px;
   flex: 0 0 auto;
@@ -559,18 +566,55 @@
 .air-mercs .row-range {
   width: 90px;
   text-transform: capitalize;
-  margin-right: 15px;
+  margin-right: 5px;
   flex: 0 0 auto;
 }
 
-.air-mercs .row-damage {
-  width: 100px;
+.air-mercs .row-atgrange {
+  width: 90px;
   text-transform: capitalize;
   margin-right: 5px;
   flex: 0 0 auto;
 }
 
+.air-mercs .row-damage {
+  width: 90px;
+  text-transform: capitalize;
+  margin-right: 5px;
+  flex: 0 0 auto;
+}
+
+
 .air-mercs .row-load {
+  width: 90px;
+  text-transform: capitalize;
+  margin-right: 5px;
+  flex: 0 0 auto;
+}
+
+.air-mercs .row-light {
+  width: 90px;
+  text-transform: capitalize;
+  margin-right: 5px;
+  flex: 0 0 auto;
+}
+
+.air-mercs .row-medium {
+  width: 90px;
+  text-transform: capitalize;
+  margin-right: 5px;
+  flex: 0 0 auto;
+}
+
+.air-mercs .row-heavy {
+  width: 90px;
+  text-transform: capitalize;
+  margin-right: 5px;
+  flex: 0 0 auto;
+}
+
+.air-mercs .row-salvos {
+  width: 90px;
   text-transform: capitalize;
   margin-right: 5px;
   flex: 0 0 auto;
@@ -607,7 +651,6 @@
 }
 
 .air-mercs .weapon-button-select {
-  width: 100px;
   display: inline-block;
   font-size: 12px;
   cursor: pointer;
@@ -654,7 +697,9 @@
   background-color: #af1f1f;
 }
 
-.air-mercs .weapon-button-select .jettison-button:hover {background-color: #000000}
+.air-mercs .weapon-button-select .jettison-button:hover {
+  background-color: #000000
+}
 
 .air-mercs .weapon-button-select .jettison-button:active {
   background-color: #ff0000;

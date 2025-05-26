@@ -289,6 +289,16 @@ Handlebars.registerHelper('default', function(value, options) {
     return true; 
 });
 
+Handlebars.registerHelper("listTrueQualities", function(obj) {
+  if (!obj || typeof obj !== "object") return "None";
+
+  const list = Object.entries(obj)
+    .filter(([_, value]) => value)
+    .map(([key]) => key.charAt(0).toUpperCase() + key.slice(1));
+
+  return list.length ? list.join(", ") : "None";
+});
+
 /* -------------------------------------------- */
 /*  Ready Hook                                  */
 /* -------------------------------------------- */
